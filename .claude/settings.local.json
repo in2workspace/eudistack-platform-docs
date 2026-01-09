@@ -5,7 +5,13 @@
       "Bash(git -C /Users/ocanades/Projects/eudistack/eudistack-docs remote:*)",
       "Bash(git -C /Users/ocanades/Projects/eudistack/eudistack-docs show 98ee6ee --stat)",
       "Bash(tree:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(git -C \"/Users/ocanades/Projects/eudistack/eudistack-docs\" diff 39487da..HEAD --name-only)",
+      "Bash(git -C \"/Users/ocanades/Projects/eudistack/eudistack-docs\" log --oneline --all --decorate -15)",
+      "Bash(git -C \"/Users/ocanades/Projects/eudistack/eudistack-docs\" show 1a4a8b4:mkdocs.yml)",
+      "Bash(git -C \"/Users/ocanades/Projects/eudistack/eudistack-docs\" diff 2c77bd8..1a4a8b4 -- mkdocs.yml)",
+      "Bash(git -C \"/Users/ocanades/Projects/eudistack/eudistack-docs\" show --name-status 2c77bd8)",
+      "Bash(git -C \"/Users/ocanades/Projects/eudistack/eudistack-docs\" diff 083105f..1a4a8b4 --stat)"
     ]
   }
 }

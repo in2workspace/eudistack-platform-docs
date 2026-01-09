@@ -33,6 +33,30 @@ Esta seccion proporciona guias detalladas para integrar EUDIStack en tu aplicaci
 
     [:octicons-arrow-right-24: Ir](autenticacion.md)
 
+-   :material-server:{ .lg .middle } **Verifier M2M**
+
+    ---
+
+    Integracion machine-to-machine con LEARCredentialMachine
+
+    [:octicons-arrow-right-24: Ir](verifier-m2m.md)
+
+-   :material-cellphone-key:{ .lg .middle } **Verifier PKCE**
+
+    ---
+
+    Integracion para clientes publicos (apps web/movil) con PKCE
+
+    [:octicons-arrow-right-24: Ir](verifier-pkce.md)
+
+-   :material-lock:{ .lg .middle } **Cliente Confidencial**
+
+    ---
+
+    Integracion para backends con client_secret_jwt
+
+    [:octicons-arrow-right-24: Ir](verifier-confidencial.md)
+
 </div>
 
 ## Prerequisitos
