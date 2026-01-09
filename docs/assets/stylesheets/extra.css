@@ -1,64 +1,271 @@
-/* ==============================================================================
-   EUDIStack Custom Theme - extra.css
+/**
+ * ALTIA Corporate Styles for MkDocs Material
+ * Esquema de colores: ALTIA Color
+ * Fuente principal: Verdana
+ */
 
-   Colores basados en el esquema corporativo ALTIA Color
-   Fuente: assets/css/altia-styles.css
-   ============================================================================== */
-
-/* ------------------------------------------------------------------------------
-   Custom Color Variables - Esquema ALTIA
-   ------------------------------------------------------------------------------ */
+/* ==========================================================================
+   CSS Variables - Colores del tema ALTIA
+   ========================================================================== */
 
 :root {
-  /* Colores principales ALTIA */
-  --eudistack-primary: #184BFF;           /* Azul principal ALTIA (accent1) */
-  --eudistack-primary-light: #6DA4FF;     /* Azul claro (accent5) */
-  --eudistack-primary-dark: #001E8C;      /* Azul oscuro (text1 shade 80%) */
-  --eudistack-accent: #00FF94;            /* Verde neón ALTIA (accent2) */
+  /* Colores principales del tema */
+  --altia-primary: #184BFF;
+  --altia-primary-dark: #001E8C;
+  --altia-secondary: #00FF94;
+  --altia-text: #2E2D2C;
+  --altia-background: #FFFFFF;
+  --altia-background-alt: #C0FFE4;
 
-  /* Colores adicionales ALTIA */
-  --eudistack-navy: #132153;              /* Azul marino oscuro (accent3) */
-  --eudistack-blue-medium: #1D3EB6;       /* Azul medio (accent4) */
-  --eudistack-coral: #EF7B73;             /* Coral/Rojo (accent6) */
-  --eudistack-text: #2E2D2C;              /* Gris oscuro texto (text2) */
-  --eudistack-bg-accent: #C0FFE4;         /* Verde claro (light2) */
+  /* Acentos */
+  --altia-accent1: #184BFF;
+  --altia-accent2: #00FF94;
+  --altia-accent3: #132153;
+  --altia-accent4: #1D3EB6;
+  --altia-accent5: #6DA4FF;
+  --altia-accent6: #EF7B73;
+
+  /* Enlaces */
+  --altia-link: #184BFF;
+  --altia-link-visited: #6DA4FF;
+
+  /* Grises */
+  --altia-gray-light: #F2F2F2;
+  --altia-gray-medium: #BFBFBF;
+  --altia-gray-dark: #808080;
+
+  /* MkDocs Material Theme Overrides */
+  --md-primary-fg-color: #184BFF;
+  --md-primary-fg-color--light: #6DA4FF;
+  --md-primary-fg-color--dark: #001E8C;
+  --md-accent-fg-color: #00FF94;
+  --md-accent-fg-color--transparent: rgba(0, 255, 148, 0.1);
+
+  /* Tipografia Material */
+  --md-text-font: "Verdana", Geneva, sans-serif;
+  --md-code-font: "Consolas", "Monaco", monospace;
 }
 
-/* ------------------------------------------------------------------------------
-   Light Mode Theme
-   ------------------------------------------------------------------------------ */
-
+/* Modo claro (default) */
 [data-md-color-scheme="default"] {
-  /* Primary colors - Header, sidebar, links */
-  --md-primary-fg-color: var(--eudistack-primary);
-  --md-primary-fg-color--light: var(--eudistack-primary-light);
-  --md-primary-fg-color--dark: var(--eudistack-primary-dark);
-
-  /* Accent colors - Buttons, highlights (azul principal para mejor contraste) */
-  --md-accent-fg-color: var(--eudistack-primary);
-  --md-accent-fg-color--transparent: rgba(24, 75, 255, 0.1);
-
-  /* Typography link color */
-  --md-typeset-a-color: var(--eudistack-primary);
-
-  /* Default text color */
-  --md-default-fg-color: var(--eudistack-text);
+  --md-primary-fg-color: #184BFF;
+  --md-primary-fg-color--light: #6DA4FF;
+  --md-primary-fg-color--dark: #001E8C;
+  --md-accent-fg-color: #00FF94;
+  --md-typeset-a-color: #184BFF;
+  --md-default-bg-color: #FFFFFF;
+  --md-default-fg-color: #2E2D2C;
 }
 
-/* ------------------------------------------------------------------------------
-   Dark Mode Theme
-   ------------------------------------------------------------------------------ */
-
+/* Modo oscuro (slate) */
 [data-md-color-scheme="slate"] {
-  /* Lighter colors for dark mode visibility - basado en ALTIA */
-  --md-primary-fg-color: var(--eudistack-primary-light);
-  --md-accent-fg-color: var(--eudistack-accent);
-  --md-typeset-a-color: var(--eudistack-primary-light);
+  --md-primary-fg-color: #6DA4FF;
+  --md-primary-fg-color--light: #184BFF;
+  --md-primary-fg-color--dark: #001E8C;
+  --md-accent-fg-color: #00FF94;
+  --md-typeset-a-color: #6DA4FF;
 }
 
-/* ------------------------------------------------------------------------------
-   Logo Sizing
-   ------------------------------------------------------------------------------ */
+/* ==========================================================================
+   MkDocs Material - Header
+   ========================================================================== */
+
+.md-header {
+  background-color: var(--altia-primary);
+}
+
+.md-header[data-md-state="shadow"] {
+  box-shadow: 0 0 0.4rem rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   MkDocs Material - Tabs de navegacion
+   ========================================================================== */
+
+.md-tabs {
+  background-color: var(--altia-primary-dark);
+}
+
+.md-tabs__link {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.md-tabs__link--active,
+.md-tabs__link:hover {
+  color: #FFFFFF;
+}
+
+/* ==========================================================================
+   MkDocs Material - Sidebar / Navegacion lateral
+   ========================================================================== */
+
+.md-nav__link:hover {
+  color: var(--altia-primary);
+}
+
+.md-nav__link--active {
+  color: var(--altia-primary);
+  font-weight: bold;
+}
+
+/* Drawer en movil */
+@media screen and (max-width: 76.25em) {
+  .md-nav--primary .md-nav__title[for="__drawer"] {
+    background-color: var(--altia-primary);
+  }
+}
+
+/* ==========================================================================
+   MkDocs Material - Tipografia en contenido
+   ========================================================================== */
+
+.md-typeset h1 {
+  color: var(--altia-primary);
+}
+
+.md-typeset h2 {
+  color: var(--altia-primary-dark);
+}
+
+.md-typeset h3,
+.md-typeset h4 {
+  color: var(--altia-accent3);
+}
+
+.md-typeset h5,
+.md-typeset h6 {
+  color: var(--altia-accent4);
+}
+
+/* ==========================================================================
+   MkDocs Material - Enlaces
+   ========================================================================== */
+
+.md-typeset a {
+  color: var(--altia-primary);
+}
+
+.md-typeset a:hover {
+  color: var(--altia-primary-dark);
+}
+
+/* ==========================================================================
+   MkDocs Material - Tablas
+   ========================================================================== */
+
+.md-typeset table:not([class]) th {
+  background-color: var(--altia-primary);
+  color: #FFFFFF;
+}
+
+.md-typeset table:not([class]) tr:nth-child(even) {
+  background-color: var(--altia-gray-light);
+}
+
+/* ==========================================================================
+   MkDocs Material - Admonitions (notas, advertencias, etc.)
+   ========================================================================== */
+
+.md-typeset .admonition.note,
+.md-typeset details.note {
+  border-color: var(--altia-primary);
+}
+
+.md-typeset .note > .admonition-title,
+.md-typeset .note > summary {
+  background-color: rgba(24, 75, 255, 0.1);
+}
+
+.md-typeset .admonition.tip,
+.md-typeset details.tip {
+  border-color: var(--altia-secondary);
+}
+
+.md-typeset .tip > .admonition-title,
+.md-typeset .tip > summary {
+  background-color: rgba(0, 255, 148, 0.1);
+}
+
+.md-typeset .admonition.warning,
+.md-typeset details.warning {
+  border-color: var(--altia-accent6);
+}
+
+.md-typeset .warning > .admonition-title,
+.md-typeset .warning > summary {
+  background-color: rgba(239, 123, 115, 0.1);
+}
+
+/* Custom admonition: eudistack */
+.md-typeset .admonition.eudistack,
+.md-typeset details.eudistack {
+  border-color: var(--altia-primary);
+}
+
+.md-typeset .eudistack > .admonition-title,
+.md-typeset .eudistack > summary {
+  background-color: rgba(24, 75, 255, 0.1);
+}
+
+.md-typeset .eudistack > .admonition-title::before,
+.md-typeset .eudistack > summary::before {
+  background-color: var(--altia-primary);
+  -webkit-mask-image: var(--md-admonition-icon--info);
+  mask-image: var(--md-admonition-icon--info);
+}
+
+/* ==========================================================================
+   MkDocs Material - Busqueda
+   ========================================================================== */
+
+.md-search__input {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.md-search__input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ==========================================================================
+   MkDocs Material - Footer
+   ========================================================================== */
+
+.md-footer {
+  background-color: var(--altia-primary);
+}
+
+.md-footer-meta {
+  background-color: var(--altia-primary-dark);
+}
+
+/* ==========================================================================
+   MkDocs Material - Codigo
+   ========================================================================== */
+
+.md-typeset code {
+  background-color: var(--altia-gray-light);
+  border-radius: 3px;
+}
+
+.md-typeset pre > code {
+  background-color: var(--altia-accent3);
+}
+
+/* ==========================================================================
+   MkDocs Material - Boton volver arriba
+   ========================================================================== */
+
+.md-top {
+  background-color: var(--altia-primary);
+}
+
+.md-top:hover {
+  background-color: var(--altia-primary-dark);
+}
+
+/* ==========================================================================
+   MkDocs Material - Logo
+   ========================================================================== */
 
 .md-header__button.md-logo img,
 .md-header__button.md-logo svg {
@@ -66,27 +273,24 @@
   width: auto;
 }
 
-/* ------------------------------------------------------------------------------
-   Navigation Customization
-   ------------------------------------------------------------------------------ */
+/* ==========================================================================
+   MkDocs Material - Cards Grid (para homepage)
+   ========================================================================== */
 
-/* Tab styling */
-.md-tabs {
-  background-color: var(--eudistack-primary-dark);
+.md-typeset .grid.cards > ul > li {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.md-tabs__link {
-  opacity: 0.8;
+.md-typeset .grid.cards > ul > li:hover {
+  border-color: var(--altia-accent5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.md-tabs__link--active,
-.md-tabs__link:hover {
-  opacity: 1;
-}
-
-/* ------------------------------------------------------------------------------
-   API Method Badges (for API Reference section)
-   ------------------------------------------------------------------------------ */
+/* ==========================================================================
+   API Method Badges (para seccion de API Reference)
+   ========================================================================== */
 
 .md-typeset .api-method {
   display: inline-block;
@@ -123,67 +327,9 @@
   color: black;
 }
 
-/* ------------------------------------------------------------------------------
-   Table Styling
-   ------------------------------------------------------------------------------ */
-
-.md-typeset table:not([class]) th {
-  background-color: var(--eudistack-primary);
-  color: white;
-}
-
-/* ------------------------------------------------------------------------------
-   Footer Customization
-   ------------------------------------------------------------------------------ */
-
-.md-footer {
-  background-color: var(--eudistack-primary);
-}
-
-.md-footer-meta {
-  background-color: var(--eudistack-primary-dark);
-}
-
-/* ------------------------------------------------------------------------------
-   Cards Grid (for homepage)
-   ------------------------------------------------------------------------------ */
-
-.md-typeset .grid.cards > ul > li {
-  border: 1px solid var(--md-default-fg-color--lightest);
-  border-radius: 0.5rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.md-typeset .grid.cards > ul > li:hover {
-  border-color: var(--eudistack-accent);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* ------------------------------------------------------------------------------
-   Admonition Custom Type: eudistack
-   Usage in markdown: !!! eudistack "Title"
-   ------------------------------------------------------------------------------ */
-
-.md-typeset .admonition.eudistack,
-.md-typeset details.eudistack {
-  border-color: var(--eudistack-primary);
-}
-
-.md-typeset .eudistack > .admonition-title,
-.md-typeset .eudistack > summary {
-  background-color: rgba(24, 75, 255, 0.1);
-}
-
-.md-typeset .eudistack > .admonition-title::before,
-.md-typeset .eudistack > summary::before {
-  background-color: var(--eudistack-primary);
-  -webkit-mask-image: var(--md-admonition-icon--info);
-  mask-image: var(--md-admonition-icon--info);
-}
-
-/* ------------------------------------------------------------------------------
+/* ==========================================================================
    Print Styles
-   ------------------------------------------------------------------------------ */
+   ========================================================================== */
 
 @media print {
   .md-header,
@@ -196,15 +342,5 @@
   .md-content {
     margin: 0 !important;
     max-width: 100% !important;
-  }
-}
-
-/* ------------------------------------------------------------------------------
-   Responsive Adjustments
-   ------------------------------------------------------------------------------ */
-
-@media screen and (max-width: 76.25em) {
-  .md-nav--primary .md-nav__title[for="__drawer"] {
-    background-color: var(--eudistack-primary);
   }
 }
