@@ -1,87 +1,23 @@
 /* ==============================================================================
    EUDIStack Custom Theme - extra.css
 
-   Colores basados en el esquema corporativo ALTIA Color
-   Fuente: assets/css/altia-styles.css
+   Estilos minimos basados en EUDIW oficial + acentos ALTIA
+   Mantiene la legibilidad del tema Material por defecto
    ============================================================================== */
-
-/* ------------------------------------------------------------------------------
-   Custom Color Variables - Esquema ALTIA
-   ------------------------------------------------------------------------------ */
-
-:root {
-  /* Colores principales ALTIA */
-  --eudistack-primary: #184BFF;           /* Azul principal ALTIA (accent1) */
-  --eudistack-primary-light: #6DA4FF;     /* Azul claro (accent5) */
-  --eudistack-primary-dark: #001E8C;      /* Azul oscuro (text1 shade 80%) */
-  --eudistack-accent: #00FF94;            /* Verde neón ALTIA (accent2) */
-
-  /* Colores adicionales ALTIA */
-  --eudistack-navy: #132153;              /* Azul marino oscuro (accent3) */
-  --eudistack-blue-medium: #1D3EB6;       /* Azul medio (accent4) */
-  --eudistack-coral: #EF7B73;             /* Coral/Rojo (accent6) */
-  --eudistack-text: #2E2D2C;              /* Gris oscuro texto (text2) */
-  --eudistack-bg-accent: #C0FFE4;         /* Verde claro (light2) */
-}
-
-/* ------------------------------------------------------------------------------
-   Light Mode Theme
-   ------------------------------------------------------------------------------ */
-
-[data-md-color-scheme="default"] {
-  /* Primary colors - Header, sidebar, links */
-  --md-primary-fg-color: var(--eudistack-primary);
-  --md-primary-fg-color--light: var(--eudistack-primary-light);
-  --md-primary-fg-color--dark: var(--eudistack-primary-dark);
-
-  /* Accent colors - Buttons, highlights (azul principal para mejor contraste) */
-  --md-accent-fg-color: var(--eudistack-primary);
-  --md-accent-fg-color--transparent: rgba(24, 75, 255, 0.1);
-
-  /* Typography link color */
-  --md-typeset-a-color: var(--eudistack-primary);
-
-  /* Default text color */
-  --md-default-fg-color: var(--eudistack-text);
-}
-
-/* ------------------------------------------------------------------------------
-   Dark Mode Theme
-   ------------------------------------------------------------------------------ */
-
-[data-md-color-scheme="slate"] {
-  /* Lighter colors for dark mode visibility - basado en ALTIA */
-  --md-primary-fg-color: var(--eudistack-primary-light);
-  --md-accent-fg-color: var(--eudistack-accent);
-  --md-typeset-a-color: var(--eudistack-primary-light);
-}
 
 /* ------------------------------------------------------------------------------
    Logo Sizing
    ------------------------------------------------------------------------------ */
 
+.md-header__button.md-logo {
+  margin: 0;
+  padding: 0;
+}
+
 .md-header__button.md-logo img,
 .md-header__button.md-logo svg {
-  height: 1.8rem;
+  height: 2rem;
   width: auto;
-}
-
-/* ------------------------------------------------------------------------------
-   Navigation Customization
-   ------------------------------------------------------------------------------ */
-
-/* Tab styling */
-.md-tabs {
-  background-color: var(--eudistack-primary-dark);
-}
-
-.md-tabs__link {
-  opacity: 0.8;
-}
-
-.md-tabs__link--active,
-.md-tabs__link:hover {
-  opacity: 1;
 }
 
 /* ------------------------------------------------------------------------------
@@ -124,39 +60,16 @@
 }
 
 /* ------------------------------------------------------------------------------
-   Table Styling
-   ------------------------------------------------------------------------------ */
-
-.md-typeset table:not([class]) th {
-  background-color: var(--eudistack-primary);
-  color: white;
-}
-
-/* ------------------------------------------------------------------------------
-   Footer Customization
-   ------------------------------------------------------------------------------ */
-
-.md-footer {
-  background-color: var(--eudistack-primary);
-}
-
-.md-footer-meta {
-  background-color: var(--eudistack-primary-dark);
-}
-
-/* ------------------------------------------------------------------------------
    Cards Grid (for homepage)
    ------------------------------------------------------------------------------ */
 
 .md-typeset .grid.cards > ul > li {
-  border: 1px solid var(--md-default-fg-color--lightest);
   border-radius: 0.5rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: box-shadow 0.2s;
 }
 
 .md-typeset .grid.cards > ul > li:hover {
-  border-color: var(--eudistack-accent);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ------------------------------------------------------------------------------
@@ -166,17 +79,17 @@
 
 .md-typeset .admonition.eudistack,
 .md-typeset details.eudistack {
-  border-color: var(--eudistack-primary);
+  border-color: #3f51b5;
 }
 
 .md-typeset .eudistack > .admonition-title,
 .md-typeset .eudistack > summary {
-  background-color: rgba(24, 75, 255, 0.1);
+  background-color: rgba(63, 81, 181, 0.1);
 }
 
 .md-typeset .eudistack > .admonition-title::before,
 .md-typeset .eudistack > summary::before {
-  background-color: var(--eudistack-primary);
+  background-color: #3f51b5;
   -webkit-mask-image: var(--md-admonition-icon--info);
   mask-image: var(--md-admonition-icon--info);
 }
@@ -196,15 +109,5 @@
   .md-content {
     margin: 0 !important;
     max-width: 100% !important;
-  }
-}
-
-/* ------------------------------------------------------------------------------
-   Responsive Adjustments
-   ------------------------------------------------------------------------------ */
-
-@media screen and (max-width: 76.25em) {
-  .md-nav--primary .md-nav__title[for="__drawer"] {
-    background-color: var(--eudistack-primary);
   }
 }
