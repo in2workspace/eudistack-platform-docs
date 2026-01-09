@@ -3,7 +3,9 @@
     "allow": [
       "Bash(git -C /Users/ocanades/Projects/eudistack/eudistack-docs log --oneline -10)",
       "Bash(git -C /Users/ocanades/Projects/eudistack/eudistack-docs remote:*)",
-      "Bash(git -C /Users/ocanades/Projects/eudistack/eudistack-docs show 98ee6ee --stat)"
+      "Bash(git -C /Users/ocanades/Projects/eudistack/eudistack-docs show 98ee6ee --stat)",
+      "Bash(tree:*)",
+      "Bash(wc:*)"
     ]
   }
 }

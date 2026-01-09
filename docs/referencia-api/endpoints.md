@@ -289,6 +289,203 @@ Obtiene el estado de una solicitud de presentacion.
 
 ---
 
+## OID4VCI (Emision)
+
+Endpoints que implementan el protocolo OpenID for Verifiable Credential Issuance.
+
+### Credential Issuer Metadata
+
+<span class="api-method get">GET</span> `/.well-known/openid-credential-issuer`
+
+Obtiene los metadatos del emisor de credenciales.
+
+**Respuesta exitosa** `200 OK`
+
+```json
+{
+  "credential_issuer": "https://issuer.eudistack.com",
+  "credential_endpoint": "https://issuer.eudistack.com/oid4vci/v1/credential",
+  "deferred_credential_endpoint": "https://issuer.eudistack.com/oid4vci/v1/deferred-credential",
+  "credential_configurations_supported": {
+    "LEARCredentialEmployee": {
+      "format": "jwt_vc_json",
+      "scope": "lear_credential_employee",
+      "cryptographic_binding_methods_supported": ["did:key"],
+      "credential_signing_alg_values_supported": ["ES256"],
+      "credential_definition": {
+        "type": ["LEARCredentialEmployee", "VerifiableCredential"]
+      },
+      "proof_types_supported": {
+        "jwt": {
+          "proof_signing_alg_values_supported": ["ES256"]
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+### Authorization Server Metadata
+
+<span class="api-method get">GET</span> `/.well-known/oauth-authorization-server`
+
+Obtiene los metadatos del servidor de autorizacion OAuth 2.0.
+
+**Respuesta exitosa** `200 OK`
+
+```json
+{
+  "issuer": "https://issuer.eudistack.com",
+  "token_endpoint": "https://issuer.eudistack.com/oauth/token",
+  "response_types_supported": ["token"],
+  "pre-authorized_grant_anonymous_access_supported": true
+}
+```
+
+---
+
+### Credential Offer
+
+<span class="api-method get">GET</span> `/oid4vci/v1/credential-offer/{nonce}`
+
+Obtiene el objeto Credential Offer a partir del nonce.
+
+**Path Parameters**
+
+| Parametro | Tipo | Descripcion |
+|-----------|------|-------------|
+| `nonce` | string | Nonce unico de la oferta |
+
+**Respuesta exitosa** `200 OK`
+
+```json
+{
+  "credential_issuer": "https://issuer.eudistack.com",
+  "credential_configuration_ids": ["LEARCredentialEmployee"],
+  "grants": {
+    "urn:ietf:params:oauth:grant-type:pre-authorized_code": {
+      "pre-authorized_code": "adhjhdjajkdkhjhdj",
+      "tx_code": {
+        "length": 4,
+        "input_mode": "numeric",
+        "description": "Enter your PIN Code."
+      }
+    }
+  }
+}
+```
+
+---
+
+### Token Endpoint
+
+<span class="api-method post">POST</span> `/oauth/token`
+
+Obtiene un token de acceso usando el pre-authorized code.
+
+**Request Body** (application/x-www-form-urlencoded)
+
+```
+grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code
+&pre-authorized_code=adhjhdjajkdkhjhdj
+&tx_code=1234
+```
+
+**Respuesta exitosa** `200 OK`
+
+```json
+{
+  "access_token": "eyJhbGciOiJFUzI1NiIs...",
+  "token_type": "Bearer",
+  "expires_in": 600,
+  "refresh_token": "dGhpcyBpcyBhIHJlZnJlc2..."
+}
+```
+
+---
+
+### Credential Endpoint
+
+<span class="api-method post">POST</span> `/oid4vci/v1/credential`
+
+Solicita la emision de una credencial.
+
+**Headers**
+
+```http
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+**Request Body**
+
+```json
+{
+  "credential_configuration_id": "LEARCredentialEmployee",
+  "format": "jwt_vc_json",
+  "proof": {
+    "proof_type": "jwt",
+    "jwt": "eyJhbGciOiJFUzI1NiIs..."
+  }
+}
+```
+
+**Respuesta exitosa - Sincrona** `200 OK`
+
+```json
+{
+  "credentials": [
+    "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIs..."
+  ]
+}
+```
+
+**Respuesta exitosa - Diferida** `202 Accepted`
+
+```json
+{
+  "transaction_id": "958e84cf-888b-488a-bf30-7f3b14f70699",
+  "interval": 3600
+}
+```
+
+---
+
+### Deferred Credential Endpoint
+
+<span class="api-method post">POST</span> `/oid4vci/v1/deferred-credential`
+
+Recupera una credencial de emision diferida.
+
+**Headers**
+
+```http
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+**Request Body**
+
+```json
+{
+  "transaction_id": "958e84cf-888b-488a-bf30-7f3b14f70699"
+}
+```
+
+**Respuesta exitosa** `200 OK`
+
+```json
+{
+  "credentials": [
+    "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIs..."
+  ]
+}
+```
+
+---
+
 ## Estado y salud
 
 ### Health check

@@ -97,20 +97,40 @@ curl http://localhost:8082/health
 
 ## Paso 5: Primera credencial
 
-Emite tu primera credencial de prueba:
+Emite tu primera credencial de prueba. En este ejemplo emitiremos una **LEARCredentialEmployee** (Legal Entity Appointed Representative):
 
 === "cURL"
 
     ```bash
-    curl -X POST http://localhost:8081/api/v1/credentials/offer \
+    curl -X POST http://localhost:8081/backoffice/v1/issuances \
       -H "Content-Type: application/json" \
+      -H "Authorization: Bearer <your-access-token>" \
       -d '{
-        "credential_type": "VerifiableId",
-        "claims": {
-          "given_name": "Juan",
-          "family_name": "Garcia",
-          "birth_date": "1990-01-15"
-        }
+        "schema": "LEARCredentialEmployee",
+        "format": "jwt_vc_json",
+        "payload": {
+          "mandator": {
+            "email": "john.doe@acme.com",
+            "organization": "ACME, SA",
+            "country": "ES",
+            "commonName": "John Doe",
+            "serialNumber": "87654321Z",
+            "organizationIdentifier": "VATES-A12345678"
+          },
+          "mandatee": {
+            "firstName": "Jane",
+            "lastName": "Smith",
+            "email": "j.smith@acme.com",
+            "employeeId": "8001"
+          },
+          "power": [{
+            "type": "domain",
+            "domain": "ProductOffering",
+            "function": "Create",
+            "action": ["Create", "Update", "Delete"]
+          }]
+        },
+        "operation_mode": "S"
       }'
     ```
 
@@ -120,14 +140,34 @@ Emite tu primera credencial de prueba:
     import requests
 
     response = requests.post(
-        "http://localhost:8081/api/v1/credentials/offer",
+        "http://localhost:8081/backoffice/v1/issuances",
+        headers={"Authorization": "Bearer <your-access-token>"},
         json={
-            "credential_type": "VerifiableId",
-            "claims": {
-                "given_name": "Juan",
-                "family_name": "Garcia",
-                "birth_date": "1990-01-15"
-            }
+            "schema": "LEARCredentialEmployee",
+            "format": "jwt_vc_json",
+            "payload": {
+                "mandator": {
+                    "email": "john.doe@acme.com",
+                    "organization": "ACME, SA",
+                    "country": "ES",
+                    "commonName": "John Doe",
+                    "serialNumber": "87654321Z",
+                    "organizationIdentifier": "VATES-A12345678"
+                },
+                "mandatee": {
+                    "firstName": "Jane",
+                    "lastName": "Smith",
+                    "email": "j.smith@acme.com",
+                    "employeeId": "8001"
+                },
+                "power": [{
+                    "type": "domain",
+                    "domain": "ProductOffering",
+                    "function": "Create",
+                    "action": ["Create", "Update", "Delete"]
+                }]
+            },
+            "operation_mode": "S"
         }
     )
     print(response.json())
@@ -136,21 +176,47 @@ Emite tu primera credencial de prueba:
 === "JavaScript"
 
     ```javascript
-    const response = await fetch('http://localhost:8081/api/v1/credentials/offer', {
+    const response = await fetch('http://localhost:8081/backoffice/v1/issuances', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer <your-access-token>'
+      },
       body: JSON.stringify({
-        credential_type: 'VerifiableId',
-        claims: {
-          given_name: 'Juan',
-          family_name: 'Garcia',
-          birth_date: '1990-01-15'
-        }
+        schema: 'LEARCredentialEmployee',
+        format: 'jwt_vc_json',
+        payload: {
+          mandator: {
+            email: 'john.doe@acme.com',
+            organization: 'ACME, SA',
+            country: 'ES',
+            commonName: 'John Doe',
+            serialNumber: '87654321Z',
+            organizationIdentifier: 'VATES-A12345678'
+          },
+          mandatee: {
+            firstName: 'Jane',
+            lastName: 'Smith',
+            email: 'j.smith@acme.com',
+            employeeId: '8001'
+          },
+          power: [{
+            type: 'domain',
+            domain: 'ProductOffering',
+            function: 'Create',
+            action: ['Create', 'Update', 'Delete']
+          }]
+        },
+        operation_mode: 'S'
       })
     });
     const data = await response.json();
     console.log(data);
     ```
+
+!!! info "Modos de operacion"
+    - **S (Sincrono)**: La credencial se emite inmediatamente
+    - **A (Asincrono)**: La credencial se emite de forma diferida, util cuando requiere validacion manual
 
 ## Siguiente pasos
 

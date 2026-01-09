@@ -7,6 +7,28 @@ description: Vista de alto nivel de la arquitectura de EUDIStack
 
 Esta pagina proporciona una vista de alto nivel de la arquitectura de EUDIStack y como se alinea con el ecosistema EUDI Wallet europeo.
 
+## Que es EUDIStack
+
+**EUDIStack** es una plataforma de identidad digital europea que permite a organizaciones **emitir, gestionar y verificar credenciales digitales** para sus empleados, colaboradores, clientes o ciudadanos, cumpliendo con la normativa europea (eIDAS 2).
+
+| Componente | Descripcion | Repositorio |
+|------------|-------------|-------------|
+| **Issuer** | Emisor de credenciales verificables | in2-issuer-api, in2-issuer-ui |
+| **Wallet** | Cartera de identidad digital | in2-wallet-api, in2-wallet-ui |
+| **Verifier** | Verificador de credenciales | in2-verifier-api |
+
+### Estandares implementados
+
+EUDIStack implementa los principales estandares de identidad digital:
+
+- **eIDAS 2**: Regulacion europea de identidad digital
+- **ARF (EUDIW)**: Architecture Reference Framework
+- **OID4VCI**: OpenID for Verifiable Credential Issuance
+- **OID4VP**: OpenID for Verifiable Presentations
+- **W3C VC**: Verifiable Credentials Data Model 2.0
+- **SD-JWT VC**: Selective Disclosure JWT
+- **ISO/IEC 18013-5**: Mobile Driving License (mDL)
+
 ## Roles del ecosistema
 
 EUDIStack implementa los tres roles principales definidos en el ARF:

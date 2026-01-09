@@ -116,6 +116,82 @@ Credencial para titulos academicos y diplomas universitarios.
 
 ---
 
+## Credenciales empresariales
+
+### LEARCredentialEmployee
+
+Credencial de representacion legal para empleados (**Legal Entity Appointed Representative**).
+
+| Atributo | Descripcion |
+|----------|-------------|
+| **Nombre** | LEARCredentialEmployee |
+| **Ambito** | Representacion empresarial |
+| **Emisores tipicos** | Organizaciones, empresas |
+| **Validez** | Variable (tipicamente 1 ano) |
+
+#### Atributos disponibles
+
+| Claim | Tipo | Descripcion | Requerido |
+|-------|------|-------------|-----------|
+| `mandator` | object | Organizacion que otorga poderes | Si |
+| `mandatee` | object | Persona que recibe los poderes | Si |
+| `power` | array | Lista de poderes otorgados | Si |
+
+#### Ejemplo
+
+```json
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "type": ["VerifiableCredential", "LEARCredentialEmployee"],
+  "issuer": {
+    "id": "did:elsi:VATES-A12345678",
+    "name": "ACME, SA"
+  },
+  "issuanceDate": "2024-01-15T10:00:00Z",
+  "expirationDate": "2025-01-15T10:00:00Z",
+  "credentialSubject": {
+    "id": "did:key:z6Mk...",
+    "mandator": {
+      "commonName": "John Doe",
+      "email": "john.doe@acme.com",
+      "organization": "ACME, SA",
+      "organizationIdentifier": "VATES-A12345678",
+      "country": "ES"
+    },
+    "mandatee": {
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "email": "j.smith@acme.com",
+      "employeeId": "8001"
+    },
+    "power": [{
+      "type": "domain",
+      "domain": "ProductOffering",
+      "function": "Create",
+      "action": ["Create", "Update", "Delete"]
+    }]
+  }
+}
+```
+
+---
+
+### LEARCredentialMachine
+
+Credencial de representacion legal para maquinas/servicios (**Machine-to-Machine**).
+
+| Atributo | Descripcion |
+|----------|-------------|
+| **Nombre** | LEARCredentialMachine |
+| **Ambito** | Autenticacion M2M |
+| **Emisores tipicos** | Organizaciones, empresas |
+| **Validez** | Variable |
+
+!!! info "Uso tipico"
+    Se utiliza para autenticar servicios automatizados que actuan en nombre de una organizacion.
+
+---
+
 ## Credenciales profesionales
 
 ### ProfessionalQualification
@@ -198,6 +274,8 @@ Credencial generica para atestaciones de atributos especificos.
 |------|--------|-----------|------|
 | VerifiableId | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | VerifiableDiploma | :white_check_mark: | :white_check_mark: | :x: |
+| LEARCredentialEmployee | :white_check_mark: | :white_check_mark: | :x: |
+| LEARCredentialMachine | :white_check_mark: | :x: | :x: |
 | ProfessionalQualification | :white_check_mark: | :white_check_mark: | :x: |
 | VerifiableAttestation | :white_check_mark: | :white_check_mark: | :x: |
 
