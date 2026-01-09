@@ -1,11 +1,14 @@
 ---
 title: Componentes
-description: Descripcion detallada de los componentes de EUDIStack
+description: Descripcion detallada de los componentes de EUDIStack (C3)
 ---
 
-# Componentes
+# Componentes (C3)
 
-Esta pagina describe en detalle cada componente del sistema EUDIStack.
+Esta pagina describe en detalle cada componente del sistema EUDIStack, correspondiendo al nivel C3 (Components) del modelo C4. Aqui se profundiza en la estructura interna de cada contenedor.
+
+!!! note "Nivel de abstraccion"
+    Este documento esta orientado a **arquitectos y desarrolladores** que necesitan entender la estructura interna de los servicios. Para una vision de alto nivel, consulta [Vision General](vision-general.md).
 
 ## Issuer Service
 

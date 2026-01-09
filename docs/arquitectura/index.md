@@ -5,19 +5,19 @@ description: Arquitectura del sistema EUDIStack
 
 # Arquitectura
 
-Esta seccion describe la arquitectura del sistema EUDIStack, sus componentes principales y como interactuan entre si.
+Esta seccion describe la arquitectura del sistema EUDIStack siguiendo el **modelo C4** (Context, Containers, Components, Code), proporcionando diferentes niveles de abstraccion para distintas audiencias.
 
 <div class="grid cards" markdown>
 
--   :material-eye:{ .lg .middle } **Vision General**
+-   :material-eye:{ .lg .middle } **Vision General (C1/C2)**
 
     ---
 
-    Vista de alto nivel de la arquitectura del sistema
+    Diagramas de contexto y contenedores del sistema
 
     [:octicons-arrow-right-24: Ver](vision-general.md)
 
--   :material-puzzle:{ .lg .middle } **Componentes**
+-   :material-puzzle:{ .lg .middle } **Componentes (C3)**
 
     ---
 

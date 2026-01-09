@@ -5,7 +5,7 @@ description: Vista de alto nivel de la arquitectura de EUDIStack
 
 # Vision General
 
-Esta pagina proporciona una vista de alto nivel de la arquitectura de EUDIStack, la implementacion del European Business Wallet.
+Esta pagina proporciona una vista de alto nivel de la arquitectura de EUDIStack siguiendo el modelo C4.
 
 ## Que es EUDIStack
 
@@ -21,17 +21,187 @@ Esta pagina proporciona una vista de alto nivel de la arquitectura de EUDIStack,
 
 EUDIStack implementa los principales estandares de identidad digital:
 
-- **eIDAS 2**: Regulacion europea de identidad digital
-- **ARF (EUDIW)**: Architecture Reference Framework
-- **OID4VCI**: OpenID for Verifiable Credential Issuance
-- **OID4VP**: OpenID for Verifiable Presentations
-- **W3C VC**: Verifiable Credentials Data Model 2.0
-- **SD-JWT VC**: Selective Disclosure JWT
-- **ISO/IEC 18013-5**: Mobile Driving License (mDL)
+| Estandar | Descripcion | Uso en EUDIStack |
+|----------|-------------|------------------|
+| **eIDAS 2** | Regulacion europea de identidad digital | Marco normativo general |
+| **ARF (EUDIW)** | Architecture Reference Framework | Arquitectura de referencia |
+| **OID4VCI** | OpenID for Verifiable Credential Issuance | Protocolo de emision |
+| **OID4VP** | OpenID for Verifiable Presentations | Protocolo de presentacion |
+| **W3C VC** | Verifiable Credentials Data Model 2.0 | Formato de credenciales |
+| **SD-JWT VC** | Selective Disclosure JWT | Divulgacion selectiva |
+| **ISO/IEC 18013-5** | Mobile Driving License (mDL) | Credenciales moviles |
+
+## Diagramas C4
+
+La arquitectura de EUDIStack se documenta siguiendo el modelo C4 (Context, Containers, Components, Code), que proporciona diferentes niveles de abstraccion para distintas audiencias.
+
+### C1: Diagrama de Contexto
+
+El diagrama de contexto muestra los sistemas principales de EUDIStack y sus relaciones con usuarios y servicios externos.
+
+```mermaid
+flowchart TB
+    subgraph Usuarios["Usuarios"]
+        LEAR[("LEAR<br/>(Representante)")]
+        EU[("End-User<br/>(Titular)")]
+    end
+
+    subgraph Core["Servicios Core"]
+        IS["Issuer<br/>[Sistema]<br/>Emision de VC"]
+        WL["Wallet<br/>[Sistema]<br/>Gestion de VC"]
+        VR["Verifier<br/>[Sistema]<br/>Verificacion VP"]
+    end
+
+    subgraph Support["Servicios de Soporte"]
+        ONB["Onboarding<br/>Service"]
+        TA["Trust<br/>Anchor"]
+        NS["Notification<br/>Service"]
+    end
+
+    subgraph External["Servicios Externos"]
+        RDSS["Remote Digital<br/>Signature Service"]
+        IAM["Identity & Access<br/>Management"]
+        VLT["Vault<br/>[Secretos]"]
+    end
+
+    %% Usuarios -> Core
+    LEAR -->|"Gestiona ciclo de vida,<br/>emite VC"| IS
+    EU -->|"Gestiona VC,<br/>escanea QR"| WL
+
+    %% Core interactions
+    IS -->|"OID4VCI"| WL
+    WL -->|"OID4VP"| VR
+
+    %% Support integrations
+    LEAR -->|"Registra org.<br/>con cert. eIDAS"| ONB
+    ONB -->|"Dispara emision<br/>LEARCredential"| IS
+    ONB -->|"Registra participante"| TA
+    VR -->|"Lee emisores<br/>y participantes"| TA
+    IS -->|"Envia email"| NS
+    NS -->|"Notifica"| EU
+
+    %% External integrations
+    IS -->|"Firma VC"| RDSS
+    IS -->|"Delega login OIDC"| IAM
+    WL -->|"Delega login OIDC"| IAM
+    VR -->|"Delega login OIDC"| IAM
+    WL -->|"Gestiona claves"| VLT
+```
+
+**Actores principales:**
+
+| Actor | Descripcion | Interaccion |
+|-------|-------------|-------------|
+| **LEAR** | Legal Entity Appointed Representative | Gestiona ciclo de vida de VC, registra organizacion con certificado eIDAS |
+| **End-User** | Titular de credenciales (empleado, colaborador) | Gestiona VC almacenadas, escanea QR, configura preferencias |
+
+**Sistemas Core:**
+
+| Sistema | Descripcion | Protocolos |
+|---------|-------------|------------|
+| **Issuer** | Emite y gestiona credenciales verificables | OID4VCI |
+| **Wallet** | Almacena y presenta credenciales | OID4VCI, OID4VP |
+| **Verifier** | Verifica presentaciones de credenciales | OID4VP |
+
+**Servicios de Soporte:**
+
+| Servicio | Descripcion |
+|----------|-------------|
+| **Onboarding Service** | Registro de organizaciones con certificados eIDAS, dispara emision de LEARCredential |
+| **Trust Anchor** | Registro de emisores y participantes confiables |
+| **Notification Service** | Envio de emails a usuarios |
+
+**Servicios Externos:**
+
+| Servicio | Descripcion |
+|----------|-------------|
+| **Remote Digital Signature Service** | Firma cualificada de credenciales (QTSP) |
+| **Identity & Access Management** | Autenticacion OIDC (Keycloak) |
+| **Vault** | Gestion de claves y secretos |
+
+### C2: Diagrama de Contenedores
+
+El diagrama de contenedores muestra los principales contenedores (aplicaciones, servicios, bases de datos) que componen EUDIStack.
+
+```mermaid
+flowchart TB
+    subgraph Usuarios["Usuarios"]
+        U[("Usuario Final")]
+        A[("Administrador")]
+        M[("Maquina/Servicio")]
+    end
+
+    subgraph EUDIStack["EUDIStack Platform"]
+        subgraph Frontend["Capa de Presentacion"]
+            WA["Wallet App<br/>[React Native]<br/>App movil iOS/Android"]
+            WW["Wallet Web<br/>[React SPA]<br/>Interfaz web"]
+            IP["Issuer Portal<br/>[React SPA]<br/>Panel de administracion"]
+        end
+
+        subgraph Backend["Capa de Servicios"]
+            IS["Issuer Service<br/>[Spring Boot]<br/>OID4VCI + Gestion VC"]
+            VS["Verifier Service<br/>[Spring Boot]<br/>OID4VP + OAuth2 AS"]
+            WB["Wallet Backend<br/>[Spring Boot]<br/>Sync + Storage"]
+        end
+
+        subgraph Data["Capa de Datos"]
+            PG[("PostgreSQL<br/>[RDBMS]<br/>Datos persistentes")]
+            RD[("Redis<br/>[Cache]<br/>Sesiones + Cache")]
+            VT[("Vault<br/>[Secrets]<br/>Claves + Secretos")]
+        end
+    end
+
+    subgraph External["Servicios Externos"]
+        KC["Keycloak<br/>[IdP]<br/>Autenticacion"]
+        QTSP["QTSP/TSP<br/>[Firma]<br/>Firma digital"]
+        TL["Trusted Lists<br/>[Registry]<br/>Emisores confiables"]
+    end
+
+    U --> WA
+    U --> WW
+    A --> IP
+    M --> VS
+
+    WA <--> WB
+    WW <--> WB
+    IP --> IS
+
+    IS --> PG
+    VS --> PG
+    WB --> PG
+
+    IS --> RD
+    VS --> RD
+
+    IS --> VT
+    VS --> VT
+    WB --> VT
+
+    IS --> KC
+    VS --> KC
+    WB --> KC
+
+    IS --> QTSP
+    VS --> TL
+```
+
+**Contenedores principales:**
+
+| Contenedor | Tecnologia | Responsabilidad |
+|------------|------------|-----------------|
+| **Wallet App** | React Native | Aplicacion movil para titulares |
+| **Wallet Web** | React SPA | Interfaz web del wallet |
+| **Issuer Portal** | React SPA | Panel de administracion para emisores |
+| **Issuer Service** | Spring Boot | Emision de credenciales (OID4VCI) |
+| **Verifier Service** | Spring Boot | Verificacion de credenciales (OID4VP) + Authorization Server |
+| **Wallet Backend** | Spring Boot | Sincronizacion y almacenamiento de credenciales |
+| **PostgreSQL** | RDBMS | Almacenamiento persistente |
+| **Redis** | Cache | Cache distribuida y sesiones |
+| **Vault** | HashiCorp Vault | Gestion de secretos y claves |
 
 ## Roles del ecosistema
 
-EUDIStack implementa los tres roles principales definidos en el ARF:
+EUDIStack implementa los tres roles principales definidos en el ARF (Architecture Reference Framework):
 
 ```mermaid
 flowchart LR

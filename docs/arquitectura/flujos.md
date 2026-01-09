@@ -5,11 +5,18 @@ description: Flujos de trabajo y secuencias de operacion en EUDIStack
 
 # Flujos
 
-Esta pagina documenta los principales flujos de trabajo del sistema EUDIStack.
+Esta pagina documenta los principales flujos de trabajo del sistema EUDIStack desde una perspectiva conceptual. Para guias de implementacion detalladas con ejemplos de codigo, consulta la seccion de [Guias de Integracion](../guias-integracion/index.md).
 
-## Flujo de emision de credenciales
+!!! tip "Para integradores"
+    Si buscas implementar estos flujos en tu sistema, consulta:
 
-El flujo completo de emision de una credencial verificable.
+    - [Integracion Verifier M2M](../guias-integracion/verifier-m2m.md) - Autenticacion machine-to-machine
+    - [Integracion Verifier PKCE](../guias-integracion/verifier-pkce.md) - Autenticacion con PKCE para apps publicas
+    - [Integracion Verifier Confidencial](../guias-integracion/verifier-confidencial.md) - Clientes confidenciales
+
+## Flujo de emision de credenciales (OID4VCI)
+
+El flujo de emision sigue el protocolo **OpenID for Verifiable Credential Issuance (OID4VCI)**, permitiendo que una autoridad emisora entregue credenciales verificables a los titulares.
 
 ```mermaid
 sequenceDiagram
@@ -58,9 +65,16 @@ sequenceDiagram
 
 ---
 
-## Flujo de verificacion de credenciales
+## Flujo de verificacion de credenciales (OID4VP)
 
-El flujo completo de verificacion de una presentacion.
+El flujo de verificacion sigue el protocolo **OpenID for Verifiable Presentations (OID4VP)**, permitiendo que un verificador (Relying Party) solicite y valide credenciales presentadas por el titular.
+
+!!! info "Guias de integracion disponibles"
+    Para implementar la verificacion en tu sistema, consulta las guias especificas segun tu caso de uso:
+
+    - **[M2M (Machine-to-Machine)](../guias-integracion/verifier-m2m.md)**: Servicios backend que necesitan autenticarse con LEARCredentialMachine
+    - **[PKCE](../guias-integracion/verifier-pkce.md)**: Aplicaciones publicas (SPA, mobile) usando Authorization Code + PKCE
+    - **[Confidencial](../guias-integracion/verifier-confidencial.md)**: Aplicaciones servidor con client_secret
 
 ```mermaid
 sequenceDiagram
