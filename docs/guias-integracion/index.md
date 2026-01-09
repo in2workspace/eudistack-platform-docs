@@ -29,7 +29,7 @@ Esta seccion proporciona guias detalladas para integrar EUDIStack en tu aplicaci
 
     ---
 
-    Implementa flujos de autenticacion con EUDI Wallet
+    Implementa flujos de autenticacion con Business Wallet
 
     [:octicons-arrow-right-24: Ir](autenticacion.md)
 
@@ -86,7 +86,7 @@ flowchart LR
     end
 
     subgraph Usuario
-        WALLET[EUDI Wallet]
+        WALLET[Business Wallet]
     end
 
     FE --> APP

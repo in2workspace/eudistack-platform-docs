@@ -18,7 +18,7 @@
   --altia-text: #2E2D2C;           /* text2 - Gris oscuro (texto) */
   --altia-background: #FFFFFF;     /* background1 - Blanco */
   --altia-background-alt: #C0FFE4; /* light2 - Verde claro */
-  
+
   /* Acentos */
   --altia-accent1: #184BFF;        /* Azul principal */
   --altia-accent2: #00FF94;        /* Verde neón */
@@ -26,29 +26,61 @@
   --altia-accent4: #1D3EB6;        /* Azul medio */
   --altia-accent5: #6DA4FF;        /* Azul claro */
   --altia-accent6: #EF7B73;        /* Coral/Rojo */
-  
+
   /* Enlaces */
   --altia-link: #184BFF;
   --altia-link-visited: #6DA4FF;
-  
+
   /* Grises */
   --altia-gray-light: #F2F2F2;
   --altia-gray-medium: #BFBFBF;
   --altia-gray-dark: #808080;
-  
+
   /* Tipografía */
   --font-family-base: 'Verdana', Geneva, sans-serif;
   --font-size-base: 10pt;          /* 20 half-points = 10pt */
   --font-size-small: 9pt;          /* 18 half-points */
   --font-size-xs: 8pt;             /* 16 half-points */
   --line-height-base: 1.5;         /* 300/200 = 1.5 */
-  
+
   /* Espaciado */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
+
+  /* ========================================================================
+     MkDocs Material Theme Overrides - ALTIA Colors
+     ======================================================================== */
+  --md-primary-fg-color: #184BFF;
+  --md-primary-fg-color--light: #6DA4FF;
+  --md-primary-fg-color--dark: #001E8C;
+  --md-accent-fg-color: #00FF94;
+  --md-accent-fg-color--transparent: rgba(0, 255, 148, 0.1);
+
+  /* Tipografía Material */
+  --md-text-font: "Verdana", Geneva, sans-serif;
+  --md-code-font: "Consolas", "Monaco", monospace;
+}
+
+/* Modo claro (default) */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #184BFF;
+  --md-primary-fg-color--light: #6DA4FF;
+  --md-primary-fg-color--dark: #001E8C;
+  --md-accent-fg-color: #00FF94;
+  --md-typeset-a-color: #184BFF;
+  --md-default-bg-color: #FFFFFF;
+}
+
+/* Modo oscuro (slate) */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #6DA4FF;
+  --md-primary-fg-color--light: #184BFF;
+  --md-primary-fg-color--dark: #001E8C;
+  --md-accent-fg-color: #00FF94;
+  --md-typeset-a-color: #6DA4FF;
 }
 
 /* ==========================================================================
@@ -497,13 +529,142 @@ footer {
   body {
     font-size: 10pt;
   }
-  
+
   a {
     color: var(--altia-text);
     text-decoration: underline;
   }
-  
+
   .no-print {
     display: none !important;
   }
+}
+
+/* ==========================================================================
+   MkDocs Material - Componentes específicos
+   ========================================================================== */
+
+/* Header */
+.md-header {
+  background-color: var(--altia-primary);
+}
+
+.md-header[data-md-state="shadow"] {
+  box-shadow: 0 0 0.4rem rgba(0, 0, 0, 0.1);
+}
+
+/* Tabs de navegación */
+.md-tabs {
+  background-color: var(--altia-primary-dark);
+}
+
+.md-tabs__link {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.md-tabs__link--active,
+.md-tabs__link:hover {
+  color: #FFFFFF;
+}
+
+/* Sidebar / Navegación lateral */
+.md-nav__link:hover {
+  color: var(--altia-primary);
+}
+
+.md-nav__link--active {
+  color: var(--altia-primary);
+  font-weight: bold;
+}
+
+/* Encabezados en contenido */
+.md-typeset h1 {
+  color: var(--altia-primary);
+}
+
+.md-typeset h2 {
+  color: var(--altia-primary-dark);
+}
+
+.md-typeset h3,
+.md-typeset h4 {
+  color: var(--altia-accent3);
+}
+
+/* Enlaces */
+.md-typeset a {
+  color: var(--altia-primary);
+}
+
+.md-typeset a:hover {
+  color: var(--altia-primary-dark);
+}
+
+/* Tablas */
+.md-typeset table:not([class]) th {
+  background-color: var(--altia-accent3);
+  color: #FFFFFF;
+}
+
+.md-typeset table:not([class]) tr:nth-child(even) {
+  background-color: var(--altia-gray-light);
+}
+
+/* Admonitions (notas, advertencias, etc.) */
+.md-typeset .admonition.note,
+.md-typeset details.note {
+  border-color: var(--altia-primary);
+}
+
+.md-typeset .note > .admonition-title,
+.md-typeset .note > summary {
+  background-color: rgba(24, 75, 255, 0.1);
+}
+
+.md-typeset .admonition.tip,
+.md-typeset details.tip {
+  border-color: var(--altia-secondary);
+}
+
+.md-typeset .tip > .admonition-title,
+.md-typeset .tip > summary {
+  background-color: rgba(0, 255, 148, 0.1);
+}
+
+/* Botón de búsqueda */
+.md-search__input {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.md-search__input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Footer */
+.md-footer {
+  background-color: var(--altia-accent3);
+}
+
+.md-footer-meta {
+  background-color: var(--altia-primary-dark);
+}
+
+/* Código inline */
+.md-typeset code {
+  background-color: var(--altia-gray-light);
+  border-radius: 3px;
+}
+
+/* Bloques de código */
+.md-typeset pre > code {
+  background-color: var(--altia-accent3);
+}
+
+/* Botón "volver arriba" */
+.md-top {
+  background-color: var(--altia-primary);
+}
+
+.md-top:hover {
+  background-color: var(--altia-primary-dark);
 }

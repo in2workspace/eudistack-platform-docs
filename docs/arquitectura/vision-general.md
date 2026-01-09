@@ -5,11 +5,11 @@ description: Vista de alto nivel de la arquitectura de EUDIStack
 
 # Vision General
 
-Esta pagina proporciona una vista de alto nivel de la arquitectura de EUDIStack y como se alinea con el ecosistema EUDI Wallet europeo.
+Esta pagina proporciona una vista de alto nivel de la arquitectura de EUDIStack, la implementacion del European Business Wallet.
 
 ## Que es EUDIStack
 
-**EUDIStack** es una plataforma de identidad digital europea que permite a organizaciones **emitir, gestionar y verificar credenciales digitales** para sus empleados, colaboradores, clientes o ciudadanos, cumpliendo con la normativa europea (eIDAS 2).
+**EUDIStack** es una implementacion del **European Business Wallet** que permite a organizaciones **emitir, gestionar y verificar credenciales digitales** para sus empleados, colaboradores y socios de negocio, cumpliendo con la normativa europea (eIDAS 2).
 
 | Componente | Descripcion | Repositorio |
 |------------|-------------|-------------|

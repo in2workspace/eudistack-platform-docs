@@ -17,7 +17,7 @@ sequenceDiagram
     participant U as Usuario
     participant IA as Issuing Authority
     participant IS as Issuer Service
-    participant W as EUDI Wallet
+    participant W as Business Wallet
     participant DB as Database
 
     U->>IA: Solicita credencial
@@ -66,7 +66,7 @@ El flujo completo de verificacion de una presentacion.
 sequenceDiagram
     autonumber
     participant U as Usuario
-    participant W as EUDI Wallet
+    participant W as Business Wallet
     participant RP as Relying Party
     participant VS as Verifier Service
     participant TL as Trusted List
@@ -145,7 +145,7 @@ sequenceDiagram
     autonumber
     participant U as Usuario
     participant APP as App Movil
-    participant W as EUDI Wallet
+    participant W as Business Wallet
     participant VS as Verifier Service
 
     U->>APP: Inicia login
@@ -177,7 +177,7 @@ sequenceDiagram
     autonumber
     participant U as Usuario
     participant WEB as Web Browser
-    participant W as EUDI Wallet (Movil)
+    participant W as Business Wallet (Movil)
     participant VS as Verifier Service
 
     U->>WEB: Inicia login
@@ -211,7 +211,7 @@ Proceso de backup y recuperacion del wallet.
 sequenceDiagram
     autonumber
     participant U as Usuario
-    participant W as EUDI Wallet
+    participant W as Business Wallet
     participant WB as Wallet Backend
     participant VAULT as Vault
 

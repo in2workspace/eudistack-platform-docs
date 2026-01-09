@@ -1,11 +1,11 @@
 ---
 title: Home
-description: Official technical documentation for EUDIStack - European Digital Identity Wallet
+description: Official technical documentation for EUDIStack - European Business Wallet
 ---
 
 # Welcome to EUDIStack
 
-**EUDIStack** is a reference implementation of the European Digital Identity Wallet (EUDI Wallet) following the Architecture and Reference Framework (ARF) specifications from the European Commission.
+**EUDIStack** is a platform that enables organizations to **issue, manage, and verify digital credentials** for their employees, collaborators, and business partners, complying with European digital identity regulations (eIDAS 2).
 
 <div class="grid cards" markdown>
 
@@ -45,20 +45,38 @@ description: Official technical documentation for EUDIStack - European Digital I
 
 ## What is EUDIStack?
 
-EUDIStack provides the necessary components to implement digital identity solutions based on the European EUDI Wallet framework. It is designed to facilitate:
+EUDIStack is a digital identity platform that provides the necessary services to **issue, store, present, and verify verifiable credentials (VCs)** according to major international standards.
 
-- **Verifiable Credentials issuance**
-- **Verifiable Presentations verification**
-- **Digital identity management** compliant with eIDAS 2.0
+### Main Components
 
-### Key Features
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      EUDIStack Platform                         │
+├─────────────────┬─────────────────┬─────────────────────────────┤
+│     ISSUER      │     WALLET      │         VERIFIER            │
+│   (For orgs.)   │   (For users)   │        (For orgs.)          │
+├─────────────────┼─────────────────┼─────────────────────────────┤
+│ • Admin panel   │ • Mobile app    │ • Verification widget/SDK   │
+│ • Issuance APIs │ • iOS + Android │ • Validation APIs           │
+│ • Integrations  │ • White-label   │ • SSO integration           │
+└─────────────────┴─────────────────┴─────────────────────────────┘
+```
 
-| Feature | Description |
-|---------|-------------|
-| :white_check_mark: eIDAS 2.0 Compliant | Meets European digital identity regulation |
-| :white_check_mark: OpenID4VC | Implements OpenID for Verifiable Credentials protocols |
-| :white_check_mark: Modular | Extensible and configurable architecture |
-| :white_check_mark: Open Source | Open source under Apache 2.0 license |
+| Component | Description |
+|-----------|-------------|
+| **Issuer** | System for creating and managing credentials. Includes admin panel, APIs, and individual or bulk issuance. |
+| **Wallet** | Mobile application where users store and present their credentials. Available for iOS and Android. |
+| **Verifier** | Service for verifying credentials. Includes APIs, embeddable widget, and login system integration. |
+
+### What problem does it solve?
+
+| Current Problem | EUDIStack Solution |
+|-----------------|-------------------|
+| Paper/PDF cards and certificates easy to forge | Cryptographically signed credentials, instantly verifiable |
+| Multiple passwords and systems | Credential-based authentication from mobile (passwordless) |
+| Manual onboarding/offboarding | Automation of issuance and revocation via APIs |
+| Costly third-party verification | Instant and automatic verification |
+| Complex regulatory compliance | Natively designed for eIDAS 2, GDPR |
 
 ## Quick Start
 
@@ -70,37 +88,52 @@ git clone https://github.com/in2workspace/eudistack.git
 cd eudistack
 
 # Start with Docker
-docker-compose up -d
+docker compose up -d
 ```
 
 [:material-arrow-right: Go to Quick Start Guide](guias-integracion/inicio-rapido.md){ .md-button .md-button--primary }
 
-## EUDI Wallet Ecosystem
-
-EUDIStack integrates with the broader EUDI Wallet ecosystem:
+## Typical Flow
 
 ```mermaid
-flowchart TB
-    subgraph Issuer["Issuer"]
-        IS[Issuer Service]
+flowchart LR
+    subgraph Organization
+        IS[Issuer]
     end
 
-    subgraph Wallet["EUDI Wallet"]
+    subgraph User
         WA[Wallet App]
-        WB[Wallet Backend]
     end
 
-    subgraph Verifier["Verifier"]
-        VS[Verifier Service]
+    subgraph Service
+        VS[Verifier]
     end
 
-    IS -->|Issues VC| WA
-    WA -->|Presents VP| VS
-    WA <-->|Syncs| WB
+    IS -->|1. Issues credential| WA
+    WA -->|2. Presents credential| VS
+    VS -->|3. Verifies and authorizes| Service
 ```
+
+1. **The organization issues** a credential to the user (employee, collaborator, etc.)
+2. **The user receives** the credential in their mobile wallet
+3. **The user presents** the credential when they need to access a service
+4. **The service verifies** the credential and authorizes access
+
+## Implemented Standards
+
+EUDIStack implements the main digital identity standards:
+
+| Standard | Description |
+|----------|-------------|
+| **eIDAS 2** | European digital identity regulation |
+| **OID4VCI** | OpenID for Verifiable Credential Issuance |
+| **OID4VP** | OpenID for Verifiable Presentations |
+| **W3C VC** | Verifiable Credentials Data Model 2.0 |
+| **SD-JWT VC** | Selective Disclosure JWT |
+| **DID** | Decentralized Identifiers |
 
 ## Additional Resources
 
-- [Architecture and Reference Framework (ARF)](https://eudi.dev) - Official EC documentation
-- [OpenID4VC Specifications](https://openid.net/developers/specs/) - OpenID Foundation specifications
-- [GitHub Repository](https://github.com/in2workspace) - Source code and examples
+- [:material-github: GitHub Repository](https://github.com/in2workspace) - Source code
+- [:material-book: ARF Documentation](https://eu-digital-identity-wallet.github.io/eudi-doc-architecture-and-reference-framework/) - Architecture Reference Framework
+- [:material-link: OpenID4VC](https://openid.net/sg/openid4vc/) - OpenID Foundation specifications

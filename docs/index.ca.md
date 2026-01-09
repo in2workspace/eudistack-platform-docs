@@ -1,11 +1,11 @@
 ---
 title: Inici
-description: Documentacio tecnica oficial d'EUDIStack - European Digital Identity Wallet
+description: Documentacio tecnica oficial d'EUDIStack - European Business Wallet
 ---
 
 # Benvingut a EUDIStack
 
-**EUDIStack** es una implementacio de referencia de l'European Digital Identity Wallet (EUDI Wallet) seguint les especificacions de l'Architecture and Reference Framework (ARF) de la Comissio Europea.
+**EUDIStack** es una plataforma que permet a les organitzacions **emetre, gestionar i verificar credencials digitals** per als seus empleats, col·laboradors i socis de negoci, complint amb la normativa europea d'identitat digital (eIDAS 2).
 
 <div class="grid cards" markdown>
 
@@ -15,7 +15,7 @@ description: Documentacio tecnica oficial d'EUDIStack - European Digital Identit
 
     Apren a integrar EUDIStack a la teva aplicacio pas a pas
 
-    [:octicons-arrow-right-24: Comenar](guias-integracion/index.md)
+    [:octicons-arrow-right-24: Comencar](guias-integracion/index.md)
 
 -   :material-certificate:{ .lg .middle } **Model de Credencials**
 
@@ -45,20 +45,38 @@ description: Documentacio tecnica oficial d'EUDIStack - European Digital Identit
 
 ## Que es EUDIStack?
 
-EUDIStack proporciona els components necessaris per implementar solucions d'identitat digital basades en el marc europeu EUDI Wallet. Esta dissenyat per facilitar:
+EUDIStack es una plataforma d'identitat digital que proporciona els serveis necessaris per **emetre, emmagatzemar, presentar i verificar credencials verificables (VCs)** d'acord amb els principals estandards internacionals.
 
-- **Emissio de credencials verificables** (Verifiable Credentials)
-- **Verificacio de presentacions** (Verifiable Presentations)
-- **Gestio d'identitat digital** conforme a eIDAS 2.0
+### Components principals
 
-### Caracteristiques principals
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      EUDIStack Platform                         │
+├─────────────────┬─────────────────┬─────────────────────────────┤
+│     ISSUER      │     WALLET      │         VERIFIER            │
+│   (Per org.)    │  (Per usuari)   │        (Per org.)           │
+├─────────────────┼─────────────────┼─────────────────────────────┤
+│ • Panel admin   │ • App mobil     │ • Widget/SDK verificacio    │
+│ • APIs emissio  │ • iOS + Android │ • APIs validacio            │
+│ • Integracions  │ • White-label   │ • Integracio SSO            │
+└─────────────────┴─────────────────┴─────────────────────────────┘
+```
 
-| Caracteristica | Descripcio |
-|----------------|------------|
-| :white_check_mark: Compatible eIDAS 2.0 | Compleix amb la regulacio europea d'identitat digital |
-| :white_check_mark: OpenID4VC | Implementa els protocols OpenID for Verifiable Credentials |
-| :white_check_mark: Modular | Arquitectura extensible i configurable |
-| :white_check_mark: Open Source | Codi obert sota llicencia Apache 2.0 |
+| Component | Descripcio |
+|-----------|------------|
+| **Issuer** | Sistema per crear i gestionar credencials. Inclou panel d'administracio, APIs i emissio individual o massiva. |
+| **Wallet** | Aplicacio mobil on els usuaris guarden i presenten les seves credencials. Disponible per iOS i Android. |
+| **Verifier** | Servei per verificar credencials. Inclou APIs, widget incrustable i integracio amb sistemes de login. |
+
+### Quin problema resol?
+
+| Problema actual | Solucio EUDIStack |
+|-----------------|-------------------|
+| Carnets i certificats en paper/PDF facils de falsificar | Credencials amb signatura criptografica, verificables a l'instant |
+| Multiples contrasenyes i sistemes | Autenticacio amb credencial des del mobil (passwordless) |
+| Onboarding/offboarding manual | Automatitzacio d'emissio i revocacio via APIs |
+| Verificacio de tercers costosa | Verificacio instantania i automatica |
+| Compliment normatiu complex | Dissenyat nativament per eIDAS 2, GDPR |
 
 ## Inici rapid
 
@@ -70,37 +88,52 @@ git clone https://github.com/in2workspace/eudistack.git
 cd eudistack
 
 # Iniciar amb Docker
-docker-compose up -d
+docker compose up -d
 ```
 
 [:material-arrow-right: Anar a la guia d'inici rapid](guias-integracion/inicio-rapido.md){ .md-button .md-button--primary }
 
-## Ecosistema EUDI Wallet
-
-EUDIStack s'integra amb l'ecosistema mes ampli d'EUDI Wallet:
+## Flux tipic
 
 ```mermaid
-flowchart TB
-    subgraph Issuer["Emissor (Issuer)"]
-        IS[Issuer Service]
+flowchart LR
+    subgraph Organitzacio
+        IS[Issuer]
     end
 
-    subgraph Wallet["EUDI Wallet"]
+    subgraph Usuari
         WA[Wallet App]
-        WB[Wallet Backend]
     end
 
-    subgraph Verifier["Verificador (Verifier)"]
-        VS[Verifier Service]
+    subgraph Servei
+        VS[Verifier]
     end
 
-    IS -->|Emet VC| WA
-    WA -->|Presenta VP| VS
-    WA <-->|Sincronitza| WB
+    IS -->|1. Emet credencial| WA
+    WA -->|2. Presenta credencial| VS
+    VS -->|3. Verifica i autoritza| Servei
 ```
+
+1. **L'organitzacio emet** una credencial a l'usuari (empleat, col·laborador, etc.)
+2. **L'usuari rep** la credencial a la seva wallet mobil
+3. **L'usuari presenta** la credencial quan necessita accedir a un servei
+4. **El servei verifica** la credencial i autoritza l'acces
+
+## Estandards implementats
+
+EUDIStack implementa els principals estandards d'identitat digital:
+
+| Estandard | Descripcio |
+|-----------|------------|
+| **eIDAS 2** | Regulacio europea d'identitat digital |
+| **OID4VCI** | OpenID for Verifiable Credential Issuance |
+| **OID4VP** | OpenID for Verifiable Presentations |
+| **W3C VC** | Verifiable Credentials Data Model 2.0 |
+| **SD-JWT VC** | Selective Disclosure JWT |
+| **DID** | Decentralized Identifiers |
 
 ## Recursos addicionals
 
-- [Architecture and Reference Framework (ARF)](https://eudi.dev) - Documentacio oficial de la CE
-- [OpenID4VC Specifications](https://openid.net/developers/specs/) - Especificacions OpenID Foundation
-- [GitHub Repository](https://github.com/in2workspace) - Codi font i exemples
+- [:material-github: Repositori GitHub](https://github.com/in2workspace) - Codi font
+- [:material-book: Documentacio ARF](https://eu-digital-identity-wallet.github.io/eudi-doc-architecture-and-reference-framework/) - Architecture Reference Framework
+- [:material-link: OpenID4VC](https://openid.net/sg/openid4vc/) - Especificacions OpenID Foundation

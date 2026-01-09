@@ -9,13 +9,13 @@
 
 Este repositorio contiene la **documentación pública** de EUDIStack, diseñada para facilitar el entendimiento e integración con nuestros componentes y credenciales verificables. Está orientada a desarrolladores, integradores y organizaciones que quieran implementar soluciones de identidad digital europea.
 
-**EUDIStack** es una implementación open-source del ecosistema de identidad digital europea (EUDIW), que permite emitir, gestionar y verificar credenciales digitales conforme a eIDAS 2.
+**EUDIStack** es una implementación open-source del **European Business Wallet**, que permite a organizaciones emitir, gestionar y verificar credenciales digitales conforme a eIDAS 2.
 
 ---
 
 ## Qué es EUDIStack
 
-EUDIStack es una **plataforma de identidad digital europea** que permite a organizaciones **emitir, gestionar y verificar credenciales digitales** para sus empleados, colaboradores, clientes o ciudadanos, cumpliendo con la normativa europea (eIDAS 2).
+EUDIStack es una implementación del **European Business Wallet** que permite a organizaciones **emitir, gestionar y verificar credenciales digitales** para sus empleados, colaboradores y socios de negocio, cumpliendo con la normativa europea (eIDAS 2).
 
 ### Componentes Principales
 
