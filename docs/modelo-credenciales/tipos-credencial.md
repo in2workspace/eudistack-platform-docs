@@ -120,75 +120,144 @@ Credencial para titulos academicos y diplomas universitarios.
 
 ### LEARCredentialEmployee
 
-Credencial de representacion legal para empleados (**Legal Entity Appointed Representative**).
+Credencial de representacion legal para empleados basada en la ontologia **RPaM** (Representation of Powers and Mandates).
 
 | Atributo | Descripcion |
 |----------|-------------|
 | **Nombre** | LEARCredentialEmployee |
-| **Ambito** | Representacion empresarial |
-| **Emisores tipicos** | Organizaciones, empresas |
+| **Ambito** | Representacion empresarial / Mandato digital |
+| **Emisores tipicos** | Proveedores de servicios de confianza (TSP), organizaciones |
 | **Validez** | Variable (tipicamente 1 ano) |
+| **Formatos** | W3C VC DM v2.0, SD-JWT VC |
 
-#### Atributos disponibles
+!!! info "Mandato digital"
+    Representa un e-Mandato conforme al marco eIDAS 2, formalizando la delegacion de poderes de una organizacion a un empleado identificado.
+
+#### Estructura del mandato
 
 | Claim | Tipo | Descripcion | Requerido |
 |-------|------|-------------|-----------|
-| `mandator` | object | Organizacion que otorga poderes | Si |
-| `mandatee` | object | Persona que recibe los poderes | Si |
-| `power` | array | Lista de poderes otorgados | Si |
+| `mandate.id` | string | Identificador unico del mandato (URN/UUID) | Si |
+| `mandate.mandator` | object | Entidad juridica que otorga el mandato | Si |
+| `mandate.mandatee` | object | Persona fisica que recibe los poderes | Si |
+| `mandate.power` | array | Lista de poderes otorgados | Si |
 
-#### Ejemplo
+#### Atributos del mandator
 
-```json
-{
-  "@context": ["https://www.w3.org/2018/credentials/v1"],
-  "type": ["VerifiableCredential", "LEARCredentialEmployee"],
-  "issuer": {
-    "id": "did:elsi:VATES-A12345678",
-    "name": "ACME, SA"
-  },
-  "issuanceDate": "2024-01-15T10:00:00Z",
-  "expirationDate": "2025-01-15T10:00:00Z",
-  "credentialSubject": {
-    "id": "did:key:z6Mk...",
-    "mandator": {
-      "commonName": "John Doe",
-      "email": "john.doe@acme.com",
-      "organization": "ACME, SA",
-      "organizationIdentifier": "VATES-A12345678",
-      "country": "ES"
-    },
-    "mandatee": {
-      "firstName": "Jane",
-      "lastName": "Smith",
-      "email": "j.smith@acme.com",
-      "employeeId": "8001"
-    },
-    "power": [{
-      "type": "domain",
-      "domain": "ProductOffering",
-      "function": "Create",
-      "action": ["Create", "Update", "Delete"]
-    }]
-  }
-}
+| Claim | Tipo | Descripcion |
+|-------|------|-------------|
+| `id` | string | DID de la organizacion (did:elsi:VAT...) |
+| `organization` | string | Nombre de la organizacion |
+| `organizationIdentifier` | string | Identificador fiscal (VATES-..., VATFR-...) |
+| `country` | string | Codigo ISO del pais |
+| `commonName` | string | Nombre del representante legal |
+| `serialNumber` | string | Numero de identificacion del representante |
+| `email` | string | Email de contacto |
+
+#### Atributos del mandatee
+
+| Claim | Tipo | Descripcion |
+|-------|------|-------------|
+| `id` | string | DID del empleado (vinculado criptograficamente) |
+| `firstName` | string | Nombre |
+| `lastName` | string | Apellidos |
+| `email` | string | Email corporativo |
+| `employeeId` | string | Identificador interno del empleado |
+
+#### Estructura del power
+
+| Claim | Tipo | Descripcion |
+|-------|------|-------------|
+| `type` | string | Tipo de poder (ej: "domain") |
+| `domain` | string | Dominio de aplicacion (ej: "DOME") |
+| `function` | string | Funcion autorizada (ej: "Onboarding") |
+| `action` | array | Acciones permitidas (ej: ["execute", "create"]) |
+
+#### Ejemplo (W3C VC)
+
+```json title="sample/lear-credential-employee-v3.json"
+--8<-- "docs/modelo-credenciales/sample/lear-credential-employee-v3.json"
 ```
+
+[:material-graph: Ver ontologia completa](ontologia.md#learCredentialemployee){ .md-button .md-button--primary }
 
 ---
 
 ### LEARCredentialMachine
 
-Credencial de representacion legal para maquinas/servicios (**Machine-to-Machine**).
+Credencial de representacion legal para entidades tecnicas (maquinas, servicios, dispositivos) que actuan en nombre de una organizacion.
 
 | Atributo | Descripcion |
 |----------|-------------|
 | **Nombre** | LEARCredentialMachine |
-| **Ambito** | Autenticacion M2M |
-| **Emisores tipicos** | Organizaciones, empresas |
+| **Ambito** | Autenticacion M2M / Agentes tecnicos |
+| **Emisores tipicos** | Proveedores de servicios de confianza (TSP) |
 | **Validez** | Variable |
+| **Formatos** | W3C VC DM v2.0 |
 
-!!! info "Uso tipico"
-    Se utiliza para autenticar servicios automatizados que actuan en nombre de una organizacion.
+!!! info "Niveles semanticos"
+    Distingue dos niveles: **identidades funcionales basicas** (autenticacion simple) y **agentes delegados** (con poderes explicitos para control de acceso).
+
+#### Atributos especificos del mandatee (maquina)
+
+| Claim | Tipo | Descripcion |
+|-------|------|-------------|
+| `id` | string | DID de la maquina |
+| `domain` | string | Dominio asociado (ej: "dpas.goodair.fr") |
+| `ipAddress` | string | Direccion IP del servicio |
+
+#### Ejemplo
+
+```json title="sample/lear-credential-machine-v2.json"
+--8<-- "docs/modelo-credenciales/sample/lear-credential-machine-v2.json"
+```
+
+[:material-graph: Ver ontologia completa](ontologia.md#learcredentialmachine){ .md-button .md-button--primary }
+
+---
+
+### gx:LabelCredential
+
+Credencial de cumplimiento Gaia-X que certifica que un Cloud Service Provider (CSP) cumple con criterios tecnicos, organizativos y legales.
+
+| Atributo | Descripcion |
+|----------|-------------|
+| **Nombre** | gx:LabelCredential |
+| **Ambito** | Certificacion de cumplimiento cloud |
+| **Emisores tipicos** | Entidades de conformidad Gaia-X, TSPs |
+| **Validez** | 3 meses (tipicamente) |
+| **Formatos** | W3C VC DM v2.0 |
+
+!!! info "Perfil DOME"
+    El ecosistema DOME define 20 criterios obligatorios basados en el Gaia-X Compliance Document CD24.06.
+
+#### Atributos principales
+
+| Claim | Tipo | Descripcion |
+|-------|------|-------------|
+| `gx:labelLevel` | string | Nivel de cumplimiento ("BL" = Baseline) |
+| `gx:engineVersion` | string | Version del compliance engine |
+| `gx:rulesVersion` | string | Version del rulesBook (ej: "CD25.03") |
+| `gx:compliantCredentials` | array | Criterios cumplidos con digest |
+| `gx:validatedCriteria` | array | URIs de criterios validados |
+
+#### Tipos de cumplimiento
+
+| Tipo | Area |
+|------|------|
+| `gx:DataProtection` | Proteccion de datos |
+| `gx:Cybersecurity` | Ciberseguridad |
+| `gx:Portability` | Portabilidad |
+| `gx:Sustainability` | Sostenibilidad |
+| `gx:EuropeanControl` | Control europeo |
+
+#### Ejemplo
+
+```json title="sample/gx-label-credential.json"
+--8<-- "docs/modelo-credenciales/sample/gx-label-credential.json"
+```
+
+[:material-graph: Ver ontologia completa](ontologia.md#gxlabelcredential){ .md-button .md-button--primary }
 
 ---
 

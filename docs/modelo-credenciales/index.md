@@ -39,9 +39,11 @@ Esta seccion describe el modelo de credenciales verificables implementado en EUD
 
 EUDIStack implementa credenciales verificables siguiendo los estandares:
 
-- **W3C Verifiable Credentials Data Model 2.0**
-- **ISO/IEC 18013-5 (mDL)** para credenciales mDOC
-- **SD-JWT VC** para credenciales con divulgacion selectiva
+- **W3C Verifiable Credentials Data Model 2.0** - modelo de datos principal
+- **IETF SD-JWT VC** - credenciales con revelacion selectiva
+- **ISO/IEC 18013-5 (mDL)** - documentos de identidad moviles
+
+El modelo se alinea con el **marco eIDAS 2** y el **EUDI Wallet ARF v2.4.0**, soportando credenciales empresariales como LEARCredential (mandatos digitales) y credenciales de cumplimiento Gaia-X.
 
 ### Formatos soportados
 
