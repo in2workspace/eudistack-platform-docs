@@ -13,13 +13,10 @@ Este documento define la ontología y los principios fundamentales que sustentan
 - **Autenticación de máquinas y servicios** - para flujos M2M
 - **Certificación de cumplimiento normativo** - mediante credenciales de conformidad
 
-El enfoque se apoya en los estándares internacionales sobre formatos de credenciales digitales:
+EUDIStack implementa el estándar **W3C Verifiable Credentials Data Model v2.0** como único formato de credenciales verificables.
 
-| Estándar | Descripción |
-|----------|-------------|
-| **W3C Verifiable Credentials v2.0** | Modelo de datos principal |
-| **IETF SD-JWT VC** | Credenciales con revelación selectiva |
-| **ISO/IEC 18013-5 mDoc** | Documentos de identidad móviles |
+!!! note "Formato implementado"
+    EUDIStack utiliza exclusivamente **W3C VC DM v2.0**. Otros formatos como SD-JWT VC o ISO mDoc, aunque contemplados en el EUDI Wallet ARF, no están implementados en esta versión.
 
 El marco legal está proporcionado por el **reglamento eIDAS2** y los lineamientos técnicos del **EUDI Wallet ARF v2.4.0**.
 
@@ -27,33 +24,18 @@ El marco legal está proporcionado por el **reglamento eIDAS2** y los lineamient
 
 ## Marco de referencia
 
-### Estándares de datos y formatos
+### W3C Verifiable Credentials v2.0
 
-#### W3C Verifiable Credentials v2.0
+EUDIStack utiliza **W3C Verifiable Credentials Data Model v2.0** como estándar de datos para la representación estructurada y verificable de afirmaciones sobre entidades.
 
-Constituye el modelo de datos principal para la representación estructurada y verificable de afirmaciones sobre entidades. Permite:
+Este estándar permite:
 
 - Enriquecer credenciales con semántica explícita (`@context`)
 - Definir tipologías especializadas (`type`)
 - Implementar mecanismos de firma compatibles con **JAdES** y **AdESeal**
 
-#### IETF SD-JWT Verifiable Credentials
-
-Permiten emitir credenciales en formato compacto con mecanismos de **revelación selectiva nativa** (SD). Su relevancia radica en:
-
-- Escenarios de privacidad avanzada
-- Alineación con los perfiles del EUDI Wallet
-- Formato compacto para transmisión eficiente
-
-#### ISO/IEC 18013-5 mDoc
-
-Estandariza la representación digital de documentos de identidad móviles. Su inclusión garantiza compatibilidad con:
-
-- Credenciales emitidas por autoridades nacionales
-- Casos de uso de movilidad y fronteras digitales
-
-!!! info "Coexistencia de formatos"
-    La coexistencia de estos formatos permite abordar necesidades diversas en términos de interoperabilidad, privacidad y usabilidad, garantizando la evolución futura del ecosistema.
+!!! info "Otros formatos del ecosistema EUDI"
+    El EUDI Wallet ARF contempla también otros formatos como **SD-JWT VC** (revelación selectiva) e **ISO/IEC 18013-5 mDoc** (documentos de identidad móviles). Estos formatos no están implementados actualmente en EUDIStack, pero el modelo de datos es compatible para una futura extensión.
 
 ---
 
@@ -400,86 +382,6 @@ Formaliza mediante un mandato digital los poderes otorgados por una organizació
 !!! info "Caso de uso"
     Especialmente relevante en contextos donde los flujos requieren no solo autenticación del sujeto, sino también verificación del rol, autoridad y poderes funcionales delegados.
 
-#### Formatos disponibles
-
-Aunque el modelo canónico de los datos del mandato no varía sustancialmente, el formato de presentación sí:
-
-| Formato | Descripción |
-|---------|-------------|
-| `sd-jwt-vc` | SD-JWT Verifiable Credential |
-| `w3c-vc` | W3C Verifiable Credential Data Model 2.0 |
-
----
-
-#### Formato SD-JWT
-
-El payload (JWT claims) de la credencial incluye:
-
-| Claim | Descripción |
-|-------|-------------|
-| `iss` | Identificador del emisor |
-| `nbf` | Not Before (inicio de validez) |
-| `exp` | Expiration (fin de validez) |
-| `vct` | Schema URI de la credencial |
-| `mandate` | Datos del mandato |
-| `cnf` | Confirmation key (key binding) |
-| `status` | Estado de revocación |
-
-!!! warning "Selective Disclosure"
-    Aunque el formato permite Selective Disclosure (campos dentro de `_sd`), en la LEARCredentialEmployee es opcional dado que la seguridad viene propuesta en la encriptación de la comunicación extremo-a-extremo. Por tanto, el `mandate` es legible en todo momento.
-
-##### Ejemplo SD-JWT
-
-```json
-{
-  "iss": "https://issuer.eudistack.eu",
-  "nbf": 1683000000,
-  "exp": 1883000000,
-  "vct": "https://cred.eudistack.eu/.well-known/credentials/lear_credential_employee/sd-jwt/v1",
-  "mandate": {
-    "id": "urn:uuid:987e6543-b21c-34d6-a789-543210fedcba",
-    "mandator": {
-      "id": "did:elsi:VATFR-B12345678",
-      "organization": "GOOD AIR, S.L.",
-      "organizationIdentifier": "VATFR-B12345678",
-      "country": "FR",
-      "commonName": "JEAN MARTIN - CNI 880692310285",
-      "serialNumber": "880692310285",
-      "email": "jean.martin@goodair.fr"
-    },
-    "mandatee": {
-      "id": "did:key:mandatee123",
-      "employeeId": "A-12345678",
-      "email": "jane.smith@goodair.com",
-      "firstName": "Jane",
-      "lastName": "Smith"
-    },
-    "power": [
-      {
-        "type": "domain",
-        "domain": "DOME",
-        "function": "Onboarding",
-        "action": ["execute"]
-      }
-    ]
-  },
-  "cnf": {
-    "jwk": {
-      "kty": "EC",
-      "crv": "P-256",
-      "x": "TCAER19Zvu3OHF4j4W4vfSVoHIP1ILilDls7vCeGemc",
-      "y": "ZxjiWWbZMQGHVWKVQ4hbSIirsVfuecCE6t4jT9F2HZQ"
-    }
-  },
-  "status": {
-    "idx": 285,
-    "uri": "https://issuer.eudistack.eu/statuslists/1"
-  }
-}
-```
-
----
-
 #### Formato W3C VC DM v2.0
 
 La credencial tiene los siguientes campos de primer nivel:
@@ -591,37 +493,17 @@ Todos los identificadores están definidos mediante el namespace `gx:` disponibl
 
 ## Revocación de credenciales
 
-El mecanismo de revocación depende del formato de la credencial. En todos los casos, el objetivo es garantizar que un verificador pueda conocer de forma fiable y en tiempo casi real si una credencial sigue siendo válida.
+El mecanismo de revocación garantiza que un verificador pueda conocer de forma fiable y en tiempo casi real si una credencial sigue siendo válida.
 
-### Por formato
+### Bitstring Status List
 
-=== "W3C Verifiable Credentials"
+EUDIStack implementa la especificación **Bitstring Status List v1.0** (W3C, mayo 2025), que introduce un mecanismo eficiente y preservador de la privacidad mediante estructuras de bitstring.
 
-    La especificación **Bitstring Status List v1.0** (W3C, mayo 2025) introduce un mecanismo eficiente y preservador de la privacidad mediante estructuras de bitstring.
+Este mecanismo permite:
 
-    Permite:
-
-    - Validar en tiempo real la vigencia
-    - Escalar a millones de entradas con coste mínimo
-    - Garantizar privacidad del titular
-
-=== "SD-JWT VC"
-
-    La propuesta **Status List** (IETF, draft-ietf-oauth-status-list) define un mecanismo análogo para credenciales SD-JWT.
-
-    Asegura:
-
-    - Compatibilidad con flujos OAuth2/OpenID
-    - Comprobación de estado en línea o diferida
-    - Interoperabilidad con EUDI Wallet
-
-=== "mDoc (ISO 18013-5)"
-
-    El estado de los mDoc se gestiona mediante:
-
-    - Listas de revocación específicas
-    - Servicios de validación de la autoridad emisora
-    - Interoperabilidad con OCSP o CRL
+- Validar en tiempo real la vigencia de las credenciales
+- Escalar a millones de entradas con coste mínimo
+- Garantizar la privacidad del titular
 
 ### Beneficios
 

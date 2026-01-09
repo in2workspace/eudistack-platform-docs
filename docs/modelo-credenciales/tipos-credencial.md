@@ -337,40 +337,22 @@ Credencial generica para atestaciones de atributos especificos.
 
 ---
 
-## Matriz de compatibilidad
+## Formato soportado
 
-| Tipo | JWT VC | SD-JWT VC | mDOC |
-|------|--------|-----------|------|
-| VerifiableId | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| VerifiableDiploma | :white_check_mark: | :white_check_mark: | :x: |
-| LEARCredentialEmployee | :white_check_mark: | :white_check_mark: | :x: |
-| LEARCredentialMachine | :white_check_mark: | :x: | :x: |
-| ProfessionalQualification | :white_check_mark: | :white_check_mark: | :x: |
-| VerifiableAttestation | :white_check_mark: | :white_check_mark: | :x: |
+Todas las credenciales en EUDIStack utilizan el formato **W3C Verifiable Credentials Data Model v2.0**.
 
-## Divulgacion selectiva
+| Tipo | W3C VC v2.0 |
+|------|-------------|
+| VerifiableId | :white_check_mark: |
+| VerifiableDiploma | :white_check_mark: |
+| LEARCredentialEmployee | :white_check_mark: |
+| LEARCredentialMachine | :white_check_mark: |
+| gx:LabelCredential | :white_check_mark: |
+| ProfessionalQualification | :white_check_mark: |
+| VerifiableAttestation | :white_check_mark: |
 
-Las credenciales SD-JWT VC permiten divulgar solo los atributos necesarios:
-
-```mermaid
-flowchart LR
-    subgraph Credencial Completa
-        A[given_name]
-        B[family_name]
-        C[birth_date]
-        D[nationality]
-        E[document_number]
-    end
-
-    subgraph Presentacion Selectiva
-        F[age_over_18]
-    end
-
-    Credencial Completa -->|Divulgacion selectiva| Presentacion Selectiva
-```
-
-!!! tip "Privacidad por diseno"
-    Usa divulgacion selectiva siempre que sea posible para minimizar los datos compartidos.
+!!! note "Otros formatos"
+    Formatos como SD-JWT VC o ISO mDoc, aunque contemplados en el EUDI Wallet ARF, no estan implementados en esta version de EUDIStack.
 
 ## Siguiente paso
 
