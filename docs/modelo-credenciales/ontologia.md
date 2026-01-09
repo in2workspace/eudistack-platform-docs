@@ -189,18 +189,18 @@ Es común confundir estos tres conceptos. La siguiente tabla clarifica sus difer
 
 ```mermaid
 flowchart LR
-    subgraph Credencial["LEARCredential"]
+    subgraph Credencial[LEARCredential]
         P[Power<br/>Onboarding - Execute]
     end
 
-    subgraph Sistema["Sistema receptor"]
-        POL[Política<br/>"Requiere poder Onboarding"]
-        ROL[Rol asignado<br/>"gestor_onboarding"]
-        PERM[Permisos técnicos<br/>POST /api/register]
+    subgraph Sistema[Sistema receptor]
+        POL[Politica<br/>Requiere poder Onboarding]
+        ROL[Rol asignado<br/>gestor_onboarding]
+        PERM[Permisos tecnicos<br/>POST /api/register]
     end
 
     P -->|presenta| POL
-    POL -->|evalúa y asigna| ROL
+    POL -->|evalua y asigna| ROL
     ROL -->|otorga| PERM
 ```
 
