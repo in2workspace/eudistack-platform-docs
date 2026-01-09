@@ -50,9 +50,7 @@ theme:
 
   # Theme features
   features:
-    # Navigation
-    - navigation.instant
-    - navigation.instant.prefetch
+    # Navigation (instant disabled for i18n language switcher compatibility)
     - navigation.tracking
     - navigation.tabs
     - navigation.tabs.sticky
@@ -205,18 +203,7 @@ markdown_extensions:
 # Extra Configuration
 # ==============================================================================
 extra:
-  # Language selector (navbar)
-  alternate:
-    - name: Espanol
-      link: /
-      lang: es
-    - name: English
-      link: /en/
-      lang: en
-    - name: Catala
-      link: /ca/
-      lang: ca
-
+  # Language selector is managed by i18n plugin (reconfigure_material: true)
   # Social links
   social:
     - icon: fontawesome/brands/github
