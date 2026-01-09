@@ -214,7 +214,7 @@ extra:
 # Extra CSS and JavaScript
 # ==============================================================================
 extra_css:
-  - assets/css/altia-styles.css
+  - assets/stylesheets/extra.css
 
 # ==============================================================================
 # Navigation Structure
