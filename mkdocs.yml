@@ -1,0 +1,256 @@
+# ==============================================================================
+# EUDIStack Documentation - MkDocs Configuration
+# ==============================================================================
+
+site_name: EUDIStack Documentation
+site_url: https://in2workspace.github.io/eudistack-docs
+site_author: IN2
+site_description: >-
+  Documentacion tecnica oficial de EUDIStack - European Digital Identity Wallet
+  Implementation
+
+# Repository information
+repo_name: in2workspace/eudistack-docs
+repo_url: https://github.com/in2workspace/eudistack-docs
+edit_uri: edit/main/docs/
+
+# Copyright
+copyright: Copyright &copy; 2024-2026 IN2 - All rights reserved
+
+# ==============================================================================
+# Theme Configuration
+# ==============================================================================
+theme:
+  name: material
+  custom_dir: overrides
+  language: es
+
+  # Logo and favicon (Altia branding)
+  logo: media/logo.svg
+  favicon: media/favicon.png
+
+  # Color palette with dark/light mode toggle
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Cambiar a modo oscuro
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Cambiar a modo claro
+
+  # Theme features
+  features:
+    # Navigation
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - navigation.path
+
+    # Table of contents
+    - toc.follow
+
+    # Search
+    - search.suggest
+    - search.highlight
+    - search.share
+
+    # Content
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.edit
+    - content.action.view
+
+  # Icon customization
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+
+# ==============================================================================
+# Plugins
+# ==============================================================================
+plugins:
+  # Search plugin
+  - search:
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+      lang:
+        - es
+        - en
+
+  # Multi-language support
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: es
+          default: true
+          name: Espanol
+          build: true
+          site_name: "EUDIStack - Documentacion"
+        - locale: en
+          name: English
+          build: true
+          site_name: "EUDIStack - Documentation"
+          nav_translations:
+            Inicio: Home
+            Guias de Integracion: Integration Guides
+            Inicio Rapido: Quick Start
+            Configuracion: Configuration
+            Autenticacion: Authentication
+            Modelo de Credenciales: Credential Model
+            Ontologia: Ontology
+            Esquemas: Schemas
+            Tipos de Credencial: Credential Types
+            Referencia API: API Reference
+            Endpoints: Endpoints
+            Autorizacion: Authorization
+            Ejemplos: Examples
+            Arquitectura: Architecture
+            Vision General: Overview
+            Componentes: Components
+            Flujos: Flows
+        - locale: ca
+          name: Catala
+          build: true
+          site_name: "EUDIStack - Documentacio"
+          nav_translations:
+            Inicio: Inici
+            Guias de Integracion: Guies d'Integracio
+            Inicio Rapido: Inici Rapid
+            Configuracion: Configuracio
+            Autenticacion: Autenticacio
+            Modelo de Credenciales: Model de Credencials
+            Ontologia: Ontologia
+            Esquemas: Esquemes
+            Tipos de Credencial: Tipus de Credencial
+            Referencia API: Referencia API
+            Endpoints: Endpoints
+            Autorizacion: Autoritzacio
+            Ejemplos: Exemples
+            Arquitectura: Arquitectura
+            Vision General: Visio General
+            Componentes: Components
+            Flujos: Fluxos
+
+  # Minify HTML
+  - minify:
+      minify_html: true
+
+# ==============================================================================
+# Markdown Extensions
+# ==============================================================================
+markdown_extensions:
+  # Python Markdown
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      permalink_title: Enlace permanente
+      toc_depth: 3
+
+  # PyMdown Extensions
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# ==============================================================================
+# Extra Configuration
+# ==============================================================================
+extra:
+  # Language selector (navbar)
+  alternate:
+    - name: Espanol
+      link: /
+      lang: es
+    - name: English
+      link: /en/
+      lang: en
+    - name: Catala
+      link: /ca/
+      lang: ca
+
+  # Social links
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/in2workspace
+      name: GitHub
+
+# ==============================================================================
+# Extra CSS and JavaScript
+# ==============================================================================
+extra_css:
+  - assets/stylesheets/extra.css
+
+# ==============================================================================
+# Navigation Structure
+# ==============================================================================
+nav:
+  - Inicio: index.md
+  - Guias de Integracion:
+      - guias-integracion/index.md
+      - Inicio Rapido: guias-integracion/inicio-rapido.md
+      - Configuracion: guias-integracion/configuracion.md
+      - Autenticacion: guias-integracion/autenticacion.md
+  - Modelo de Credenciales:
+      - modelo-credenciales/index.md
+      - Ontologia: modelo-credenciales/ontologia.md
+      - Esquemas: modelo-credenciales/esquemas.md
+      - Tipos de Credencial: modelo-credenciales/tipos-credencial.md
+  - Referencia API:
+      - referencia-api/index.md
+      - Endpoints: referencia-api/endpoints.md
+      - Autorizacion: referencia-api/autorizacion.md
+      - Ejemplos: referencia-api/ejemplos.md
+  - Arquitectura:
+      - arquitectura/index.md
+      - Vision General: arquitectura/vision-general.md
+      - Componentes: arquitectura/componentes.md
+      - Flujos: arquitectura/flujos.md

@@ -1,0 +1,561 @@
+/**
+ * ALTIA Corporate Styles - SCSS Version
+ * Extraído de: F_24_05_Plantilla_documento_word.dotx
+ * 
+ * Para compilar: sass scss/altia-styles.scss css/altia-styles.css
+ */
+
+// ==========================================================================
+// Variables - Colores del tema ALTIA
+// ==========================================================================
+
+// Colores principales
+$altia-primary: #184BFF;
+$altia-primary-dark: #001E8C;
+$altia-secondary: #00FF94;
+$altia-text: #2E2D2C;
+$altia-background: #FFFFFF;
+$altia-background-alt: #C0FFE4;
+
+// Acentos
+$altia-accent1: #184BFF;
+$altia-accent2: #00FF94;
+$altia-accent3: #132153;
+$altia-accent4: #1D3EB6;
+$altia-accent5: #6DA4FF;
+$altia-accent6: #EF7B73;
+
+// Enlaces
+$altia-link: $altia-primary;
+$altia-link-visited: $altia-accent5;
+
+// Grises
+$altia-gray-light: #F2F2F2;
+$altia-gray-medium: #BFBFBF;
+$altia-gray-dark: #808080;
+
+// Tipografía
+$font-family-base: 'Verdana', Geneva, sans-serif;
+$font-size-base: 10pt;
+$font-size-small: 9pt;
+$font-size-xs: 8pt;
+$line-height-base: 1.5;
+
+// Encabezados - tamaños
+$h1-size: 21pt;
+$h2-size: 18pt;
+$h3-size: 16pt;
+$h4-size: 14pt;
+$h5-size: 12pt;
+$h6-size: 11pt;
+
+// Encabezados - colores
+$h1-color: $altia-primary;
+$h2-color: $altia-primary-dark;
+$h3-color: $altia-accent3;
+$h4-color: $altia-accent3;
+$h5-color: $altia-accent4;
+$h6-color: $altia-accent4;
+
+// Espaciado
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
+// ==========================================================================
+// Mixins
+// ==========================================================================
+
+@mixin heading-base {
+  font-family: $font-family-base;
+  font-weight: normal;
+  margin-top: 0;
+  line-height: 1.2;
+}
+
+@mixin button-base {
+  display: inline-block;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  padding: $spacing-sm $spacing-lg;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+@mixin alert-variant($bg-color, $border-color) {
+  background-color: rgba($bg-color, 0.2);
+  border-left: 4px solid $border-color;
+}
+
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == 'sm' {
+    @media (max-width: $breakpoint-sm) { @content; }
+  } @else if $breakpoint == 'md' {
+    @media (max-width: $breakpoint-md) { @content; }
+  } @else if $breakpoint == 'lg' {
+    @media (max-width: $breakpoint-lg) { @content; }
+  } @else if $breakpoint == 'xl' {
+    @media (max-width: $breakpoint-xl) { @content; }
+  }
+}
+
+// ==========================================================================
+// CSS Custom Properties (para uso en runtime)
+// ==========================================================================
+
+:root {
+  --altia-primary: #{$altia-primary};
+  --altia-primary-dark: #{$altia-primary-dark};
+  --altia-secondary: #{$altia-secondary};
+  --altia-text: #{$altia-text};
+  --altia-background: #{$altia-background};
+  --altia-background-alt: #{$altia-background-alt};
+  --altia-accent1: #{$altia-accent1};
+  --altia-accent2: #{$altia-accent2};
+  --altia-accent3: #{$altia-accent3};
+  --altia-accent4: #{$altia-accent4};
+  --altia-accent5: #{$altia-accent5};
+  --altia-accent6: #{$altia-accent6};
+  --altia-link: #{$altia-link};
+  --altia-link-visited: #{$altia-link-visited};
+  --altia-gray-light: #{$altia-gray-light};
+  --altia-gray-medium: #{$altia-gray-medium};
+  --altia-gray-dark: #{$altia-gray-dark};
+}
+
+// ==========================================================================
+// Reset y base
+// ==========================================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  color: $altia-text;
+  background-color: $altia-background;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ==========================================================================
+// Tipografía - Encabezados
+// ==========================================================================
+
+h1, h2, h3, h4, h5, h6 {
+  @include heading-base;
+}
+
+h1 {
+  font-size: $h1-size;
+  color: $h1-color;
+  margin-bottom: $spacing-xl;
+  padding-top: $spacing-xl;
+}
+
+h2 {
+  font-size: $h2-size;
+  color: $h2-color;
+  margin-bottom: $spacing-md;
+  padding-top: $spacing-lg;
+}
+
+h3 {
+  font-size: $h3-size;
+  color: $h3-color;
+  margin-bottom: $spacing-md;
+  padding-top: $spacing-lg;
+}
+
+h4 {
+  font-size: $h4-size;
+  color: $h4-color;
+  margin-bottom: $spacing-sm;
+  padding-top: $spacing-md;
+}
+
+h5 {
+  font-size: $h5-size;
+  color: $h5-color;
+  margin-bottom: $spacing-sm;
+  padding-top: $spacing-md;
+}
+
+h6 {
+  font-size: $h6-size;
+  color: $h6-color;
+  margin-bottom: $spacing-sm;
+  padding-top: $spacing-sm;
+}
+
+// ==========================================================================
+// Párrafos y texto
+// ==========================================================================
+
+p {
+  margin-top: 0;
+  margin-bottom: $spacing-lg;
+}
+
+small, .text-small {
+  font-size: $font-size-small;
+}
+
+.text-xs {
+  font-size: $font-size-xs;
+}
+
+strong, b {
+  font-weight: bold;
+}
+
+em, i {
+  font-style: italic;
+}
+
+// ==========================================================================
+// Enlaces
+// ==========================================================================
+
+a {
+  color: $altia-link;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $altia-primary-dark;
+    text-decoration: underline;
+  }
+
+  &:visited {
+    color: $altia-link-visited;
+  }
+}
+
+// ==========================================================================
+// Listas
+// ==========================================================================
+
+ul, ol {
+  margin-top: 0;
+  margin-bottom: $spacing-lg;
+  padding-left: $spacing-xl;
+}
+
+li {
+  margin-bottom: $spacing-xs;
+}
+
+ul ul, ul ol,
+ol ul, ol ol {
+  margin-bottom: 0;
+  margin-top: $spacing-xs;
+}
+
+// ==========================================================================
+// Tablas
+// ==========================================================================
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: $spacing-lg;
+  font-size: $font-size-small;
+}
+
+thead th {
+  background-color: $altia-accent3;
+  color: $altia-background;
+  font-weight: bold;
+  text-align: left;
+  padding: $spacing-md;
+  border: 1px solid $altia-gray-medium;
+}
+
+td {
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $altia-gray-medium;
+  vertical-align: top;
+}
+
+tbody tr {
+  &:nth-child(even) {
+    background-color: $altia-gray-light;
+  }
+
+  &:hover {
+    background-color: rgba($altia-primary, 0.05);
+  }
+}
+
+// ==========================================================================
+// Código
+// ==========================================================================
+
+code {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.9em;
+  background-color: $altia-gray-light;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+pre {
+  background-color: $altia-accent3;
+  color: $altia-background;
+  padding: $spacing-md;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin-bottom: $spacing-lg;
+
+  code {
+    background: none;
+    padding: 0;
+    color: inherit;
+  }
+}
+
+// ==========================================================================
+// Citas
+// ==========================================================================
+
+blockquote {
+  margin: $spacing-lg 0;
+  padding: $spacing-md $spacing-lg;
+  border-left: 4px solid $altia-primary;
+  background-color: $altia-gray-light;
+  font-style: italic;
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// ==========================================================================
+// Layout
+// ==========================================================================
+
+.container {
+  max-width: $breakpoint-xl;
+  margin: 0 auto;
+  padding: 0 $spacing-lg;
+}
+
+.content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+// ==========================================================================
+// Header y Footer
+// ==========================================================================
+
+header {
+  font-size: $font-size-small;
+  color: $altia-text;
+  padding: $spacing-md 0;
+}
+
+footer {
+  font-size: $font-size-xs;
+  color: $altia-gray-dark;
+  padding: $spacing-md 0;
+  border-top: 1px solid $altia-gray-medium;
+  margin-top: $spacing-xl;
+}
+
+// ==========================================================================
+// Botones
+// ==========================================================================
+
+.btn {
+  @include button-base;
+}
+
+.btn-primary {
+  background-color: $altia-primary;
+  color: $altia-background;
+
+  &:hover {
+    background-color: $altia-primary-dark;
+    color: $altia-background;
+    text-decoration: none;
+  }
+}
+
+.btn-secondary {
+  background-color: $altia-secondary;
+  color: $altia-text;
+
+  &:hover {
+    background-color: darken($altia-secondary, 15%);
+    text-decoration: none;
+  }
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 2px solid $altia-primary;
+  color: $altia-primary;
+
+  &:hover {
+    background-color: $altia-primary;
+    color: $altia-background;
+    text-decoration: none;
+  }
+}
+
+// ==========================================================================
+// Alertas
+// ==========================================================================
+
+.alert {
+  padding: $spacing-md;
+  border-radius: 4px;
+  margin-bottom: $spacing-lg;
+}
+
+.alert-info {
+  @include alert-variant($altia-accent5, $altia-accent5);
+}
+
+.alert-success {
+  @include alert-variant($altia-secondary, $altia-secondary);
+}
+
+.alert-warning {
+  @include alert-variant($altia-accent6, $altia-accent6);
+}
+
+.alert-primary {
+  @include alert-variant($altia-primary, $altia-primary);
+}
+
+// ==========================================================================
+// Cards
+// ==========================================================================
+
+.card {
+  background-color: $altia-background;
+  border: 1px solid $altia-gray-medium;
+  border-radius: 4px;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  color: $altia-primary;
+  font-size: $h4-size;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-sm;
+  border-bottom: 2px solid $altia-secondary;
+}
+
+// ==========================================================================
+// Utilidades
+// ==========================================================================
+
+// Colores de texto
+.text-primary { color: $altia-primary; }
+.text-secondary { color: $altia-secondary; }
+.text-dark { color: $altia-text; }
+.text-muted { color: $altia-gray-dark; }
+.text-white { color: $altia-background; }
+
+// Colores de fondo
+.bg-primary { background-color: $altia-primary; }
+.bg-secondary { background-color: $altia-secondary; }
+.bg-dark { background-color: $altia-accent3; }
+.bg-light { background-color: $altia-gray-light; }
+
+// Alineación
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+// Márgenes
+@for $i from 0 through 4 {
+  .mt-#{$i} {
+    @if $i == 0 { margin-top: 0; }
+    @else if $i == 1 { margin-top: $spacing-sm; }
+    @else if $i == 2 { margin-top: $spacing-md; }
+    @else if $i == 3 { margin-top: $spacing-lg; }
+    @else if $i == 4 { margin-top: $spacing-xl; }
+  }
+
+  .mb-#{$i} {
+    @if $i == 0 { margin-bottom: 0; }
+    @else if $i == 1 { margin-bottom: $spacing-sm; }
+    @else if $i == 2 { margin-bottom: $spacing-md; }
+    @else if $i == 3 { margin-bottom: $spacing-lg; }
+    @else if $i == 4 { margin-bottom: $spacing-xl; }
+  }
+}
+
+// ==========================================================================
+// Responsive
+// ==========================================================================
+
+@include respond-to('md') {
+  html {
+    font-size: 14px;
+  }
+
+  h1 { font-size: 18pt; }
+  h2 { font-size: 16pt; }
+  h3 { font-size: 14pt; }
+  h4 { font-size: 12pt; }
+  h5 { font-size: 11pt; }
+  h6 { font-size: 10pt; }
+
+  .container {
+    padding: 0 $spacing-md;
+  }
+
+  table {
+    font-size: $font-size-xs;
+  }
+}
+
+// ==========================================================================
+// Print
+// ==========================================================================
+
+@media print {
+  body {
+    font-size: 10pt;
+  }
+
+  a {
+    color: $altia-text;
+    text-decoration: underline;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}

@@ -1,0 +1,19 @@
+# ==============================================================================
+# EUDIStack Documentation - Python Dependencies
+# ==============================================================================
+
+# Core MkDocs
+mkdocs>=1.5.3
+
+# Material Theme
+mkdocs-material>=9.5.0
+
+# Multi-language support
+mkdocs-static-i18n>=1.2.0
+
+# Minify HTML
+mkdocs-minify-plugin>=0.7.0
+
+# Code formatting in docs
+pygments>=2.17.0
+pymdown-extensions>=10.0
