@@ -1,0 +1,363 @@
+openapi: 3.1.0
+info:
+  title: Verifier API (VC Verifier)
+  description: |
+    API para la verificación de credenciales verificables siguiendo el estándar OpenID4VP (OpenID for Verifiable Presentations).
+
+    ## Características principales
+    - Verificación de credenciales verificables (VCs)
+    - Soporte para OpenID4VP (OpenID for Verifiable Presentations)
+    - Resolución de DIDs a JWK
+    - Autenticación basada en presentaciones verificables
+    - Integración con Trust Framework DOME
+    - OAuth 2.0 y OpenID Connect 1.0
+  version: 2.0.6
+  contact:
+    name: EUDIStack Team
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://verifier.eudistack.example.com
+    description: Servidor de producción
+  - url: https://sandbox.verifier.eudistack.example.com
+    description: Servidor de sandbox
+  - url: http://localhost:8080
+    description: Servidor de desarrollo local
+
+tags:
+  - name: OID4VP
+    description: Endpoints del protocolo OpenID4VP
+  - name: DID Resolver
+    description: Resolución de Decentralized Identifiers
+  - name: Frontend
+    description: Endpoints de vistas del frontend (HTML)
+
+paths:
+  # ============================================
+  # DID RESOLVER ENDPOINTS
+  # ============================================
+  /oidc/did/{id}:
+    get:
+      tags:
+        - DID Resolver
+      summary: Resolver DID a JWK
+      description: |
+        Resuelve un Decentralized Identifier (DID) extrayendo la clave pública
+        y convirtiéndola a formato JWKS (JSON Web Key Set).
+
+        Soporta DIDs del tipo `did:key` con curva P-256 (NIST P-256/secp256r1).
+      operationId: resolveDid
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: El DID a resolver (formato did:key:z...)
+          schema:
+            type: string
+          example: "did:key:z2dmzD81cgPx8Vki7JbuuMmFYrWPgYoytykUZ3eyqht1j9KbrVWHXPGCKJrkSbA6kd9BgW1GQF6LJ7VPNaHdj3PmZ7j8fBD4CZiVrBHB4E7hqN7Ydnf4LYmGqLnfE8VK1rLYHsQXHf"
+      responses:
+        '200':
+          description: JWKS obtenido correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomJWKS'
+              example:
+                keys:
+                  - kty: "EC"
+                    crv: "P-256"
+                    kid: "did:key:z2dmzD81cgPx8Vki7JbuuMmFYrWPgYoytykUZ3eyqht1j9KbrVWHXPGCKJrkSbA6kd9BgW1GQF6LJ7VPNaHdj3PmZ7j8fBD4CZiVrBHB4E7hqN7Ydnf4LYmGqLnfE8VK1rLYHsQXHf"
+                    x: "WE3lXmAM_RrQCj6k3w..."
+                    y: "BqJmTT6JTiJE3T4_-Y..."
+        '400':
+          description: DID inválido o formato no soportado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalErrorMessage'
+        '404':
+          description: DID no encontrado o no resoluble
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalErrorMessage'
+
+  # ============================================
+  # OID4VP ENDPOINTS
+  # ============================================
+  /oid4vp/auth-request/{id}:
+    get:
+      tags:
+        - OID4VP
+      summary: Obtener solicitud de autorización
+      description: |
+        Recupera una solicitud de autorización (Authorization Request JWT) de la caché
+        usando un identificador único.
+
+        **Nota:** La solicitud se elimina de la caché después de ser recuperada (uso único).
+      operationId: getAuthorizationRequest
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador único de la solicitud de autorización en caché
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: JWT de solicitud de autorización obtenido correctamente
+          content:
+            application/json:
+              schema:
+                type: string
+                format: jwt
+                description: JWT codificado de la solicitud de autorización
+              example: "eyJhbGciOiJFUzI1NiIsInR5cCI6Im9hdXRoLWF1dGh6LXJlcStqd3QiLCJraWQiOiJkaWQ6a2V5Ono2TWtwZ3hmQmZhY2RWaDlBSlE5YjNTZnNOYjVnR3BCQW9oVjFXZFRZWXdOb0xZViJ9..."
+        '404':
+          description: Solicitud de autorización no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalErrorMessage'
+
+  /oid4vp/auth-response:
+    post:
+      tags:
+        - OID4VP
+      summary: Procesar respuesta de autorización
+      description: |
+        Procesa la respuesta de autorización OpenID4VP (Verifiable Presentations).
+
+        Este endpoint recibe el VP Token (Verifiable Presentation Token) enviado por el wallet
+        del usuario después de que el usuario haya autorizado compartir sus credenciales.
+      operationId: processAuthResponse
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - state
+                - vp_token
+              properties:
+                state:
+                  type: string
+                  description: Estado de la solicitud OAuth (para correlación con la solicitud original)
+                vp_token:
+                  type: string
+                  description: Token de presentación verificable (Verifiable Presentation en formato JWT)
+                presentation_submission:
+                  type: string
+                  description: |
+                    JSON de la submisión de presentación que describe cómo las credenciales
+                    cumplen con los requisitos de la solicitud (Presentation Definition)
+      responses:
+        '200':
+          description: Respuesta de autorización procesada correctamente
+        '400':
+          description: Respuesta inválida o VP Token malformado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalErrorMessage'
+        '401':
+          description: Credenciales inválidas o revocadas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalErrorMessage'
+        '404':
+          description: Estado de sesión no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalErrorMessage'
+
+  # ============================================
+  # FRONTEND ENDPOINTS (HTML Views)
+  # ============================================
+  /login:
+    get:
+      tags:
+        - Frontend
+      summary: Mostrar página de login con código QR
+      description: |
+        Renderiza la página de login que muestra un código QR con la solicitud de autenticación.
+
+        El usuario escanea el código QR con su wallet para iniciar el proceso de autenticación
+        basado en presentaciones verificables.
+
+        **Nota:** Este endpoint retorna HTML, no JSON.
+      operationId: showQrLogin
+      parameters:
+        - name: authRequest
+          in: query
+          required: true
+          description: Solicitud de autenticación (authorization request) en formato JWT o URI
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: true
+          description: State/Session ID para correlación
+          schema:
+            type: string
+        - name: homeUri
+          in: query
+          required: true
+          description: URI del home del cliente para redirección post-login
+          schema:
+            type: string
+            format: uri
+      responses:
+        '200':
+          description: Página de login HTML renderizada
+          content:
+            text/html:
+              schema:
+                type: string
+                description: Página HTML con código QR y configuración de login
+
+  /client-error:
+    get:
+      tags:
+        - Frontend
+      summary: Mostrar página de error del cliente
+      description: |
+        Renderiza una página de error cuando ocurre un problema durante la autenticación.
+
+        **Nota:** Este endpoint retorna HTML, no JSON.
+      operationId: showErrorPage
+      parameters:
+        - name: errorCode
+          in: query
+          required: true
+          description: Código de error
+          schema:
+            type: string
+          example: "INVALID_CREDENTIAL"
+        - name: errorMessage
+          in: query
+          required: true
+          description: Mensaje descriptivo del error
+          schema:
+            type: string
+          example: "La credencial presentada ha sido revocada"
+        - name: clientUrl
+          in: query
+          required: true
+          description: URL del cliente para redirección
+          schema:
+            type: string
+            format: uri
+        - name: originalRequestURL
+          in: query
+          required: true
+          description: URL original de la solicitud que generó el error
+          schema:
+            type: string
+            format: uri
+      responses:
+        '200':
+          description: Página de error HTML renderizada
+          content:
+            text/html:
+              schema:
+                type: string
+                description: Página HTML con información del error
+
+components:
+  schemas:
+    # ============================================
+    # JWK SCHEMAS
+    # ============================================
+    CustomJWK:
+      type: object
+      description: JSON Web Key (JWK) con curva elíptica
+      required:
+        - kty
+        - crv
+        - x
+        - y
+        - kid
+      properties:
+        kty:
+          type: string
+          description: Tipo de clave (Key Type)
+          enum:
+            - EC
+          example: "EC"
+        crv:
+          type: string
+          description: Curva elíptica utilizada
+          enum:
+            - P-256
+          example: "P-256"
+        x:
+          type: string
+          description: Coordenada X de la clave pública en Base64URL
+          example: "WE3lXmAM_RrQCj6k3w..."
+        y:
+          type: string
+          description: Coordenada Y de la clave pública en Base64URL
+          example: "BqJmTT6JTiJE3T4_-Y..."
+        kid:
+          type: string
+          description: Key ID (normalmente el DID completo)
+          example: "did:key:z2dmzD81cgPx8Vki7JbuuMmFYrWPgYoytykUZ3eyqht1j9KbrVWHXPGCKJrkSbA6kd9BgW1GQF6LJ7VPNaHdj3PmZ7j8fBD4CZiVrBHB4E7hqN7Ydnf4LYmGqLnfE8VK1rLYHsQXHf"
+
+    CustomJWKS:
+      type: object
+      description: JSON Web Key Set (JWKS) - conjunto de claves JWK
+      required:
+        - keys
+      properties:
+        keys:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomJWK'
+          description: Lista de claves JWK
+
+    # ============================================
+    # AUTHORIZATION SCHEMAS
+    # ============================================
+    AuthorizationRequestJWT:
+      type: object
+      description: Solicitud de autorización en formato JWT
+      properties:
+        authRequest:
+          type: string
+          format: jwt
+          description: JWT string de la solicitud de autorización
+
+    # ============================================
+    # ERROR SCHEMAS
+    # ============================================
+    GlobalErrorMessage:
+      type: object
+      description: Mensaje de error global
+      properties:
+        title:
+          type: string
+          description: Título del error
+          example: "Resource Not Found"
+        message:
+          type: string
+          description: Mensaje descriptivo del error
+          example: "The authorization request with the specified ID was not found"
+        path:
+          type: string
+          description: Path de la solicitud que generó el error
+          example: "/oid4vp/auth-request/abc123"
+
+    CredentialStatusResponse:
+      type: object
+      description: Respuesta de estado de credencial
+      properties:
+        nonce:
+          type: string
+          description: Nonce de la credencial

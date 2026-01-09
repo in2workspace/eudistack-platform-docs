@@ -9,6 +9,14 @@ Documentacion completa de todos los endpoints disponibles en la API de EUDIStack
 
 <div class="grid cards" markdown>
 
+-   :material-api:{ .lg .middle } **Especificaciones OpenAPI**
+
+    ---
+
+    Especificaciones OpenAPI 3.1 completas de todas las APIs
+
+    [:octicons-arrow-right-24: Ver especificaciones](openapi/index.md)
+
 -   :material-routes:{ .lg .middle } **Endpoints**
 
     ---
@@ -34,6 +42,16 @@ Documentacion completa de todos los endpoints disponibles en la API de EUDIStack
     [:octicons-arrow-right-24: Ver ejemplos](ejemplos.md)
 
 </div>
+
+## APIs Disponibles
+
+EUDIStack se compone de 3 APIs principales:
+
+| API | Descripcion | Version |
+|-----|-------------|---------|
+| **Issuer API** | Emision de credenciales verificables (OpenID4VCI) | 2.2.6 |
+| **Wallet API** | Gestion de credenciales en el wallet | 2.0.1 |
+| **Verifier API** | Verificacion de credenciales (OpenID4VP) | 2.0.6 |
 
 ## Base URL
 

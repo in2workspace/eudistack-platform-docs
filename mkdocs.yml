@@ -119,6 +119,7 @@ plugins:
             Esquemas: Schemas
             Tipos de Credencial: Credential Types
             Referencia API: API Reference
+            Especificaciones OpenAPI: OpenAPI Specifications
             Endpoints: Endpoints
             Autorizacion: Authorization
             Ejemplos: Examples
@@ -141,6 +142,7 @@ plugins:
             Esquemas: Esquemes
             Tipos de Credencial: Tipus de Credencial
             Referencia API: Referencia API
+            Especificaciones OpenAPI: Especificacions OpenAPI
             Endpoints: Endpoints
             Autorizacion: Autoritzacio
             Ejemplos: Exemples
@@ -236,6 +238,7 @@ nav:
       - Tipos de Credencial: modelo-credenciales/tipos-credencial.md
   - Referencia API:
       - referencia-api/index.md
+      - Especificaciones OpenAPI: referencia-api/openapi/index.md
       - Endpoints: referencia-api/endpoints.md
       - Autorizacion: referencia-api/autorizacion.md
       - Ejemplos: referencia-api/ejemplos.md

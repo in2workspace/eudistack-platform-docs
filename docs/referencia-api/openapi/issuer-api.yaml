@@ -1,0 +1,1293 @@
+openapi: 3.1.0
+info:
+  title: Issuer Backend API
+  description: |
+    API para la emisión de credenciales verificables siguiendo el estándar OpenID4VCI (OpenID for Verifiable Credential Issuance).
+
+    ## Características principales
+    - Emisión de credenciales verificables LEAR
+    - Flujo pre-autorizado con PIN
+    - Emisión de credenciales diferidas
+    - Conformidad con OpenID4VCI DOME profile
+    - Integración con Remote DSS (Digital Signature Service)
+  version: 2.2.6
+  contact:
+    name: EUDIStack Team
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://issuer.eudistack.example.com
+    description: Servidor de producción
+  - url: https://sandbox.issuer.eudistack.example.com
+    description: Servidor de sandbox
+  - url: http://localhost:8080
+    description: Servidor de desarrollo local
+
+tags:
+  - name: OID4VCI
+    description: Endpoints del protocolo OpenID4VCI
+  - name: Metadata
+    description: Endpoints de metadatos del emisor
+  - name: Backoffice
+    description: Endpoints de administración
+  - name: Signatures
+    description: Gestión de configuración de firmas
+  - name: Operations
+    description: Endpoints operacionales y auditoría
+
+paths:
+  # ============================================
+  # METADATA ENDPOINTS
+  # ============================================
+  /.well-known/openid-credential-issuer:
+    get:
+      tags:
+        - Metadata
+      summary: Obtener metadatos del emisor de credenciales
+      description: |
+        Retorna los metadatos del emisor de credenciales en formato OpenID Connect.
+        Este endpoint es público y no requiere autenticación.
+      operationId: getCredentialIssuerMetadata
+      responses:
+        '200':
+          description: Metadatos del emisor obtenidos correctamente
+          headers:
+            Content-Language:
+              schema:
+                type: string
+                example: en
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialIssuerMetadata'
+
+  /.well-known/openid-configuration:
+    get:
+      tags:
+        - Metadata
+      summary: Obtener metadatos del servidor de autorización
+      description: |
+        Retorna los metadatos del servidor de autorización OAuth 2.0.
+        Este endpoint es público y no requiere autenticación.
+      operationId: getAuthorizationServerMetadata
+      responses:
+        '200':
+          description: Metadatos del servidor de autorización
+          headers:
+            Content-Language:
+              schema:
+                type: string
+                example: en
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationServerMetadata'
+
+  # ============================================
+  # OID4VCI ENDPOINTS
+  # ============================================
+  /oid4vci/v1/credential-offer/{id}:
+    get:
+      tags:
+        - OID4VCI
+      summary: Obtener oferta de credencial
+      description: |
+        Obtiene una oferta de credencial por su identificador de referencia.
+        El ID corresponde al nonce único generado durante la creación de la oferta.
+      operationId: getCredentialOffer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de referencia de la oferta de credencial
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Oferta de credencial obtenida correctamente
+          headers:
+            Content-Language:
+              schema:
+                type: string
+                example: en
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialOffer'
+        '404':
+          description: Oferta de credencial no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /oauth/token:
+    post:
+      tags:
+        - OID4VCI
+      summary: Obtener token de acceso
+      description: |
+        Obtiene un token de acceso usando el pre-authorized code y opcionalmente un tx_code (PIN).
+        Este endpoint sigue el flujo pre-autorizado de OpenID4VCI.
+      operationId: getToken
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+      responses:
+        '200':
+          description: Token obtenido correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Código de autorización inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /oid4vci/v1/credential:
+    post:
+      tags:
+        - OID4VCI
+      summary: Solicitar emisión de credencial
+      description: |
+        Solicita la emisión de una credencial verificable.
+        Puede devolver la credencial de forma síncrona (200) o diferida (202).
+      operationId: issueCredential
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CredentialRequest'
+      responses:
+        '200':
+          description: Credencial emitida correctamente (emisión síncrona)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialResponse'
+        '202':
+          description: Credencial en proceso (emisión diferida)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeferredCredentialAccepted'
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token de acceso inválido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /oid4vci/v1/deferred-credential:
+    post:
+      tags:
+        - OID4VCI
+      summary: Obtener credencial diferida
+      description: |
+        Recupera una credencial que fue emitida de forma diferida usando el transaction_id.
+      operationId: getDeferredCredential
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeferredCredentialRequest'
+      responses:
+        '200':
+          description: Credencial diferida obtenida correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeferredCredentialResponse'
+        '400':
+          description: Transaction ID inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Credencial diferida no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /oid4vci/v1/deferred-credential-metadata/nonce:
+    post:
+      tags:
+        - OID4VCI
+      summary: Vincular token a pre-authorized code
+      description: Vincula un token de acceso a un pre-authorized code para emisión diferida
+      operationId: bindNonce
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthServerNonceRequest'
+      responses:
+        '201':
+          description: Vinculación creada correctamente
+
+  /oid4vci/v1/credential-offer/transaction-code/{id}:
+    get:
+      tags:
+        - OID4VCI
+      summary: Obtener URI de oferta por Transaction Code
+      description: Obtiene la URI de oferta de credencial usando el Transaction Code
+      operationId: getCredentialOfferByTransactionCode
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Transaction Code
+          schema:
+            type: string
+      responses:
+        '200':
+          description: URI de oferta obtenida correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialOfferUriResponse'
+        '404':
+          description: Transaction Code no encontrado
+
+  /oid4vci/v1/credential-offer/c-transaction-code/{id}:
+    get:
+      tags:
+        - OID4VCI
+      summary: Obtener nueva URI de oferta por C-Transaction Code
+      description: Obtiene una nueva URI de oferta de credencial usando el C-Transaction Code
+      operationId: getCredentialOfferByCTransactionCode
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: C-Transaction Code
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Nueva URI de oferta obtenida correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialOfferUriResponse'
+        '404':
+          description: C-Transaction Code no encontrado
+
+  # ============================================
+  # BACKOFFICE ENDPOINTS
+  # ============================================
+  /backoffice/v1/configuration:
+    get:
+      tags:
+        - Backoffice
+      summary: Obtener configuración de la organización
+      description: Obtiene todas las configuraciones de la organización del usuario autenticado
+      operationId: getConfiguration
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Configuración obtenida correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+    post:
+      tags:
+        - Backoffice
+      summary: Guardar configuración
+      description: Guarda la configuración para la organización del usuario autenticado
+      operationId: saveConfiguration
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+      responses:
+        '201':
+          description: Configuración guardada correctamente
+    patch:
+      tags:
+        - Backoffice
+      summary: Actualizar configuración
+      description: Actualiza o inserta claves de configuración para la organización
+      operationId: updateConfiguration
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+      responses:
+        '204':
+          description: Configuración actualizada correctamente
+
+  /backoffice/v1/procedures:
+    get:
+      tags:
+        - Backoffice
+      summary: Listar procedimientos de credencial
+      description: Obtiene todos los procedimientos de credencial visibles para la organización
+      operationId: getCredentialProcedures
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de procedimientos obtenida correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialProcedures'
+
+  /backoffice/v1/procedures/{procedure_id}/credential-decoded:
+    get:
+      tags:
+        - Backoffice
+      summary: Obtener detalles de credencial decodificada
+      description: Obtiene los detalles decodificados de una credencial por su ID de procedimiento
+      operationId: getCredentialDetails
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: procedure_id
+          in: path
+          required: true
+          description: ID del procedimiento
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Detalles de credencial obtenidos correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialDetails'
+        '404':
+          description: Procedimiento no encontrado
+
+  /backoffice/v1/issuances:
+    post:
+      tags:
+        - Backoffice
+      summary: Emitir credencial (backoffice)
+      description: Emite una credencial internamente desde el backoffice
+      operationId: issueCredentialBackoffice
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreSubmittedCredentialDataRequest'
+      responses:
+        '201':
+          description: Credencial emitida correctamente
+
+  /vci/v1/issuances:
+    post:
+      tags:
+        - Backoffice
+      summary: Emitir credencial (API pública)
+      description: Emite una credencial externamente a través de la API pública de VCI
+      operationId: issueCredentialPublic
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: X-Id-Token
+          in: header
+          required: false
+          description: Token de identidad opcional
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreSubmittedCredentialDataRequest'
+      responses:
+        '201':
+          description: Credencial emitida correctamente
+
+  /backoffice/v1/credentials/status/{listId}:
+    get:
+      tags:
+        - Backoffice
+      summary: Obtener credenciales por lista
+      description: Obtiene credenciales por ID de lista (respuesta en streaming)
+      operationId: getCredentialsByList
+      parameters:
+        - name: listId
+          in: path
+          required: true
+          description: ID de la lista de estado
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Credenciales obtenidas correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CredentialStatusResponse'
+
+  /backoffice/v1/credentials/status/revoke:
+    post:
+      tags:
+        - Backoffice
+      summary: Revocar credencial
+      description: Revoca una credencial por su ID de procedimiento
+      operationId: revokeCredential
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeCredentialRequest'
+      responses:
+        '201':
+          description: Credencial revocada correctamente
+
+  /backoffice/v1/notifications/{procedure_id}:
+    post:
+      tags:
+        - Backoffice
+      summary: Enviar notificación de credencial
+      description: Envía una notificación por email para una credencial
+      operationId: sendNotification
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: procedure_id
+          in: path
+          required: true
+          description: ID del procedimiento
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Notificación enviada correctamente
+
+  /backoffice/v1/retry-sign-credential/{procedure_id}:
+    post:
+      tags:
+        - Backoffice
+      summary: Reintentar firma de credencial
+      description: Reintenta firmar una credencial que no fue firmada correctamente
+      operationId: retrySignCredential
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: procedure_id
+          in: path
+          required: true
+          description: ID del procedimiento
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Firma reintentada correctamente
+
+  # ============================================
+  # SIGNATURE CONFIGURATION ENDPOINTS
+  # ============================================
+  /backoffice/v1/signatures/configs:
+    get:
+      tags:
+        - Signatures
+      summary: Listar configuraciones de firma
+      description: Obtiene todas las configuraciones de firma, opcionalmente filtradas por modo
+      operationId: getSignatureConfigs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: signatureMode
+          in: query
+          required: false
+          description: Modo de firma para filtrar
+          schema:
+            type: string
+            enum:
+              - LOCAL
+              - REMOTE
+      responses:
+        '200':
+          description: Configuraciones obtenidas correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SignatureConfigWithProviderName'
+    post:
+      tags:
+        - Signatures
+      summary: Crear configuración de firma
+      description: Crea una nueva configuración de firma
+      operationId: createSignatureConfig
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteSignatureConfiguration'
+      responses:
+        '201':
+          description: Configuración creada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignatureConfiguration'
+
+  /backoffice/v1/signatures/configs/{id}:
+    get:
+      tags:
+        - Signatures
+      summary: Obtener configuración de firma
+      description: Obtiene una configuración de firma completa por su ID
+      operationId: getSignatureConfig
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la configuración
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Configuración obtenida correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignatureConfigurationResponse'
+        '404':
+          description: Configuración no encontrada
+    patch:
+      tags:
+        - Signatures
+      summary: Actualizar configuración de firma
+      description: Actualiza una configuración de firma existente con auditoría
+      operationId: updateSignatureConfig
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la configuración
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSignatureConfigurationRequest'
+      responses:
+        '204':
+          description: Configuración actualizada correctamente
+    delete:
+      tags:
+        - Signatures
+      summary: Eliminar configuración de firma
+      description: Elimina una configuración de firma con auditoría
+      operationId: deleteSignatureConfig
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la configuración
+          schema:
+            type: string
+            format: uuid
+        - name: rationale
+          in: query
+          required: true
+          description: Razón de la eliminación
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Configuración eliminada correctamente
+
+  /backoffice/v1/signatures/cloud-providers:
+    get:
+      tags:
+        - Signatures
+      summary: Listar proveedores de nube
+      description: Obtiene todos los proveedores de nube disponibles
+      operationId: getCloudProviders
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Proveedores obtenidos correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudProvider'
+
+  # ============================================
+  # OPERATIONS ENDPOINTS
+  # ============================================
+  /ops/v1/signatures/cloud-providers:
+    post:
+      tags:
+        - Operations
+      summary: Crear proveedor de nube
+      description: Crea un nuevo proveedor de nube para firma remota
+      operationId: createCloudProvider
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudProviderRequest'
+      responses:
+        '201':
+          description: Proveedor creado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudProvider'
+
+  /ops/v1/signatures/configs/audit:
+    get:
+      tags:
+        - Operations
+      summary: Obtener registros de auditoría
+      description: Obtiene todos los registros de auditoría de configuraciones de firma
+      operationId: getSignatureConfigAudit
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: organizationIdentifier
+          in: query
+          required: false
+          description: Filtrar por organización
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Registros de auditoría obtenidos correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SignatureConfigAudit'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token de acceso JWT obtenido del endpoint /oauth/token
+
+  schemas:
+    # ============================================
+    # METADATA SCHEMAS
+    # ============================================
+    CredentialIssuerMetadata:
+      type: object
+      required:
+        - credential_issuer
+        - issuance_endpoint
+        - credential_endpoint
+        - credential_configurations_supported
+      properties:
+        credential_issuer:
+          type: string
+          description: URL del emisor de credenciales
+          example: https://issuer.eudistack.example.com
+        issuance_endpoint:
+          type: string
+          description: Endpoint de emisión
+          example: https://issuer.eudistack.example.com/vci/v1/issuances
+        credential_endpoint:
+          type: string
+          description: Endpoint de credenciales
+          example: https://issuer.eudistack.example.com/oid4vci/v1/credential
+        deferred_credential_endpoint:
+          type: string
+          description: Endpoint de credenciales diferidas
+          example: https://issuer.eudistack.example.com/oid4vci/v1/deferred-credential
+        credential_configurations_supported:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/CredentialConfiguration'
+
+    CredentialConfiguration:
+      type: object
+      properties:
+        format:
+          type: string
+          example: jwt_vc_json
+        scope:
+          type: string
+          example: lear_credential_employee
+        cryptographic_binding_methods_supported:
+          type: array
+          items:
+            type: string
+          example: ["did:key"]
+        credential_signing_alg_values_supported:
+          type: array
+          items:
+            type: string
+          example: ["ES256"]
+        credential_definition:
+          $ref: '#/components/schemas/CredentialDefinition'
+        proof_types_supported:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ProofTypesSupported'
+
+    CredentialDefinition:
+      type: object
+      properties:
+        type:
+          type: array
+          items:
+            type: string
+          example: ["LEARCredentialEmployee", "VerifiableCredential"]
+
+    ProofTypesSupported:
+      type: object
+      properties:
+        proof_signing_alg_values_supported:
+          type: array
+          items:
+            type: string
+          example: ["ES256"]
+
+    AuthorizationServerMetadata:
+      type: object
+      required:
+        - issuer
+        - token_endpoint
+        - response_types_supported
+        - pre-authorized_grant_anonymous_access_supported
+      properties:
+        issuer:
+          type: string
+          example: https://issuer.eudistack.example.com
+        token_endpoint:
+          type: string
+          example: https://issuer.eudistack.example.com/oauth/token
+        response_types_supported:
+          type: array
+          items:
+            type: string
+          example: ["token"]
+        pre-authorized_grant_anonymous_access_supported:
+          type: boolean
+          example: true
+
+    # ============================================
+    # TOKEN SCHEMAS
+    # ============================================
+    TokenRequest:
+      type: object
+      required:
+        - grant_type
+        - pre-authorized_code
+      properties:
+        grant_type:
+          type: string
+          description: Tipo de grant (debe ser pre-authorized_code)
+          example: urn:ietf:params:oauth:grant-type:pre-authorized_code
+        pre-authorized_code:
+          type: string
+          description: Código pre-autorizado
+          example: adhjhdjajkdkhjhdj
+        tx_code:
+          type: string
+          description: PIN/código de transacción (opcional)
+          example: "1234"
+
+    TokenResponse:
+      type: object
+      required:
+        - access_token
+        - token_type
+        - expires_in
+        - refresh_token
+      properties:
+        access_token:
+          type: string
+          description: Token de acceso JWT
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+          description: Tiempo de expiración en segundos
+          example: 600
+        refresh_token:
+          type: string
+          description: Token de refresco
+
+    # ============================================
+    # CREDENTIAL OFFER SCHEMAS
+    # ============================================
+    CredentialOffer:
+      type: object
+      required:
+        - credential_issuer
+        - credential_configuration_ids
+        - grants
+      properties:
+        credential_issuer:
+          type: string
+          example: https://issuer.eudistack.example.com
+        credential_configuration_ids:
+          type: array
+          items:
+            type: string
+          example: ["LEARCredentialEmployee"]
+        grants:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Grants'
+
+    Grants:
+      type: object
+      properties:
+        pre-authorized_code:
+          type: string
+          example: adhjhdjajkdkhjhdj
+        tx_code:
+          $ref: '#/components/schemas/TxCode'
+
+    TxCode:
+      type: object
+      properties:
+        length:
+          type: integer
+          example: 4
+        input_mode:
+          type: string
+          example: numeric
+        description:
+          type: string
+          example: Enter your PIN Code.
+
+    CredentialOfferUriResponse:
+      type: object
+      properties:
+        credential_offer_uri:
+          type: string
+          description: URI de la oferta de credencial
+        c_transaction_code:
+          type: string
+          description: Código de transacción de continuación
+        c_transaction_code_expires_in:
+          type: integer
+          description: Tiempo de expiración del c_transaction_code en segundos
+
+    # ============================================
+    # CREDENTIAL REQUEST/RESPONSE SCHEMAS
+    # ============================================
+    CredentialRequest:
+      type: object
+      required:
+        - credential_configuration_id
+      properties:
+        credential_configuration_id:
+          type: string
+          description: ID de la configuración de credencial solicitada
+          example: LEARCredentialEmployee
+        proofs:
+          $ref: '#/components/schemas/Proofs'
+
+    Proofs:
+      type: object
+      properties:
+        jwt:
+          type: array
+          items:
+            type: string
+          description: Lista de pruebas JWT
+
+    CredentialResponse:
+      type: object
+      properties:
+        credentials:
+          type: array
+          items:
+            type: object
+            properties:
+              credential:
+                type: string
+                description: Credencial verificable en formato JWT
+
+    DeferredCredentialAccepted:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+          format: uuid
+          description: ID de transacción para recuperar la credencial
+          example: 958e84cf-888b-488a-bf30-7f3b14f70699
+        interval:
+          type: integer
+          description: Intervalo de espera en segundos antes de reintentar
+          example: 3600
+
+    DeferredCredentialRequest:
+      type: object
+      required:
+        - transaction_id
+      properties:
+        transaction_id:
+          type: string
+          format: uuid
+          description: ID de transacción de la credencial diferida
+
+    DeferredCredentialResponse:
+      type: object
+      required:
+        - credentials
+      properties:
+        credentials:
+          type: array
+          items:
+            type: string
+          description: Lista de credenciales verificables en formato JWT
+
+    AuthServerNonceRequest:
+      type: object
+      properties:
+        pre-authorized_code:
+          type: string
+        access_token:
+          type: string
+
+    # ============================================
+    # BACKOFFICE SCHEMAS
+    # ============================================
+    CredentialProcedures:
+      type: object
+      properties:
+        credential_procedures:
+          type: array
+          items:
+            type: object
+            properties:
+              credential_procedure:
+                $ref: '#/components/schemas/ProcedureBasicInfo'
+
+    ProcedureBasicInfo:
+      type: object
+      properties:
+        procedure_id:
+          type: string
+          format: uuid
+        credential_type:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    CredentialDetails:
+      type: object
+      properties:
+        procedure_id:
+          type: string
+          format: uuid
+        lifeCycleStatus:
+          type: string
+          enum:
+            - DRAFT
+            - WITHDRAWN
+            - ISSUED
+            - VALID
+            - REVOKED
+            - EXPIRED
+        operation_mode:
+          type: string
+        signature_mode:
+          type: string
+        credential:
+          type: object
+          description: Credencial decodificada
+        email:
+          type: string
+          format: email
+
+    PreSubmittedCredentialDataRequest:
+      type: object
+      required:
+        - schema
+        - format
+        - payload
+      properties:
+        schema:
+          type: string
+          description: Esquema de la credencial
+        format:
+          type: string
+          description: Formato de la credencial
+          example: jwt_vc_json
+        payload:
+          type: object
+          description: Datos de la credencial
+        operation_mode:
+          type: string
+          description: Modo de operación
+        response_uri:
+          type: string
+          description: URI de respuesta
+        issuance_notification_uri:
+          type: string
+          description: URI de notificación de emisión
+        email:
+          type: string
+          format: email
+          description: Email del titular
+
+    CredentialStatusResponse:
+      type: object
+      properties:
+        nonce:
+          type: string
+          description: Nonce de la credencial
+
+    RevokeCredentialRequest:
+      type: object
+      required:
+        - procedureId
+        - listId
+      properties:
+        procedureId:
+          type: string
+          format: uuid
+        listId:
+          type: integer
+
+    # ============================================
+    # SIGNATURE SCHEMAS
+    # ============================================
+    SignatureConfiguration:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organizationIdentifier:
+          type: string
+        enableRemoteSignature:
+          type: boolean
+        signatureMode:
+          type: string
+          enum:
+            - LOCAL
+            - REMOTE
+
+    CompleteSignatureConfiguration:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organizationIdentifier:
+          type: string
+        enableRemoteSignature:
+          type: boolean
+        signatureMode:
+          type: string
+          enum:
+            - LOCAL
+            - REMOTE
+        cloudProviderId:
+          type: string
+          format: uuid
+        clientId:
+          type: string
+        credentialId:
+          type: string
+        credentialName:
+          type: string
+        secretRelativePath:
+          type: string
+        clientSecret:
+          type: string
+        credentialPassword:
+          type: string
+        secret:
+          type: string
+
+    UpdateSignatureConfigurationRequest:
+      allOf:
+        - $ref: '#/components/schemas/CompleteSignatureConfiguration'
+        - type: object
+          required:
+            - rationale
+          properties:
+            rationale:
+              type: string
+              description: Razón de la actualización
+
+    SignatureConfigWithProviderName:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organizationIdentifier:
+          type: string
+        enableRemoteSignature:
+          type: boolean
+        signatureMode:
+          type: string
+          enum:
+            - LOCAL
+            - REMOTE
+        cloudProviderName:
+          type: string
+        clientId:
+          type: string
+        credentialId:
+          type: string
+        credentialName:
+          type: string
+
+    SignatureConfigurationResponse:
+      allOf:
+        - $ref: '#/components/schemas/SignatureConfigWithProviderName'
+
+    CloudProvider:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        provider:
+          type: string
+        url:
+          type: string
+          format: uri
+        authMethod:
+          type: string
+        authGrantType:
+          type: string
+
+    CloudProviderRequest:
+      type: object
+      required:
+        - provider
+        - url
+      properties:
+        provider:
+          type: string
+        url:
+          type: string
+          format: uri
+        authMethod:
+          type: string
+        authGrantType:
+          type: string
+        requiresTOTP:
+          type: boolean
+
+    SignatureConfigAudit:
+      type: object
+      properties:
+        id:
+          type: string
+        signatureConfigurationId:
+          type: string
+        userEmail:
+          type: string
+          format: email
+        organizationIdentifier:
+          type: string
+        instant:
+          type: string
+          format: date-time
+        oldValues:
+          type: object
+        newValues:
+          type: object
+        rationale:
+          type: string
+        encrypted:
+          type: boolean
+
+    # ============================================
+    # ERROR SCHEMAS
+    # ============================================
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Código de error
+        error_description:
+          type: string
+          description: Descripción del error
+        timestamp:
+          type: string
+          format: date-time
