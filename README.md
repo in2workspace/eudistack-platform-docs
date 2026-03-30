@@ -46,7 +46,7 @@ La documentación estará disponible en `http://localhost:8000`
 
 ## Sitio Web
 
-Documentación online: [https://in2workspace.github.io/eudistack-docs](https://in2workspace.github.io/eudistack-docs)
+Documentación online: [https://in2workspace.github.io/eudistack-platform-docs](https://in2workspace.github.io/eudistack-platform-docs)
 
 ## Estructura del Repositorio
 
