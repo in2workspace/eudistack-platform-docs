@@ -25,7 +25,7 @@ theme:
   custom_dir: overrides
   language: es
 
-  logo: assets/img/logo-dark.svg
+  logo: assets/img/logo.svg
   favicon: assets/img/favicon.svg
 
   palette:
@@ -62,8 +62,6 @@ theme:
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
-    - content.action.edit
-    - content.action.view
 
   icon:
     repo: fontawesome/brands/github

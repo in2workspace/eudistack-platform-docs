@@ -26,8 +26,21 @@
   --md-primary-fg-color:        #0F2B5B;
   --md-primary-fg-color--light: #1F4A8A;
   --md-primary-fg-color--dark:  #071A3A;
-  --md-accent-fg-color:         #00BFA6;
-  --md-accent-fg-color--transparent: rgba(0, 191, 166, 0.15);
+  --md-accent-fg-color:         #33D6BE;
+  --md-accent-fg-color--transparent: rgba(51, 214, 190, 0.15);
+
+  /* Inline links: primary navy (#0F2B5B) is invisible on slate background.
+     Override the typeset link tokens to a brighter teal that passes WCAG AA. */
+  --md-typeset-a-color: #33D6BE;
+}
+
+[data-md-color-scheme="slate"] .md-typeset a:hover,
+[data-md-color-scheme="slate"] .md-typeset a:focus {
+  color: #6DE6D2;
+}
+
+[data-md-color-scheme="slate"] .md-typeset a:visited {
+  color: #9F8FE0;
 }
 
 /* ------------------------------------------------------------------------------
