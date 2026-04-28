@@ -1,139 +1,60 @@
 ---
-title: Inicio
-description: Documentacion tecnica oficial de EUDIStack - European Business Wallet
+hide:
+  - navigation
+  - toc
 ---
 
-# Bienvenido a EUDIStack
+# EUDIStack Docs
 
-**EUDIStack** es una plataforma que permite a organizaciones **emitir, gestionar y verificar credenciales digitales** para sus empleados, colaboradores y socios de negocio, cumpliendo con la normativa europea de identidad digital (eIDAS 2).
+**Identidad digital europea, lista para usar.** Esta es la documentación oficial de la plataforma EUDIStack: emisión, custodia y verificación de credenciales digitales conformes con eIDAS 2.0.
+
+¿Qué te trae por aquí?
 
 <div class="grid cards" markdown>
 
--   :material-rocket-launch:{ .lg .middle } **Guias de Integracion**
+-   :material-account: **Soy usuario**
 
     ---
 
-    Aprende a integrar EUDIStack en tu aplicacion paso a paso
+    Usas el Wallet, el Portal de emisión o el Verifier en tu día a día. Aquí encontrarás guías paso a paso, capturas de pantalla y respuestas a las preguntas más frecuentes.
 
-    [:octicons-arrow-right-24: Comenzar](guias-integracion/index.md)
+    [:octicons-arrow-right-24: Guías de usuario](users/index.md)
 
--   :material-certificate:{ .lg .middle } **Modelo de Credenciales**
-
-    ---
-
-    Explora la ontologia y esquemas de credenciales verificables
-
-    [:octicons-arrow-right-24: Ver modelo](modelo-credenciales/index.md)
-
--   :material-api:{ .lg .middle } **Referencia API**
+-   :material-code-tags: **Soy integrador / técnico**
 
     ---
 
-    Documentacion completa de los endpoints y metodos disponibles
+    Vas a integrar EUDIStack con tu sistema: APIs, OID4VCI/VP, SD-JWT, OIDC, SCIM... Aquí tienes los conceptos, las guías y la referencia completa de la API.
 
-    [:octicons-arrow-right-24: Explorar API](referencia-api/index.md)
-
--   :material-sitemap:{ .lg .middle } **Arquitectura**
-
-    ---
-
-    Comprende la arquitectura del sistema y sus componentes
-
-    [:octicons-arrow-right-24: Ver arquitectura](arquitectura/index.md)
+    [:octicons-arrow-right-24: Documentación técnica](developers/index.md)
 
 </div>
 
-## Que es EUDIStack?
+---
 
-EUDIStack es una plataforma de identidad digital que proporciona los servicios necesarios para **emitir, almacenar, presentar y verificar credenciales verificables (VCs)** conforme a los principales estandares internacionales.
+## Recursos rápidos
 
-### Componentes principales
+<div class="grid cards" markdown>
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      EUDIStack Platform                         │
-├─────────────────┬─────────────────┬─────────────────────────────┤
-│     ISSUER      │     WALLET      │         VERIFIER            │
-│   (Para org.)   │  (Para usuario) │        (Para org.)          │
-├─────────────────┼─────────────────┼─────────────────────────────┤
-│ • Panel admin   │ • App movil     │ • Widget/SDK verificacion   │
-│ • APIs emision  │ • iOS + Android │ • APIs validacion           │
-│ • Integraciones │ • White-label   │ • Integracion SSO           │
-└─────────────────┴─────────────────┴─────────────────────────────┘
-```
+-   :material-book-open-variant: **Glosario y estándares**
 
-| Componente | Descripcion |
-|------------|-------------|
-| **Issuer** | Sistema para crear y gestionar credenciales. Incluye panel de administracion, APIs y emision individual o masiva. |
-| **Wallet** | Aplicacion movil donde los usuarios guardan y presentan sus credenciales. Disponible para iOS y Android. |
-| **Verifier** | Servicio para verificar credenciales. Incluye APIs, widget embebible e integracion con sistemas de login. |
+    Términos clave, protocolos OID4VCI/VP, SD-JWT VC, DCQL, HAIP.
 
-### Que problema resuelve?
+    [:octicons-arrow-right-24: Referencia](reference/index.md)
 
-| Problema actual | Solucion EUDIStack |
-|-----------------|-------------------|
-| Carnets y certificados en papel/PDF faciles de falsificar | Credenciales con firma criptografica, verificables al instante |
-| Multiples contrasenas y sistemas | Autenticacion con credencial desde el movil (passwordless) |
-| Onboarding/offboarding manual | Automatizacion de emision y revocacion via APIs |
-| Verificacion de terceros costosa | Verificacion instantanea y automatica |
-| Cumplimiento normativo complejo | Disenado nativamente para eIDAS 2, GDPR |
+-   :material-lifebuoy: **Soporte**
 
-## Inicio rapido
+    ¿Necesitas ayuda? Cómo contactar, abrir un ticket y SLA.
 
-```bash
-# Clonar el repositorio
-git clone https://github.com/in2workspace/eudistack.git
+    [:octicons-arrow-right-24: Soporte](support.md)
 
-# Navegar al directorio
-cd eudistack
+-   :material-history: **Changelog**
 
-# Iniciar con Docker
-docker compose up -d
-```
+    Novedades y cambios por versión.
 
-[:material-arrow-right: Ir a la guia de inicio rapido](guias-integracion/inicio-rapido.md){ .md-button .md-button--primary }
+    [:octicons-arrow-right-24: Ver changelog](reference/changelog.md)
 
-## Flujo tipico
+</div>
 
-```mermaid
-flowchart LR
-    subgraph Organizacion
-        IS[Issuer]
-    end
-
-    subgraph Usuario
-        WA[Wallet App]
-    end
-
-    subgraph Servicio
-        VS[Verifier]
-    end
-
-    IS -->|1. Emite credencial| WA
-    WA -->|2. Presenta credencial| VS
-    VS -->|3. Verifica y autoriza| Servicio
-```
-
-1. **La organizacion emite** una credencial al usuario (empleado, colaborador, etc.)
-2. **El usuario recibe** la credencial en su wallet movil
-3. **El usuario presenta** la credencial cuando necesita acceder a un servicio
-4. **El servicio verifica** la credencial y autoriza el acceso
-
-## Estandares implementados
-
-EUDIStack implementa los principales estandares de identidad digital:
-
-| Estandar | Descripcion |
-|----------|-------------|
-| **eIDAS 2** | Regulacion europea de identidad digital |
-| **OID4VCI** | OpenID for Verifiable Credential Issuance |
-| **OID4VP** | OpenID for Verifiable Presentations |
-| **W3C VC** | Verifiable Credentials Data Model 2.0 |
-| **SD-JWT VC** | Selective Disclosure JWT |
-| **DID** | Decentralized Identifiers |
-
-## Recursos adicionales
-
-- [:material-github: Repositorio GitHub](https://github.com/in2workspace) - Codigo fuente
-- [:material-book: ARF Documentation](https://eu-digital-identity-wallet.github.io/eudi-doc-architecture-and-reference-framework/) - Architecture Reference Framework
-- [:material-link: OpenID4VC](https://openid.net/sg/openid4vc/) - Especificaciones OpenID Foundation
+!!! eudistack "EUDIStack como servicio"
+    EUDIStack se ofrece en modalidad **SaaS gestionada**. No necesitas desplegar la infraestructura: nosotros nos encargamos del aprovisionamiento, mantenimiento y operación. Esta documentación cubre el uso del producto y la integración con tus sistemas.

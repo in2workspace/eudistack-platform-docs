@@ -210,7 +210,7 @@ Un servicio necesita verificar la identidad o atributos:
 
 ## Soporte y Comunidad
 
-- **Documentación:** [https://in2workspace.github.io/eudistack-docs](https://in2workspace.github.io/eudistack-docs)
+- **Documentación:** [https://docs.eudistack.net](https://docs.eudistack.net)
 - **Repositorio:** [https://github.com/in2workspace](https://github.com/in2workspace)
 - **Issues:** Reportar problemas en el repositorio correspondiente
 

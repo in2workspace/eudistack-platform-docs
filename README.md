@@ -1,94 +1,67 @@
-# EUDIStack Documentation
+# EUDIStack Docs
 
-Documentación técnica oficial de **EUDIStack** - Implementación del European Business Wallet para la emisión, gestión y verificación de credenciales verificables conforme a eIDAS 2.
+Knowledge base oficial de la plataforma **EUDIStack**: emisión, custodia y verificación de credenciales digitales conformes a eIDAS 2.0.
 
-## Qué es EUDIStack
+Esta documentación está pensada para dos audiencias:
 
-EUDIStack es una implementación open-source del **European Business Wallet** que permite a organizaciones:
+- **Usuarios finales** — guías de uso del Wallet (EUDIW y Business Wallet), Portal Issuer y Verifier.
+- **Integradores / técnicos** — conceptos, guías de integración (OIDC, SCIM, API Direct Issuance) y referencia de API.
 
-- **Emitir** credenciales digitales verificables (Issuer)
-- **Almacenar** credenciales en una cartera móvil (Wallet)
-- **Verificar** credenciales de forma instantánea (Verifier)
+## Sitio publicado
 
-## Contenidos de la Documentación
+- Producción: [https://docs.eudistack.net](https://docs.eudistack.net)
+- Mirror GitHub Pages: [https://in2workspace.github.io/eudistack-platform-docs](https://in2workspace.github.io/eudistack-platform-docs)
 
-| Sección | Descripción |
-|---------|-------------|
-| **Arquitectura** | Visión general del sistema, componentes y flujos |
-| **Modelo de Credenciales** | Ontología, esquemas JSON y tipos de credenciales |
-| **Referencia API** | Endpoints, autenticación y ejemplos de código |
-| **Guías de Integración** | Inicio rápido, configuración y autenticación |
-
-## Inicio Rápido
+## Trabajo local
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/in2workspace/eudistack-docs.git
+git clone https://github.com/in2workspace/eudistack-platform-docs.git
+cd eudistack-platform-docs
 
-# Instalar dependencias
+# Crear venv e instalar dependencias
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 
-# Ejecutar documentación localmente
+# Servir la documentación localmente (http://localhost:8000)
 mkdocs serve
+
+# O construir el sitio estático en site/
+mkdocs build
 ```
 
-La documentación estará disponible en `http://localhost:8000`
-
-## Estándares Implementados
-
-- **eIDAS 2** - Regulación europea de identidad digital
-- **ARF (EUDIW)** - Architecture Reference Framework
-- **OID4VCI** - OpenID for Verifiable Credential Issuance
-- **OID4VP** - OpenID for Verifiable Presentations
-- **W3C VC** - Verifiable Credentials Data Model 2.0
-- **SD-JWT VC** - Selective Disclosure JWT
-- **ISO/IEC 18013-5** - Mobile Driving License
-
-## Sitio Web
-
-Documentación online: [https://in2workspace.github.io/eudistack-platform-docs](https://in2workspace.github.io/eudistack-platform-docs)
-
-## Estructura del Repositorio
+## Estructura del repositorio
 
 ```
-eudistack-docs/
-├── docs/                    # Contenido de la documentación
-│   ├── index.md             # Página principal
-│   ├── arquitectura/        # Documentación de arquitectura
-│   ├── modelo-credenciales/ # Modelo de credenciales
-│   ├── referencia-api/      # Referencia de APIs
-│   └── guias-integracion/   # Guías de integración
-├── mkdocs.yml               # Configuración MkDocs
-├── requirements.txt         # Dependencias Python
-├── CONTEXT.md               # Contexto del proyecto
-└── README.md                # Este archivo
+eudistack-platform-docs/
+├── docs/                 # Contenido (Markdown, multilenguaje ES/EN)
+│   ├── index.md          # Landing
+│   ├── users/            # Guías para usuarios finales
+│   ├── developers/       # Documentación para integradores
+│   ├── reference/        # Glosario, estándares, changelog
+│   └── support.md        # Soporte y contacto
+├── overrides/            # Customización del theme Material
+├── mkdocs.yml            # Configuración MkDocs
+├── requirements.txt      # Dependencias Python
+├── CNAME                 # Custom domain (docs.eudistack.net)
+└── .github/workflows/    # Deploy automático a GitHub Pages
 ```
 
 ## Contribuir
 
-Las contribuciones son bienvenidas. Por favor:
+1. Crea una rama (`git checkout -b feat/mi-cambio`).
+2. Edita el contenido en `docs/`. Las páginas existen como pares `*.md` (Español, default) + `*.en.md` (Inglés).
+3. Prueba localmente con `mkdocs serve --strict`.
+4. Abre un Pull Request hacia `main`.
 
-1. Fork del repositorio
-2. Crea una rama para tu feature (`git checkout -b feature/nueva-seccion`)
-3. Commit de tus cambios (`git commit -m 'Añade nueva sección'`)
-4. Push a la rama (`git push origin feature/nueva-seccion`)
-5. Abre un Pull Request
-
-## Repositorios Relacionados
-
-| Componente | Repositorio |
-|------------|-------------|
-| Issuer API | [in2workspace/issuer-api](https://github.com/in2workspace/issuer-api) |
-| Issuer UI | [in2workspace/issuer-ui](https://github.com/in2workspace/issuer-ui) |
-| Wallet API | [in2workspace/wallet-api](https://github.com/in2workspace/wallet-api) |
-| Wallet UI | [in2workspace/wallet-ui](https://github.com/in2workspace/wallet-ui) |
-| Verifier | [in2workspace/verifier](https://github.com/in2workspace/verifier) |
+El despliegue a GitHub Pages (y por tanto a `docs.eudistack.net`) es automático en cada merge a `main`.
 
 ## Licencia
 
-Apache 2.0 - Ver [LICENSE](LICENSE) para más detalles.
+Apache 2.0 — ver [LICENSE](LICENSE) para más detalles.
 
 ---
 
-**Mantenido por:** IN2 - Unidad de Identidad Digital
-**Copyright:** 2024-2026 IN2
+**Mantenido por:** Altia Consultores, S.A.
+**Copyright:** © 2024-2026 Altia Consultores, S.A.

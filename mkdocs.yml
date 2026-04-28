@@ -2,20 +2,20 @@
 # EUDIStack Documentation - MkDocs Configuration
 # ==============================================================================
 
-site_name: EUDIStack Documentation
-site_url: https://in2workspace.github.io/eudistack-docs
-site_author: IN2
+site_name: EUDIStack Docs
+site_url: https://docs.eudistack.net/
+site_author: Altia Consultores, S.A.
 site_description: >-
-  Documentacion tecnica oficial de EUDIStack - European Digital Identity Wallet
-  Implementation
+  Knowledge base oficial de EUDIStack: guías para usuarios finales del Wallet,
+  Issuer y Verifier, y documentación técnica para integradores.
 
 # Repository information
-repo_name: in2workspace/eudistack-docs
-repo_url: https://github.com/in2workspace/eudistack-docs
+repo_name: in2workspace/eudistack-platform-docs
+repo_url: https://github.com/in2workspace/eudistack-platform-docs
 edit_uri: edit/main/docs/
 
 # Copyright
-copyright: Copyright &copy; 2024-2026 IN2 - All rights reserved
+copyright: Copyright &copy; 2024-2026 Altia Consultores, S.A. — All rights reserved
 
 # ==============================================================================
 # Theme Configuration
@@ -25,57 +25,46 @@ theme:
   custom_dir: overrides
   language: es
 
-  # Logo and favicon (Altia branding)
-  logo: media/logo.svg
-  favicon: media/favicon.png
+  logo: assets/img/logo-dark.svg
+  favicon: assets/img/favicon.svg
 
-  # Color palette with dark/light mode toggle
   palette:
     # Light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
-      accent: indigo
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-7
         name: Cambiar a modo oscuro
     # Dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: indigo
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-4
         name: Cambiar a modo claro
 
-  # Theme features
   features:
-    # Navigation (instant disabled for i18n language switcher compatibility)
     - navigation.tracking
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.sections
-    - navigation.expand
     - navigation.indexes
     - navigation.top
     - navigation.path
-
-    # Table of contents
+    - navigation.footer
     - toc.follow
-
-    # Search
     - search.suggest
     - search.highlight
     - search.share
-
-    # Content
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
     - content.action.edit
     - content.action.view
 
-  # Icon customization
   icon:
     repo: fontawesome/brands/github
     edit: material/pencil
@@ -85,14 +74,12 @@ theme:
 # Plugins
 # ==============================================================================
 plugins:
-  # Search plugin
   - search:
       separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
       lang:
         - es
         - en
 
-  # Multi-language support
   - i18n:
       docs_structure: suffix
       fallback_to_default: true
@@ -101,57 +88,42 @@ plugins:
       languages:
         - locale: es
           default: true
-          name: Espanol
+          name: Español
           build: true
-          site_name: "EUDIStack - Documentacion"
+          site_name: "EUDIStack Docs"
         - locale: en
           name: English
           build: true
-          site_name: "EUDIStack - Documentation"
+          site_name: "EUDIStack Docs"
           nav_translations:
             Inicio: Home
-            Guias de Integracion: Integration Guides
-            Inicio Rapido: Quick Start
-            Configuracion: Configuration
-            Autenticacion: Authentication
-            Modelo de Credenciales: Credential Model
-            Ontologia: Ontology
-            Esquemas: Schemas
-            Tipos de Credencial: Credential Types
+            Usuarios: Users
+            Wallet — EUDIW: Wallet — EUDIW
+            Wallet — Business Wallet: Wallet — Business Wallet
+            Portal Issuer: Issuer Portal
+            Verifier: Verifier
+            Solución de problemas: Troubleshooting
+            Developers: Developers
+            Primeros pasos: Getting Started
+            Conceptos: Concepts
+            Guías: Guides
             Referencia API: API Reference
-            Especificaciones OpenAPI: OpenAPI Specifications
-            Endpoints: Endpoints
-            Autorizacion: Authorization
-            Ejemplos: Examples
-            Arquitectura: Architecture
-            Vision General: Overview
-            Componentes: Components
-            Flujos: Flows
-        - locale: ca
-          name: Catala
-          build: true
-          site_name: "EUDIStack - Documentacio"
-          nav_translations:
-            Inicio: Inici
-            Guias de Integracion: Guies d'Integracio
-            Inicio Rapido: Inici Rapid
-            Configuracion: Configuracio
-            Autenticacion: Autenticacio
-            Modelo de Credenciales: Model de Credencials
-            Ontologia: Ontologia
-            Esquemas: Esquemes
-            Tipos de Credencial: Tipus de Credencial
-            Referencia API: Referencia API
-            Especificaciones OpenAPI: Especificacions OpenAPI
-            Endpoints: Endpoints
-            Autorizacion: Autoritzacio
-            Ejemplos: Exemples
-            Arquitectura: Arquitectura
-            Vision General: Visio General
-            Componentes: Components
-            Flujos: Fluxos
+            Referencia: Reference
+            Glosario: Glossary
+            Estándares: Standards
+            Changelog: Changelog
+            Soporte: Support
 
-  # Minify HTML
+  - glightbox:
+      touchNavigation: true
+      loop: false
+      effect: zoom
+      slide_effect: slide
+      width: 100%
+      height: auto
+      zoomable: true
+      draggable: true
+
   - minify:
       minify_html: true
 
@@ -159,7 +131,6 @@ plugins:
 # Markdown Extensions
 # ==============================================================================
 markdown_extensions:
-  # Python Markdown
   - abbr
   - admonition
   - attr_list
@@ -172,7 +143,6 @@ markdown_extensions:
       permalink_title: Enlace permanente
       toc_depth: 3
 
-  # PyMdown Extensions
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.betterem:
@@ -208,8 +178,6 @@ markdown_extensions:
 # Extra Configuration
 # ==============================================================================
 extra:
-  # Language selector is managed by i18n plugin (reconfigure_material: true)
-  # Social links
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/in2workspace
@@ -226,24 +194,59 @@ extra_css:
 # ==============================================================================
 nav:
   - Inicio: index.md
-  - Guias de Integracion:
-      - guias-integracion/index.md
-      - Inicio Rapido: guias-integracion/inicio-rapido.md
-      - Configuracion: guias-integracion/configuracion.md
-      - Autenticacion: guias-integracion/autenticacion.md
-  - Modelo de Credenciales:
-      - modelo-credenciales/index.md
-      - Ontologia: modelo-credenciales/ontologia.md
-      - Esquemas: modelo-credenciales/esquemas.md
-      - Tipos de Credencial: modelo-credenciales/tipos-credencial.md
-  - Referencia API:
-      - referencia-api/index.md
-      - Especificaciones OpenAPI: referencia-api/openapi/index.md
-      - Endpoints: referencia-api/endpoints.md
-      - Autorizacion: referencia-api/autorizacion.md
-      - Ejemplos: referencia-api/ejemplos.md
-  - Arquitectura:
-      - arquitectura/index.md
-      - Vision General: arquitectura/vision-general.md
-      - Componentes: arquitectura/componentes.md
-      - Flujos: arquitectura/flujos.md
+
+  - Usuarios:
+      - users/index.md
+      - Wallet — EUDIW:
+          - users/wallet-eudiw/index.md
+          - Primeros pasos: users/wallet-eudiw/getting-started.md
+          - Recibir credenciales: users/wallet-eudiw/receive-credentials.md
+          - Presentar credenciales: users/wallet-eudiw/present-credentials.md
+          - Gestionar credenciales: users/wallet-eudiw/manage-credentials.md
+      - Wallet — Business Wallet:
+          - users/wallet-business/index.md
+          - Primeros pasos: users/wallet-business/getting-started.md
+          - Dispositivos y claves: users/wallet-business/devices.md
+          - Operativa diaria: users/wallet-business/daily-operations.md
+      - Portal Issuer:
+          - users/issuer-portal/index.md
+          - Emitir una credencial: users/issuer-portal/issue-credential.md
+          - Gestionar emisiones: users/issuer-portal/manage-issuances.md
+      - Verifier:
+          - users/verifier/index.md
+          - Verificación remota: users/verifier/remote-verification.md
+          - Verificación presencial: users/verifier/proximity-verification.md
+      - Solución de problemas: users/troubleshooting.md
+
+  - Developers:
+      - developers/index.md
+      - Primeros pasos:
+          - developers/getting-started/index.md
+          - Sandbox: developers/getting-started/sandbox.md
+          - Tu primera integración: developers/getting-started/first-integration.md
+      - Conceptos:
+          - developers/concepts/index.md
+          - OID4VCI: developers/concepts/oid4vci.md
+          - OID4VP: developers/concepts/oid4vp.md
+          - SD-JWT VC: developers/concepts/sd-jwt-vc.md
+          - DPoP & PKCE: developers/concepts/dpop-pkce.md
+          - Multi-tenant: developers/concepts/multi-tenant.md
+      - Guías:
+          - developers/guides/index.md
+          - OIDC IdP (login con credencial): developers/guides/oidc-idp.md
+          - SCIM Provisioning: developers/guides/scim-provisioning.md
+          - API Direct Issuance: developers/guides/api-direct-issuance.md
+      - Referencia API:
+          - developers/api-reference/index.md
+          - Issuer API: developers/api-reference/issuer.md
+          - Verifier API: developers/api-reference/verifier.md
+          - Wallet (EBW) API: developers/api-reference/wallet-ebw.md
+      - Solución de problemas: developers/troubleshooting.md
+
+  - Referencia:
+      - reference/index.md
+      - Glosario: reference/glossary.md
+      - Estándares: reference/standards.md
+      - Changelog: reference/changelog.md
+
+  - Soporte: support.md
