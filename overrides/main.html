@@ -7,7 +7,7 @@
   <meta property="og:description" content="{{ config.site_description }}">
   <meta property="og:url" content="{{ page.canonical_url }}">
   {% if config.site_url %}
-  <meta property="og:image" content="{{ config.site_url }}media/social-card.png">
+  <meta property="og:image" content="{{ config.site_url }}assets/img/social-card.png">
   {% endif %}
 
   <!-- Twitter Card -->
@@ -15,13 +15,6 @@
   <meta name="twitter:title" content="{{ page.title }} - {{ config.site_name }}">
   <meta name="twitter:description" content="{{ config.site_description }}">
   {% if config.site_url %}
-  <meta name="twitter:image" content="{{ config.site_url }}media/social-card.png">
+  <meta name="twitter:image" content="{{ config.site_url }}assets/img/social-card.png">
   {% endif %}
-{% endblock %}
-
-{% block announce %}
-  <!-- Optional announcement bar - uncomment and modify as needed -->
-  <!-- <a href="https://github.com/in2workspace/eudistack-docs/releases">
-    Nueva version disponible - Ver cambios
-  </a> -->
 {% endblock %}

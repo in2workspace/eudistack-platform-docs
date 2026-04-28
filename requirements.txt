@@ -14,6 +14,9 @@ mkdocs-static-i18n>=1.2.0
 # Minify HTML
 mkdocs-minify-plugin>=0.7.0
 
+# Image lightbox / zoom (for screenshots in user guides)
+mkdocs-glightbox>=0.4.0
+
 # Code formatting in docs
 pygments>=2.17.0
 pymdown-extensions>=10.0

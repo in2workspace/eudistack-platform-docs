@@ -1,9 +1,34 @@
 /* ==============================================================================
    EUDIStack Custom Theme - extra.css
 
-   Estilos minimos basados en EUDIW oficial + acentos ALTIA
-   Mantiene la legibilidad del tema Material por defecto
+   Brand kit oficial EUDIStack (tenant: eudistack/platform)
+   primary: #0F2B5B   secondary: #00BFA6
    ============================================================================== */
+
+/* ------------------------------------------------------------------------------
+   Custom palette mapping (linked to theme.palette.primary/accent: custom)
+   ------------------------------------------------------------------------------ */
+
+:root {
+  --md-primary-fg-color:        #0F2B5B;
+  --md-primary-fg-color--light: #1F4A8A;
+  --md-primary-fg-color--dark:  #071A3A;
+  --md-primary-bg-color:        #ffffff;
+  --md-primary-bg-color--light: #ffffffcc;
+
+  --md-accent-fg-color:         #00BFA6;
+  --md-accent-fg-color--transparent: rgba(0, 191, 166, 0.1);
+  --md-accent-bg-color:         #ffffff;
+  --md-accent-bg-color--light:  #ffffffcc;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color:        #0F2B5B;
+  --md-primary-fg-color--light: #1F4A8A;
+  --md-primary-fg-color--dark:  #071A3A;
+  --md-accent-fg-color:         #00BFA6;
+  --md-accent-fg-color--transparent: rgba(0, 191, 166, 0.15);
+}
 
 /* ------------------------------------------------------------------------------
    Logo Sizing
@@ -21,7 +46,7 @@
 }
 
 /* ------------------------------------------------------------------------------
-   API Method Badges (for API Reference section)
+   API Method Badges
    ------------------------------------------------------------------------------ */
 
 .md-typeset .api-method {
@@ -34,62 +59,44 @@
   margin-right: 0.5rem;
 }
 
-.md-typeset .api-method.get {
-  background-color: #61affe;
-  color: white;
-}
-
-.md-typeset .api-method.post {
-  background-color: #49cc90;
-  color: white;
-}
-
-.md-typeset .api-method.put {
-  background-color: #fca130;
-  color: white;
-}
-
-.md-typeset .api-method.delete {
-  background-color: #f93e3e;
-  color: white;
-}
-
-.md-typeset .api-method.patch {
-  background-color: #50e3c2;
-  color: black;
-}
+.md-typeset .api-method.get    { background-color: #61affe; color: white; }
+.md-typeset .api-method.post   { background-color: #49cc90; color: white; }
+.md-typeset .api-method.put    { background-color: #fca130; color: white; }
+.md-typeset .api-method.delete { background-color: #f93e3e; color: white; }
+.md-typeset .api-method.patch  { background-color: #50e3c2; color: black; }
 
 /* ------------------------------------------------------------------------------
-   Cards Grid (for homepage)
+   Cards Grid (for homepage and section landings)
    ------------------------------------------------------------------------------ */
 
 .md-typeset .grid.cards > ul > li {
   border-radius: 0.5rem;
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s, transform 0.2s;
 }
 
 .md-typeset .grid.cards > ul > li:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(15, 43, 91, 0.15);
+  transform: translateY(-2px);
 }
 
 /* ------------------------------------------------------------------------------
    Admonition Custom Type: eudistack
-   Usage in markdown: !!! eudistack "Title"
+   Usage: !!! eudistack "Title"
    ------------------------------------------------------------------------------ */
 
 .md-typeset .admonition.eudistack,
 .md-typeset details.eudistack {
-  border-color: #3f51b5;
+  border-color: var(--md-primary-fg-color);
 }
 
 .md-typeset .eudistack > .admonition-title,
 .md-typeset .eudistack > summary {
-  background-color: rgba(63, 81, 181, 0.1);
+  background-color: rgba(15, 43, 91, 0.08);
 }
 
 .md-typeset .eudistack > .admonition-title::before,
 .md-typeset .eudistack > summary::before {
-  background-color: #3f51b5;
+  background-color: var(--md-primary-fg-color);
   -webkit-mask-image: var(--md-admonition-icon--info);
   mask-image: var(--md-admonition-icon--info);
 }
