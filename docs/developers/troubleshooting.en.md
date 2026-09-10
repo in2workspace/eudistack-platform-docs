@@ -40,6 +40,23 @@ Common errors during integration and how to resolve them.
         - **Likely cause**: the subdomain is not provisioned or the session points to a different tenant.
         - **Solution**: confirm with support that the tenant is active and that your OAuth client is registered for it.
 
+=== "SSO across applications"
+
+    ??? bug "`prompt=none` always returns `login_required`, even though the user just logged in on another application"
+
+        - **Likely cause**: SSO is not enabled for your tenant, or the two applications don't hang off the same configured root domain (`rootDomain`) — without that, the browser doesn't share the session cookie between them.
+        - **Solution**: confirm with your tenant administrator that SSO is active and that both applications are served under the same root domain. See the [administration guide](../admin/verifier-sso.en.md).
+
+    ??? bug "`prompt=none` returns `interaction_required`"
+
+        - **Likely cause**: there is a valid SSO session, but your `client_id` is not on the tenant's eligible applications catalog.
+        - **Solution**: ask your tenant administrator to add your `client_id` to the SSO catalog. See the [SSO across applications guide](guides/sso-multi-app.en.md).
+
+    ??? bug "The `id_token` from a silent reuse doesn't include the `sid` claim"
+
+        - **Likely cause**: the request didn't include `prompt=none`, or it fell back to the full login flow (for example, after a previous `login_required`/`interaction_required`) — `sid` is only issued when an active SSO session backs the token.
+        - **Solution**: check the authorization response to see whether you got a direct `code` (reuse) or had to go through the QR code (full login).
+
 ---
 
 ## Still stuck?

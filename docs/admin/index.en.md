@@ -16,6 +16,14 @@ Welcome. This section explains how to manage credential issuance from the Issuer
 
     [:octicons-arrow-right-24: Get started](issuer-portal/index.en.md)
 
+-   :material-account-sync: **Verifier — Single Sign-On**
+
+    ---
+
+    Configure the eligible applications catalog and the session duration to share authentication between your tenant's applications.
+
+    [:octicons-arrow-right-24: Get started](verifier-sso.en.md)
+
 </div>
 
 ---

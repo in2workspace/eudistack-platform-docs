@@ -162,6 +162,12 @@ Here you will find a summary of the most relevant new features and improvements 
 ## Documentation
 
 ??? "Knowledge Base"
+    === "2026-09"
+        **Cross-application SSO guides**
+
+        - New developer guide: [SSO across applications](../developers/guides/sso-multi-app.en.md), how to integrate silent session reuse (`prompt=none`) between several applications in the same tenant.
+        - New administration guide: [Verifier — Single Sign-On](../admin/verifier-sso.en.md), managing the eligible applications catalog and the session duration.
+
     === "2026-07"
         **EUDIStack Sandbox URL update fix**
 
