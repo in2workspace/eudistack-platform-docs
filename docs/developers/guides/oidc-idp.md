@@ -166,3 +166,9 @@ sequenceDiagram
 
 === "Validación de Revocación"
     La comprobación de revocación ocurre en el momento en que el wallet presenta la credencial (`POST /oid4vp/auth-response`), antes de que se emita el código de autorización. Si la credencial está revocada, el flujo se corta en ese punto y el Portal recibe una notificación de error vía SSE. Tu aplicación nunca llega a recibir un `code`.
+
+---
+
+## ¿Varias aplicaciones bajo el mismo tenant?
+
+Si tienes más de una aplicación cliente integrada con este mismo tenant, puedes evitar que el usuario presente su credencial en cada una: consulta la guía de [SSO entre aplicaciones del mismo tenant](sso-multi-app.md).
