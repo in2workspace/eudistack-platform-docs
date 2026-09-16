@@ -165,3 +165,9 @@ sequenceDiagram
 
 === "Revocation Validation"
     The revocation check occurs at the moment the wallet presents the credential (`POST /oid4vp/auth-response`), before the authorization code is issued. If the credential is revoked, the flow is cut off at that point and the Portal receives an error notification via SSE. Your application never receives a `code`.
+
+---
+
+## More than one application under the same tenant?
+
+If you have more than one client application integrated with this same tenant, you can avoid asking the user to present their credential again in each one: see the [SSO across applications in the same tenant](sso-multi-app.en.md) guide.

@@ -40,6 +40,23 @@ Errores frecuentes durante la integración y cómo resolverlos.
         - **Causa probable**: el subdominio no está aprovisionado o la sesión apunta a otro tenant.
         - **Solución**: confirma con soporte que el tenant está activo y que tu cliente OAuth está registrado en él.
 
+=== "SSO entre aplicaciones"
+
+    ??? bug "`prompt=none` siempre devuelve `login_required`, aunque el usuario acaba de hacer login en otra aplicación"
+
+        - **Causa probable**: el SSO no está habilitado para tu tenant, o las dos aplicaciones no cuelgan del mismo dominio raíz configurado (`rootDomain`) — sin eso, el navegador no comparte la cookie de sesión entre ellas.
+        - **Solución**: confirma con tu administrador de tenant que el SSO está activo y que ambas aplicaciones sirven bajo el mismo dominio raíz. Ver [guía de administración](../admin/verifier-sso.md).
+
+    ??? bug "`prompt=none` devuelve `interaction_required`"
+
+        - **Causa probable**: hay una sesión SSO vigente, pero tu `client_id` no está en el catálogo de aplicaciones elegibles del tenant.
+        - **Solución**: pide a tu administrador de tenant que dé de alta tu `client_id` en el catálogo SSO. Consulta la [guía de SSO entre aplicaciones](guides/sso-multi-app.md).
+
+    ??? bug "El `id_token` de una reutilización silenciosa no trae el claim `sid`"
+
+        - **Causa probable**: la petición no incluyó `prompt=none`, o cayó al flujo de login completo (por ejemplo, por `login_required`/`interaction_required` previos) — `sid` solo se emite cuando hay una sesión SSO activa detrás del token.
+        - **Solución**: verifica en la respuesta de autorización si recibiste `code` directo (reutilización) o tuviste que pasar por el QR (login completo).
+
 ---
 
 ## ¿Sigues sin resolverlo?

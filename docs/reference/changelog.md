@@ -163,6 +163,12 @@ Aquí encontrarás un resumen de las novedades y mejoras más relevantes de la p
 ## Documentación
 
 ??? "Knowledge Base"
+    === "2026-09"
+        **Guías de SSO entre aplicaciones del mismo tenant**
+
+        - Nueva guía para desarrolladores: [SSO entre aplicaciones](../developers/guides/sso-multi-app.md), cómo integrar la reutilización silenciosa de sesión (`prompt=none`) entre varias aplicaciones de un mismo tenant.
+        - Nueva guía de administración: [Verifier — Single Sign-On](../admin/verifier-sso.md), gestión del catálogo de aplicaciones elegibles y de la duración de sesión.
+
     === "2026-07"
         **Fix de actualización de URL de EUDIStack Sandbox**
         - Se ha actualizado el dominio de Sandbox a sandbox.stg.eudistack.net (se seguía usando el dominio antiguo, sandbox-stg.eudistack.net)

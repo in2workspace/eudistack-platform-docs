@@ -16,6 +16,14 @@ Bienvenido. Esta sección explica cómo gestionar la emisión de credenciales de
 
     [:octicons-arrow-right-24: Empezar](issuer-portal/index.md)
 
+-   :material-account-sync: **Verifier — Single Sign-On**
+
+    ---
+
+    Configura el catálogo de aplicaciones elegibles y la duración de sesión para compartir la autenticación entre las aplicaciones de tu tenant.
+
+    [:octicons-arrow-right-24: Empezar](verifier-sso.md)
+
 </div>
 
 ---

@@ -8,6 +8,10 @@ Recetas para casos de uso concretos. Cada guía asume que ya conoces los [concep
 
     Usa EUDIStack como Identity Provider OIDC para tu aplicación: tus usuarios harán login presentando una credencial verificable.
 
+-   :material-account-sync: [**SSO entre aplicaciones**](sso-multi-app.md)
+
+    Comparte la autenticación entre varias aplicaciones de tu tenant: el usuario presenta su credencial una vez y las demás la reutilizan.
+
 -   :material-account-multiple-plus: [**SCIM Provisioning**](scim-provisioning.md)
 
     Sincroniza usuarios y atributos desde tu IdP corporativo (Okta, Entra ID, etc.) hacia EUDIStack vía SCIM 2.0.
