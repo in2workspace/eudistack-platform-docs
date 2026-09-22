@@ -20,5 +20,9 @@ Recipes for concrete use cases. Each guide assumes you are already familiar with
 
     Issue credentials programmatically from your backend (without going through the Issuer Portal).
 
+-   :material-language-java: [**Java SDK — M2M Authentication**](verifier-m2m-sdk-java.en.md)
+
+    Authenticate your backend service against the Verifier with no human user involved, using the Java SDK published on Maven Central.
+
 </div>
 

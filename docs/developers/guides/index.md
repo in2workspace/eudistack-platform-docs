@@ -20,4 +20,8 @@ Recetas para casos de uso concretos. Cada guía asume que ya conoces los [concep
 
     Emite credenciales programáticamente desde tu backend (sin pasar por el Portal Issuer).
 
+-   :material-language-java: [**SDK Java — Autenticación M2M**](verifier-m2m-sdk-java.md)
+
+    Autentica tu servicio backend contra el Verifier sin usuario humano de por medio, usando el SDK Java publicado en Maven Central.
+
 </div>
