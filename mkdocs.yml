@@ -113,6 +113,7 @@ plugins:
             Tu primera integración: Your first integration
             Conceptos: Concepts
             Guías: Guides
+            SDK Java - Autenticación M2M: Java SDK - M2M Authentication
             OIDC IdP (login con credencial): OIDC IdP (credential login)
             SSO entre aplicaciones: SSO across applications
             Verifier — Single Sign-On: Verifier — Single Sign-On
@@ -251,6 +252,7 @@ nav:
           - SSO entre aplicaciones: developers/guides/sso-multi-app.md
           - SCIM Provisioning: developers/guides/scim-provisioning.md
           - API Direct Issuance: developers/guides/api-direct-issuance.md
+          - SDK Java - Autenticación M2M: developers/guides/verifier-m2m-sdk-java.md
       - Referencia API:
           - developers/api-reference/index.md
           - Issuer API: developers/api-reference/issuer.md
