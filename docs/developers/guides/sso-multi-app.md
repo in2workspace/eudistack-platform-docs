@@ -8,15 +8,16 @@ Esta guía asume que ya conoces el flujo básico de [OIDC IdP — login con cred
     - Ya integraste una aplicación con el Verifier como OIDC IdP y quieres añadir una segunda (o más) bajo el mismo tenant.
     - Quieres evitar que el usuario tenga que volver a presentar su credencial en cada aplicación durante el mismo día de trabajo.
     - Necesitas entender qué significan `login_required` e `interaction_required` cuando tu aplicación lanza una petición silenciosa.
+    - Eres un tercero (proveedor, partner, marketplace) integrado con el Verifier de un tenant y quieres reutilizar su sesión SSO — ver [Aplicaciones de terceros](#aplicaciones-de-terceros).
 
 !!! info "Requiere activación por tenant"
-    El SSO multi-aplicación no está activo por defecto. Requiere que el equipo de EUDIStack habilite `ssoEnabled` para tu tenant y configure un **dominio raíz común** (`rootDomain`) del que cuelguen todas tus aplicaciones — la cookie de sesión solo se comparte entre aplicaciones bajo ese dominio. [Contacta con soporte](../../support.md) para solicitar la activación en tu entorno de pruebas.
+    El SSO multi-aplicación no está activo por defecto. Requiere que el equipo de EUDIStack habilite `ssoEnabled` para tu tenant y configure su **dominio raíz** (`rootDomain`): el dominio al que se asocia la cookie de sesión, que debe abarcar el host en el que se sirve el Verifier del tenant. Qué aplicaciones pueden reutilizar la sesión no depende de su dominio, sino de que su `client_id` esté en el catálogo de aplicaciones elegibles del tenant. [Contacta con soporte](../../support.md) para solicitar la activación en tu entorno de pruebas.
 
 ---
 
 ## Cómo funciona
 
-Cada tenant con SSO habilitado mantiene, además de las sesiones OIDC individuales de cada aplicación, **una sesión de autenticación propia del tenant** ("OP-level session", en la terminología de OIDC Core). Se materializa como una cookie opaca que el navegador del usuario presenta a cualquier aplicación que cuelgue del mismo dominio raíz.
+Cada tenant con SSO habilitado mantiene, además de las sesiones OIDC individuales de cada aplicación, **una sesión de autenticación propia del tenant** ("OP-level session", en la terminología de OIDC Core). Se materializa como una cookie opaca, asociada al dominio raíz del tenant, que el navegador del usuario presenta al Verifier en cada petición de autorización, venga de la aplicación que venga.
 
 ```mermaid
 sequenceDiagram
@@ -85,6 +86,21 @@ La primera aplicación no necesita hacer nada especial: el establecimiento de la
 
 ---
 
+## Aplicaciones de terceros
+
+El SSO no está limitado a las aplicaciones de tu organización. Una aplicación de un tercero (un proveedor, un partner, un marketplace) integrada con el Verifier del tenant puede reutilizar la sesión SSO en las mismas condiciones que las tuyas:
+
+1. Está registrada como cliente OIDC del tenant.
+2. Su `client_id` está dado de alta en el catálogo de aplicaciones elegibles del tenant.
+3. Implementa la reutilización silenciosa descrita arriba: `prompt=none` y caída al login completo ante `login_required` o `interaction_required`.
+
+El dominio en el que esté publicada la aplicación no decide nada. Compartir dominio con otra aplicación del tenant (por ejemplo, con el portal del Issuer) no le da acceso al SSO, y estar en un dominio distinto no se lo impide: la cookie de sesión se presenta al Verifier en la redirección a `/authorize`, no a la aplicación. Lo único que determina si una aplicación puede reutilizar la sesión es el catálogo.
+
+!!! warning "Dar de alta a un tercero es confiarle la sesión del usuario"
+    Mientras la sesión SSO esté vigente, cualquier `client_id` del catálogo obtiene un `id_token` del usuario sin que este vuelva a presentar su credencial ni vea ninguna pantalla. Da de alta solo aplicaciones en las que confíes como en las tuyas, y retíralas del catálogo en cuanto dejen de necesitar el acceso (ver [guía de administración](../../admin/verifier-sso.md)).
+
+---
+
 ## Contenido del id_token
 
 Cuando la reutilización silenciosa tiene éxito, el `id_token` incluye un claim adicional respecto al login estándar:
@@ -146,6 +162,9 @@ Una sesión deja de ser utilizable en cuanto se cumple **cualquiera** de los dos
 
 ??? question "¿Necesito cambiar algo en la primera aplicación que ya integré?"
     No. El establecimiento de la sesión SSO es automático tras un login exitoso, siempre que el tenant lo tenga habilitado. La primera aplicación sigue funcionando exactamente igual que antes.
+
+??? question "¿Mi aplicación tiene que estar en el mismo dominio que el resto de aplicaciones del tenant?"
+    No. El dominio raíz del tenant afecta a la cookie de sesión, que gestiona el Verifier; tu aplicación puede estar en cualquier dominio. Lo que necesitas es que tu `client_id` esté en el catálogo de aplicaciones elegibles del tenant — ver [Aplicaciones de terceros](#aplicaciones-de-terceros).
 
 ??? question "¿Puedo probar el flujo completo (dos aplicaciones, mismo tenant) en sandbox?"
     Sí, pero necesitas que el equipo de EUDIStack habilite SSO para tu tenant y registre ambos `client_id` en el catálogo de aplicaciones elegibles. [Contacta con soporte](../../support.md) indicando los `client_id` de las aplicaciones que quieres probar.

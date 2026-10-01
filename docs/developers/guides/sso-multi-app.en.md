@@ -8,15 +8,16 @@ This guide assumes you are already familiar with the basic [OIDC IdP — login w
     - You already integrated one application with the Verifier as an OIDC IdP and want to add a second one (or more) under the same tenant.
     - You want to avoid asking the user to present their credential again in every application during the same working session.
     - You need to understand what `login_required` and `interaction_required` mean when your application sends a silent request.
+    - You are a third party (supplier, partner, marketplace) integrated with a tenant's Verifier and want to reuse its SSO session — see [Third-party applications](#third-party-applications).
 
 !!! info "Requires activation per tenant"
-    Multi-application SSO is not enabled by default. It requires the EUDIStack team to enable `ssoEnabled` for your tenant and configure a **common root domain** (`rootDomain`) that all your applications hang off — the session cookie is only shared between applications under that domain. [Contact support](../../support.en.md) to request activation in your test environment.
+    Multi-application SSO is not enabled by default. It requires the EUDIStack team to enable `ssoEnabled` for your tenant and configure its **root domain** (`rootDomain`): the domain the session cookie is scoped to, which must cover the host the tenant's Verifier is served from. Which applications can reuse the session does not depend on their domain, but on their `client_id` being in the tenant's eligible applications catalog. [Contact support](../../support.en.md) to request activation in your test environment.
 
 ---
 
 ## How it works
 
-Each tenant with SSO enabled maintains, in addition to the individual OIDC sessions of each application, **a tenant-level authentication session** (an "OP-level session", in OIDC Core terminology). It is materialized as an opaque cookie that the user's browser presents to any application hanging off the same root domain.
+Each tenant with SSO enabled maintains, in addition to the individual OIDC sessions of each application, **a tenant-level authentication session** (an "OP-level session", in OIDC Core terminology). It is materialized as an opaque cookie, scoped to the tenant's root domain, that the user's browser presents to the Verifier on every authorization request, whichever application it comes from.
 
 ```mermaid
 sequenceDiagram
@@ -85,6 +86,21 @@ The first application does not need to do anything special: the SSO session is e
 
 ---
 
+## Third-party applications
+
+SSO is not limited to your organization's own applications. A third-party application (a supplier, a partner, a marketplace) integrated with the tenant's Verifier can reuse the SSO session under the same conditions as yours:
+
+1. It is registered as an OIDC client of the tenant.
+2. Its `client_id` is added to the tenant's eligible applications catalog.
+3. It implements the silent reuse described above: `prompt=none`, falling back to a full login on `login_required` or `interaction_required`.
+
+The domain the application is published on does not decide anything. Sharing a domain with another application of the tenant (for example, the Issuer portal) does not grant it SSO, and being on a different domain does not prevent it: the session cookie is presented to the Verifier on the redirect to `/authorize`, not to the application. The catalog is the only thing that determines whether an application can reuse the session.
+
+!!! warning "Adding a third party means trusting it with the user's session"
+    While the SSO session is valid, any `client_id` in the catalog obtains an `id_token` for the user without them presenting their credential again or seeing any screen. Only add applications you trust as much as your own, and remove them from the catalog as soon as they no longer need access (see the [administration guide](../../admin/verifier-sso.en.md)).
+
+---
+
 ## id_token contents
 
 When silent reuse succeeds, the `id_token` includes one additional claim compared to a standard login:
@@ -146,6 +162,9 @@ A session stops being usable as soon as **either** limit is reached, whichever c
 
 ??? question "Do I need to change anything in the first application I already integrated?"
     No. The SSO session is established automatically after a successful login, as long as the tenant has it enabled. The first application keeps working exactly as it did before.
+
+??? question "Does my application have to be on the same domain as the tenant's other applications?"
+    No. The tenant's root domain applies to the session cookie, which the Verifier manages; your application can be on any domain. What you need is your `client_id` in the tenant's eligible applications catalog — see [Third-party applications](#third-party-applications).
 
 ??? question "Can I test the full flow (two applications, same tenant) in sandbox?"
     Yes, but you need the EUDIStack team to enable SSO for your tenant and register both `client_id`s in the eligible applications catalog. [Contact support](../../support.en.md) with the `client_id`s of the applications you want to test.
