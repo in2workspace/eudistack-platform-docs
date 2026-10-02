@@ -18,7 +18,6 @@ Esta guía parte de que tu aplicación ya está integrada con el Verifier como O
 | SSO activado en el tenant | Equipo de EUDIStack | Se habilita `ssoEnabled` y se configura el **dominio raíz** (`rootDomain`) del tenant, al que se asocia la cookie de sesión y que debe abarcar el host en el que se sirve su Verifier. |
 | Aplicación registrada como cliente OIDC del tenant | Equipo de EUDIStack | Es el mismo alta que necesitas para el login con credencial. |
 | `client_id` en el catálogo de aplicaciones elegibles | Equipo de EUDIStack | Se da de alta a petición tuya. Sin este paso, tu aplicación recibe siempre `interaction_required`. |
-| URIs de logout *(recomendado)* | Equipo de EUDIStack | `post_logout_redirect_uri` y `backchannel_logout_uri`, para el [cierre de sesión](#cerrar-sesion-single-logout). |
 
 Para solicitar la activación o el alta de una aplicación, contacta con el equipo de EUDIStack indicando el tenant y los `client_id` implicados.
 

@@ -18,7 +18,6 @@ This guide assumes your application is already integrated with the Verifier as a
 | SSO enabled for the tenant | EUDIStack team | `ssoEnabled` is turned on and the tenant's **root domain** (`rootDomain`) is configured: the session cookie is scoped to it, and it must cover the host the tenant's Verifier is served from. |
 | Application registered as an OIDC client of the tenant | EUDIStack team | The same registration you need for credential login. |
 | `client_id` in the eligible applications catalog | EUDIStack team | Added at your request. Without this step, your application always receives `interaction_required`. |
-| Logout URIs *(recommended)* | EUDIStack team | `post_logout_redirect_uri` and `backchannel_logout_uri`, for [logout](#logging-out-single-logout). |
 
 To request activation or the registration of an application, contact the EUDIStack team with the tenant and the `client_id`s involved.
 
