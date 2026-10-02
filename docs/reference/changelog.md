@@ -163,6 +163,14 @@ Aquí encontrarás un resumen de las novedades y mejoras más relevantes de la p
 ## Documentación
 
 ??? "Knowledge Base"
+    === "2026-10"
+        **Guía de SSO entre aplicaciones: terceros y cierre de sesión**
+
+        - La guía de [SSO entre aplicaciones](../developers/guides/sso-multi-app.md) cubre ahora también las aplicaciones de terceros integradas con el Verifier del tenant, e incluye una tabla de requisitos.
+        - Nuevo apartado de **cierre de sesión (Single Logout)**: logout iniciado desde tu aplicación (`/verifier/oidc/logout`) y aviso de logout entre aplicaciones (OIDC Back-Channel Logout), con qué ocurre si tu aplicación no escucha ese aviso.
+        - Se aclara que **todas** las aplicaciones deben pedir primero el login silencioso (`prompt=none`), y que debe hacerse con una redirección de página completa, no en un iframe.
+        - Guía reorganizada y sin pestañas, para que se lea completa también en PDF.
+
     === "2026-09"
         **Guías de SSO entre aplicaciones del mismo tenant**
 

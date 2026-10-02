@@ -162,6 +162,14 @@ Here you will find a summary of the most relevant new features and improvements 
 ## Documentation
 
 ??? "Knowledge Base"
+    === "2026-10"
+        **Cross-application SSO guide: third parties and logout**
+
+        - The [SSO across applications](../developers/guides/sso-multi-app.en.md) guide now also covers third-party applications integrated with the tenant's Verifier, and includes a requirements table.
+        - New **logout (Single Logout)** section: logout started from your application (`/verifier/oidc/logout`) and logout notifications between applications (OIDC Back-Channel Logout), including what happens if your application does not listen for them.
+        - Clarifies that **every** application must ask for a silent login first (`prompt=none`), using a full-page redirect rather than an iframe.
+        - Guide reorganized and without tabs, so it also reads in full as a PDF.
+
     === "2026-09"
         **Cross-application SSO guides**
 
