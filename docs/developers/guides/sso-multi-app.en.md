@@ -65,33 +65,49 @@ The SSO session is established automatically after any credential login in a ten
 
 ## Integrating silent login
 
-=== "Step 1: ask with `prompt=none`"
-    Send the authorization request exactly as in the standard flow, adding `prompt=none`:
+Every time your application needs to authenticate the user, ask for a silent login first. Only if the Verifier cannot resolve it, show the normal QR login.
 
-    ```http
-    GET /verifier/oidc/authorize?
-      response_type=code&
-      client_id=my-second-app&
-      scope=openid learcredential.employee&
-      prompt=none&
-      state=abc123&
-      redirect_uri=https://my-second-app.com/callback&
-      code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-c&
-      code_challenge_method=S256
-    ```
+```mermaid
+flowchart TD
+    A[Your application needs to authenticate the user] --> B["GET /authorize with prompt=none"]
+    B --> C{Response on your redirect_uri}
+    C -->|"?code=..."| D[Exchange the code: the user gets in without the QR]
+    C -->|"?error=login_required"| E["GET /authorize without prompt=none: normal QR login"]
+    C -->|"?error=interaction_required"| E
+```
 
-    With `prompt=none` the Verifier never shows screens or the QR code: it resolves the request on the spot or returns an error immediately.
+### 1. Ask with `prompt=none`
 
-=== "Step 2: handle the response"
-    The redirect to your `redirect_uri` carries one of these three results:
+Send the authorization request as in the standard flow, adding `prompt=none`:
 
-    | Result | What it means | What your application does |
-    |---|---|---|
-    | `?code=...` | There is a valid SSO session and your application is in the catalog. | Exchange the `code` as in the normal flow. |
-    | `?error=login_required` | No usable SSO session: it was never established, it expired, or it belongs to another tenant. | Repeat the request **without** `prompt=none`: normal QR login. |
-    | `?error=interaction_required` | There is a valid SSO session, but your `client_id` is not in the catalog. | Normal QR login, and check the [requirements](#requirements). |
+```http
+GET /verifier/oidc/authorize?
+  response_type=code&
+  client_id=my-second-app&
+  scope=openid learcredential.employee&
+  prompt=none&
+  state=abc123&
+  redirect_uri=https://my-second-app.com/callback&
+  code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-c&
+  code_challenge_method=S256
+```
 
-    The usual approach is to always try `prompt=none` first and fall back to the normal login on either error. The user notices no difference, except that in that case they will need to present their credential.
+With `prompt=none` the Verifier never shows screens or the QR code: it resolves the request on the spot or returns an error immediately.
+
+!!! warning "Use a full-page redirect, not an iframe"
+    The Verifier does not allow its pages to be loaded inside an iframe. If your OIDC library performs the silent login in a hidden iframe (*silent renew*), turn it off and send the request with a normal browser redirect.
+
+### 2. Handle the response
+
+The redirect to your `redirect_uri` carries one of these three results:
+
+| Result | What it means | What your application does |
+|---|---|---|
+| `?code=...` | There is a valid SSO session and your application is in the catalog. | Exchange the `code` as in the normal flow. |
+| `?error=login_required` | No usable SSO session: it was never established, it expired, or it belongs to another tenant. | Repeat the request **without** `prompt=none`: normal QR login. |
+| `?error=interaction_required` | There is a valid SSO session, but your `client_id` is not in the catalog. | Normal QR login, and check the [requirements](#requirements). |
+
+The user notices no difference between the two paths, except that in the second one they will need to present their credential.
 
 !!! tip "Tell the two errors apart in your logs"
     `login_required` and `interaction_required` mean different things (OIDC Core §3.1.2.6). The former is expected (new user, expired session). The latter points to a catalog configuration issue worth investigating if it keeps happening.
@@ -108,10 +124,20 @@ To understand logout you need to tell apart two sessions, each controlled by a d
 | **What it is for** | Knowing whether the user is signed in to your application | Knowing whether the user can enter other applications without scanning the QR code |
 | **When it ends** | When your application closes it or it expires, per your configuration | On logout in any application, or on expiry (see [Session lifetime](#session-lifetime)) |
 
-The Verifier **cannot close your application's session**: it only decides whether the next login needs the QR code. That is why logout has two parts: ending the SSO session through the Verifier and, when the logout starts in another application, your application closing its own session when it receives the notification.
+!!! info "The Verifier cannot close your application's session"
+    It only decides whether the next login needs the QR code. That is why logout has two parts: ending the SSO session through the Verifier and, when the logout starts in another application, your application closing its own session when it receives the notification.
 
-=== "Your application starts the logout"
-    Redirect the user to the Verifier's logout endpoint (OIDC RP-Initiated Logout 1.0):
+What your application has to do in each case:
+
+| Situation | What your application does | Required? |
+|---|---|---|
+| The user logs out **of your application** | Redirect them to the Verifier's logout endpoint ([case 1](#case-1-the-user-logs-out-of-your-application)) | Yes |
+| The user logs out **of another application** | Receive the Verifier's notification and close its local session ([case 2](#case-2-the-user-logs-out-of-another-application)) | Recommended |
+
+### Case 1: the user logs out of your application
+
+1. Clear your local session.
+2. Redirect the user to the Verifier's logout endpoint (OIDC RP-Initiated Logout 1.0):
 
     ```http
     GET /verifier/oidc/logout?
@@ -119,19 +145,60 @@ The Verifier **cannot close your application's session**: it only decides whethe
       post_logout_redirect_uri=https://my-second-app.com/
     ```
 
-    The Verifier invalidates the SSO session immediately, notifies the other applications and sends the user back to your `post_logout_redirect_uri`, which must be registered for your `client_id`.
+3. The Verifier ends the SSO session immediately, notifies the other applications and sends the user back to your `post_logout_redirect_uri`, which must be registered for your `client_id`.
 
-    !!! warning "Clearing only your local session does not end SSO"
-        If your application only deletes its own session, the SSO session stays valid and the next `prompt=none` request will let the user back in without asking for their credential.
+!!! warning "Clearing only your local session does not end SSO"
+    If your application skips step 2, the SSO session stays valid and the next `prompt=none` request will let the user back in without asking for their credential.
 
-=== "Another application starts the logout"
-    The Verifier notifies your application via OIDC Back-Channel Logout 1.0: a server-to-server `POST` to your `backchannel_logout_uri`, with `Content-Type: application/x-www-form-urlencoded` and a `logout_token` parameter (a JWT signed by the Verifier). Your endpoint must:
+### Case 2: the user logs out of another application
 
-    1. **Validate the token:** signature with the keys at the Verifier's `jwks_uri`, `typ=logout+jwt`, `iss`, `aud` (your `client_id`) and that `events` contains `http://schemas.openid.net/event/backchannel-logout`.
-    2. **Close the local session** tied to the token's `sid`. It is the same `sid` you received in the `id_token`, so store it at sign-in.
-    3. **Respond `200 OK` within 5 seconds.** Any other response is treated as a failure and the Verifier retries the delivery.
+The Verifier notifies your application via OIDC Back-Channel Logout 1.0: a server-to-server call to your `backchannel_logout_uri`, without going through the user's browser.
 
-    The application that started the logout does not receive this notification.
+```mermaid
+sequenceDiagram
+    autonumber
+    participant AppA as Application A
+    participant Verifier as EUDIStack Verifier
+    participant AppB as Your application
+
+    AppA->>Verifier: GET /oidc/logout (the user logs out of A)
+    Verifier->>Verifier: ends the SSO session
+    Verifier->>AppB: POST backchannel_logout_uri (logout_token)
+    AppB->>AppB: closes the local session for that sid
+    AppB-->>Verifier: 200 OK
+```
+
+The request your endpoint receives:
+
+```http
+POST /backchannel-logout
+Host: my-second-app.com
+Content-Type: application/x-www-form-urlencoded
+
+logout_token=eyJ...
+```
+
+And the `logout_token` contents once decoded:
+
+```json
+{
+  "iss": "https://company.eudistack.net/verifier",
+  "aud": "my-second-app",
+  "sid": "f3a1c9e2b6d84f0a",
+  "iat": 1715003600,
+  "exp": 1715003720,
+  "jti": "5b0c6e2a-8d1f-4a7e-9c3b-2f6d1e8a4b90",
+  "events": { "http://schemas.openid.net/event/backchannel-logout": {} }
+}
+```
+
+Your endpoint must:
+
+1. **Validate the token:** signature with the keys at the Verifier's `jwks_uri`, `typ=logout+jwt` header, `iss`, `aud` (your `client_id`), `exp` (the token expires after 2 minutes) and that `events` contains `http://schemas.openid.net/event/backchannel-logout`.
+2. **Close the local session** tied to the `sid`. It is the same `sid` you received in the `id_token`, so store it at sign-in.
+3. **Respond `200 OK` within 5 seconds.** Any other response is treated as a failure and the Verifier retries the delivery.
+
+The application that started the logout does not receive this notification.
 
 !!! warning "If your application does not listen for the notification, the user stays signed in"
     The `backchannel_logout_uri` is optional (HTTPS required), but without it your application does not learn about logouts made in the others. If the user logs out of another application of the tenant:
