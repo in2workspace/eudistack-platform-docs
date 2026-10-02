@@ -17,7 +17,7 @@ This guide builds on the basic [OIDC IdP — login with verifiable credential](o
 |---|---|---|
 | SSO enabled for the tenant | EUDIStack team | `ssoEnabled` is turned on and the tenant's **root domain** (`rootDomain`) is configured: the session cookie is scoped to it, and it must cover the host the tenant's Verifier is served from. |
 | Application registered as an OIDC client of the tenant | EUDIStack team | The same registration you need for [credential login](oidc-idp.en.md). |
-| `client_id` in the eligible applications catalog | Tenant administrator | Added through the API (see the [administration guide](../../admin/verifier-sso.en.md)). Without this step, your application always receives `interaction_required`. |
+| `client_id` in the eligible applications catalog | EUDIStack team | Added at your request. Without this step, your application always receives `interaction_required`. |
 | Logout URIs *(recommended)* | EUDIStack team | `post_logout_redirect_uri` and `backchannel_logout_uri`, for [logout](#logging-out-single-logout). |
 
 To request activation or the registration of an application, [contact support](../../support.en.md) with the tenant and the `client_id`s involved.
