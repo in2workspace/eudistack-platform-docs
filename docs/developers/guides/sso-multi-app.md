@@ -69,11 +69,11 @@ Cada vez que tu aplicación necesite autenticar al usuario, pide primero el logi
 
 ```mermaid
 flowchart TD
-    A[Tu aplicación necesita autenticar al usuario] --> B["GET /authorize con prompt=none"]
-    B --> C{Respuesta en tu redirect_uri}
-    C -->|"?code=..."| D[Canjea el code: el usuario entra sin QR]
-    C -->|"?error=login_required"| E["GET /authorize sin prompt=none: login normal con QR"]
-    C -->|"?error=interaction_required"| E
+    A["Tu aplicación necesita<br>autenticar al usuario"] --> B["/authorize<br>con prompt=none"]
+    B --> C{"¿Qué devuelve<br>el Verifier?"}
+    C -->|code| D["Canjea el code<br>(entra sin QR)"]
+    C -->|login_required| E["/authorize sin prompt=none<br>(login con QR)"]
+    C -->|interaction_required| E
 ```
 
 ### 1. Pide el login con `prompt=none`

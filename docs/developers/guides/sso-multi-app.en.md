@@ -69,11 +69,11 @@ Every time your application needs to authenticate the user, ask for a silent log
 
 ```mermaid
 flowchart TD
-    A[Your application needs to authenticate the user] --> B["GET /authorize with prompt=none"]
-    B --> C{Response on your redirect_uri}
-    C -->|"?code=..."| D[Exchange the code: the user gets in without the QR]
-    C -->|"?error=login_required"| E["GET /authorize without prompt=none: normal QR login"]
-    C -->|"?error=interaction_required"| E
+    A["Your application needs<br>to authenticate the user"] --> B["/authorize<br>with prompt=none"]
+    B --> C{"What does the<br>Verifier return?"}
+    C -->|code| D["Exchange the code<br>(no QR)"]
+    C -->|login_required| E["/authorize without prompt=none<br>(QR login)"]
+    C -->|interaction_required| E
 ```
 
 ### 1. Ask with `prompt=none`
