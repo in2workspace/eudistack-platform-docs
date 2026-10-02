@@ -144,17 +144,6 @@ El Verifier **no puede cerrar la sesión de tu aplicación**: solo decide si el 
 
 ---
 
-## Forzar una autenticación fresca
-
-Si necesitas que el usuario vuelva a presentar su credencial **aunque haya una sesión SSO vigente** (por ejemplo, antes de una operación sensible), tienes dos opciones estándar de OIDC:
-
-| Opción | Efecto |
-|---|---|
-| `prompt=login` | Cualquier valor de `prompt` distinto de `none` se salta la reutilización y muestra siempre el QR. |
-| `max_age=<segundos>` | Si la sesión SSO es más antigua que `max_age`, el Verifier exige una nueva presentación. Con `prompt=none`, la respuesta es `login_required`. |
-
----
-
 ## Referencia
 
 ### Contenido del id_token

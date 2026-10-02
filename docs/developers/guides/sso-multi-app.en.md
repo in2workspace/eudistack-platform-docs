@@ -144,17 +144,6 @@ The Verifier **cannot close your application's session**: it only decides whethe
 
 ---
 
-## Forcing a fresh authentication
-
-If you need the user to present their credential again **even though there is a valid SSO session** (for example, before a sensitive operation), you have two standard OIDC options:
-
-| Option | Effect |
-|---|---|
-| `prompt=login` | Any `prompt` value other than `none` skips reuse and always shows the QR code. |
-| `max_age=<seconds>` | If the SSO session is older than `max_age`, the Verifier requires a new presentation. With `prompt=none`, the response is `login_required`. |
-
----
-
 ## Reference
 
 ### id_token contents
