@@ -132,6 +132,45 @@ If your application needs the user to present their credential again **even thou
 
 ---
 
+## Logging out (Single Logout)
+
+With SSO, logout applies to the tenant, not to a single application: when the user logs out of any application, the Verifier closes the SSO session and notifies the other applications that were using it.
+
+=== "Your application starts the logout"
+    When the user logs out of your application, redirect them to the Verifier's logout endpoint (OIDC RP-Initiated Logout 1.0) instead of only clearing your local session:
+
+    ```http
+    GET /verifier/oidc/logout?
+      id_token_hint=<id_token you received>&
+      post_logout_redirect_uri=https://my-second-app.com/
+    ```
+
+    The Verifier invalidates the SSO session immediately, notifies the other applications and sends the user back to your `post_logout_redirect_uri`, which must be registered for your `client_id`.
+
+    !!! warning "Clearing only your local session does not end SSO"
+        If your application only deletes its own session, the SSO session stays valid: the next `prompt=none` request will let the user back in without asking for their credential.
+
+=== "Another application starts the logout"
+    If the user logs out of another application of the tenant, the Verifier notifies yours via OIDC Back-Channel Logout 1.0: a server-to-server `POST` to your `backchannel_logout_uri`, with `Content-Type: application/x-www-form-urlencoded` and a `logout_token` parameter (a JWT signed by the Verifier).
+
+    Your endpoint must:
+
+    1. Validate the `logout_token` signature with the keys published at the Verifier's `jwks_uri`, and check `typ=logout+jwt`, `iss`, `aud` (your `client_id`) and that `events` contains `http://schemas.openid.net/event/backchannel-logout`.
+    2. Close the local session tied to the token's `sid`. It is the same `sid` you received in the `id_token`, so store it at sign-in.
+    3. Respond **`200 OK`** within 5 seconds. Any other response is treated as a failure and the Verifier retries the delivery.
+
+    The application that started the logout does not receive this notification: it already knows the user logged out.
+
+??? info "What you need to register"
+    Send [support](../../support.en.md), together with your `client_id`:
+
+    - **`post_logout_redirect_uri`**, so you can start the logout from your application.
+    - **`backchannel_logout_uri`** (HTTPS required), to receive logouts started in other applications.
+
+    The `backchannel_logout_uri` is optional. Without it everything keeps working, but your application does not learn about logouts made in the others: the user will stay signed in to yours until your local session expires.
+
+---
+
 ## Session TTL and expiry
 
 The SSO session has a bounded lifetime along two dimensions, with default values your tenant can adjust within a range (see the [administration guide](../../admin/verifier-sso.en.md)):
