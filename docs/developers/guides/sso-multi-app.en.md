@@ -59,7 +59,7 @@ sequenceDiagram
     Verifier-->>App2: id_token (with sid claim) + access_token
 ```
 
-The SSO session is established automatically after any credential login in a tenant with SSO enabled: the first application does not need to do anything special. What changes is how the **following applications** ask for the login.
+The SSO session is established automatically after any credential login in a tenant with SSO enabled, whichever application it happens in. Which application comes "first" depends on where the user starts, so **every application** must ask for a silent login first to be able to reuse a session opened in another one.
 
 ---
 
@@ -180,8 +180,8 @@ After expiry, `prompt=none` receives `login_required`: your application must be 
 
 ## Frequently asked questions
 
-??? question "Do I need to change anything in the first application I already integrated?"
-    Not for login: the SSO session is established automatically after a credential login, as long as the tenant has SSO enabled. It is worth reviewing its [logout](#logging-out-single-logout), though, so that it also ends the SSO session.
+??? question "Do I need to change anything in the application I had already integrated?"
+    Yes, if you want it to benefit from SSO too. Unchanged, its logins still create the SSO session for the other applications, but it will always show the QR code itself, even if the user already signed in to another one. To reuse the session it needs the same as any other: to be in the catalog, to [ask with `prompt=none` first](#integrating-silent-login) and to [log out through the Verifier](#logging-out-single-logout).
 
 ??? question "Does my application have to be on the same domain as the tenant's other applications?"
     No. The tenant's root domain applies to the session cookie, which the Verifier manages; your application can be on any domain. What you need is your `client_id` in the tenant's eligible applications catalog.

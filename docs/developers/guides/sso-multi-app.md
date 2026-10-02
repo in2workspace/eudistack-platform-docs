@@ -59,7 +59,7 @@ sequenceDiagram
     Verifier-->>App2: id_token (con claim sid) + access_token
 ```
 
-La sesión SSO se establece automáticamente tras cualquier login con credencial en un tenant con SSO activado: la primera aplicación no tiene que hacer nada especial. Lo que cambia es cómo piden el login las **siguientes aplicaciones**.
+La sesión SSO se establece automáticamente tras cualquier login con credencial en un tenant con SSO activado, sea cual sea la aplicación. Qué aplicación es la "primera" depende de por dónde entre el usuario, así que **todas las aplicaciones** deben pedir primero el login en silencio para poder reutilizar una sesión abierta en otra.
 
 ---
 
@@ -180,8 +180,8 @@ Tras la caducidad, `prompt=none` recibe `login_required`: tu aplicación debe es
 
 ## Preguntas frecuentes
 
-??? question "¿Necesito cambiar algo en la primera aplicación que ya integré?"
-    No para el login: la sesión SSO se establece automáticamente tras un login con credencial, siempre que el tenant tenga el SSO activado. Sí conviene revisar su [cierre de sesión](#cerrar-sesion-single-logout) para que cierre también la sesión SSO.
+??? question "¿Necesito cambiar algo en la aplicación que ya tenía integrada?"
+    Sí, si quieres que también ella aproveche el SSO. Sin cambios, sus logins siguen creando la sesión SSO para las demás aplicaciones, pero ella siempre mostrará el QR, aunque el usuario ya haya entrado en otra. Para reutilizar la sesión necesita lo mismo que cualquier otra: estar en el catálogo, [pedir primero `prompt=none`](#integrar-el-login-silencioso) y [cerrar sesión a través del Verifier](#cerrar-sesion-single-logout).
 
 ??? question "¿Mi aplicación tiene que estar en el mismo dominio que el resto de aplicaciones del tenant?"
     No. El dominio raíz del tenant afecta a la cookie de sesión, que gestiona el Verifier; tu aplicación puede estar en cualquier dominio. Lo que necesitas es que tu `client_id` esté en el catálogo de aplicaciones elegibles del tenant.
