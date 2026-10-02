@@ -100,7 +100,15 @@ The SSO session is established automatically after any credential login in a ten
 
 ## Logging out (Single Logout)
 
-With SSO, logout applies to the tenant, not to a single application: when the user logs out of any application, the Verifier closes the SSO session and notifies the other applications that were using it.
+To understand logout you need to tell apart two sessions, each controlled by a different party:
+
+| | Your application's session | Tenant SSO session |
+|---|---|---|
+| **Controlled by** | Your application | The Verifier |
+| **What it is for** | Knowing whether the user is signed in to your application | Knowing whether the user can enter other applications without scanning the QR code |
+| **When it ends** | When your application closes it or it expires, per your configuration | On logout in any application, or on expiry (see [Session lifetime](#session-lifetime)) |
+
+The Verifier **cannot close your application's session**: it only decides whether the next login needs the QR code. That is why logout has two parts: ending the SSO session through the Verifier and, when the logout starts in another application, your application closing its own session when it receives the notification.
 
 === "Your application starts the logout"
     Redirect the user to the Verifier's logout endpoint (OIDC RP-Initiated Logout 1.0):
@@ -125,7 +133,14 @@ With SSO, logout applies to the tenant, not to a single application: when the us
 
     The application that started the logout does not receive this notification.
 
-The `backchannel_logout_uri` is optional (HTTPS required). Without it everything keeps working, but your application does not learn about logouts made in the others, and the user will stay signed in to yours until your local session expires.
+!!! warning "If your application does not listen for the notification, the user stays signed in"
+    The `backchannel_logout_uri` is optional (HTTPS required), but without it your application does not learn about logouts made in the others. If the user logs out of another application of the tenant:
+
+    - **They stay signed in to your application** until your local session expires or they log out of it too.
+    - When your local session expires, `prompt=none` will receive `login_required` and they will have to scan the QR code again: the logout does reach your application, but late.
+    - **Tokens already issued are not revoked.** Your `access_token` stays valid until it expires, so it cannot be used to detect the logout either.
+
+    The risk is that someone else using the same device, after the user believes they logged out, still has access to your application. If your application handles sensitive data, publish the `backchannel_logout_uri`.
 
 ---
 

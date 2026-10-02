@@ -100,7 +100,15 @@ La sesión SSO se establece automáticamente tras cualquier login con credencial
 
 ## Cerrar sesión (Single Logout)
 
-Con SSO, el logout es del tenant, no de una sola aplicación: cuando el usuario cierra sesión en cualquier aplicación, el Verifier cierra la sesión SSO y avisa a las demás aplicaciones que la estaban usando.
+Para entender el logout hay que distinguir dos sesiones, cada una controlada por alguien distinto:
+
+| | Sesión de tu aplicación | Sesión SSO del tenant |
+|---|---|---|
+| **Quién la controla** | Tu aplicación | El Verifier |
+| **Para qué sirve** | Saber si el usuario está dentro de tu aplicación | Saber si el usuario puede entrar en otras aplicaciones sin escanear el QR |
+| **Cuándo termina** | Cuando tu aplicación la cierra o caduca, según tu configuración | Al hacer logout en cualquier aplicación, o al caducar (ver [Duración de la sesión](#duracion-de-la-sesion)) |
+
+El Verifier **no puede cerrar la sesión de tu aplicación**: solo decide si el próximo login necesita el QR o no. Por eso el logout tiene dos partes: cerrar la sesión SSO a través del Verifier y, cuando el logout empieza en otra aplicación, que tu aplicación cierre la suya al recibir el aviso.
 
 === "Tu aplicación inicia el logout"
     Redirige al usuario al endpoint de logout del Verifier (OIDC RP-Initiated Logout 1.0):
@@ -125,7 +133,14 @@ Con SSO, el logout es del tenant, no de una sola aplicación: cuando el usuario 
 
     La aplicación que inició el logout no recibe este aviso.
 
-El `backchannel_logout_uri` es opcional (HTTPS obligatorio). Sin él todo sigue funcionando, pero tu aplicación no se entera de los logouts hechos en otras y el usuario seguirá dentro de la tuya hasta que caduque tu sesión local.
+!!! warning "Si tu aplicación no escucha el aviso, el usuario sigue dentro"
+    El `backchannel_logout_uri` es opcional (HTTPS obligatorio), pero sin él tu aplicación no se entera de los logouts hechos en otras. Si el usuario cierra sesión en otra aplicación del tenant:
+
+    - **Sigue dentro de tu aplicación** hasta que caduque tu sesión local o cierre sesión también en ella.
+    - Cuando tu sesión local caduque, `prompt=none` recibirá `login_required` y tendrá que volver a escanear el QR: el logout acaba afectando a tu aplicación, pero tarde.
+    - **Los tokens ya emitidos no se revocan.** Tu `access_token` sigue siendo válido hasta que expire, así que tampoco sirve para detectar el logout.
+
+    El riesgo es que otra persona que use el mismo equipo, después de que el usuario crea haber cerrado sesión, siga teniendo acceso a tu aplicación. Si tu aplicación maneja datos sensibles, publica el `backchannel_logout_uri`.
 
 ---
 
