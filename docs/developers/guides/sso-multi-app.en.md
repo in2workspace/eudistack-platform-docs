@@ -2,7 +2,7 @@
 
 If several client applications are integrated with the Verifier of the same EUDIStack tenant —your own or third parties', such as your own management portal and a supplier's portal—, the Verifier can maintain a **tenant-level authentication session**: the user presents their credential once, and the other applications reuse that session instead of asking them to scan the QR code again. For this, each application must be added to the tenant's eligible applications catalog.
 
-This guide builds on the basic [OIDC IdP — login with verifiable credential](oidc-idp.en.md) flow. SSO does not change the OIDC contract you already integrated: it adds a silent request mode (`prompt=none`) and coordinated logout across applications.
+This guide assumes your application is already integrated with the Verifier as an OIDC IdP (credential login). SSO does not change the OIDC contract you already integrated: it adds a silent request mode (`prompt=none`) and coordinated logout across applications.
 
 !!! abstract "In short"
     1. **Meet the [requirements](#requirements):** SSO enabled for the tenant and your `client_id` in the eligible applications catalog.
@@ -16,11 +16,11 @@ This guide builds on the basic [OIDC IdP — login with verifiable credential](o
 | Requirement | Managed by | Details |
 |---|---|---|
 | SSO enabled for the tenant | EUDIStack team | `ssoEnabled` is turned on and the tenant's **root domain** (`rootDomain`) is configured: the session cookie is scoped to it, and it must cover the host the tenant's Verifier is served from. |
-| Application registered as an OIDC client of the tenant | EUDIStack team | The same registration you need for [credential login](oidc-idp.en.md). |
+| Application registered as an OIDC client of the tenant | EUDIStack team | The same registration you need for credential login. |
 | `client_id` in the eligible applications catalog | EUDIStack team | Added at your request. Without this step, your application always receives `interaction_required`. |
 | Logout URIs *(recommended)* | EUDIStack team | `post_logout_redirect_uri` and `backchannel_logout_uri`, for [logout](#logging-out-single-logout). |
 
-To request activation or the registration of an application, [contact support](../../support.en.md) with the tenant and the `client_id`s involved.
+To request activation or the registration of an application, contact the EUDIStack team with the tenant and the `client_id`s involved.
 
 !!! warning "Adding an application means trusting it with the user's session"
     While the SSO session is valid, any `client_id` in the catalog obtains an `id_token` for the user without them presenting their credential again or seeing any screen. This applies equally to third-party applications: only add those you trust as much as your own, and remove them from the catalog as soon as they no longer need access.
@@ -176,7 +176,7 @@ When silent reuse succeeds, the `id_token` includes one additional claim compare
 
 ### Session lifetime
 
-The SSO session expires as soon as **either** of these two limits is reached. The defaults can be adjusted per tenant within the range (see the [administration guide](../../admin/verifier-sso.en.md)):
+The SSO session expires as soon as **either** of these two limits is reached. The defaults can be adjusted per tenant within the range, on request to the EUDIStack team:
 
 | Limit | Default | Configurable range |
 |---|---|---|

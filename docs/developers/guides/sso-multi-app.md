@@ -2,7 +2,7 @@
 
 Si varias aplicaciones cliente están integradas con el Verifier de un mismo tenant de EUDIStack —tuyas o de terceros, como un portal de gestión propio y el portal de un proveedor—, el Verifier puede mantener una **sesión de autenticación a nivel de tenant**: el usuario presenta su credencial una sola vez y las demás aplicaciones reutilizan esa sesión sin pedirle que vuelva a escanear el QR. Para ello, cada aplicación debe estar dada de alta en el catálogo de aplicaciones elegibles del tenant.
 
-Esta guía parte del flujo básico de [OIDC IdP — login con credencial](oidc-idp.md). El SSO no cambia el contrato OIDC que ya integraste: añade un modo de petición silenciosa (`prompt=none`) y el cierre de sesión coordinado entre aplicaciones.
+Esta guía parte de que tu aplicación ya está integrada con el Verifier como OIDC IdP (login con credencial). El SSO no cambia el contrato OIDC que ya integraste: añade un modo de petición silenciosa (`prompt=none`) y el cierre de sesión coordinado entre aplicaciones.
 
 !!! abstract "En resumen"
     1. **Cumple los [requisitos](#requisitos):** SSO activado en el tenant y tu `client_id` en el catálogo de aplicaciones elegibles.
@@ -16,11 +16,11 @@ Esta guía parte del flujo básico de [OIDC IdP — login con credencial](oidc-i
 | Requisito | Quién lo gestiona | Detalle |
 |---|---|---|
 | SSO activado en el tenant | Equipo de EUDIStack | Se habilita `ssoEnabled` y se configura el **dominio raíz** (`rootDomain`) del tenant, al que se asocia la cookie de sesión y que debe abarcar el host en el que se sirve su Verifier. |
-| Aplicación registrada como cliente OIDC del tenant | Equipo de EUDIStack | Es el mismo alta que necesitas para el [login con credencial](oidc-idp.md). |
+| Aplicación registrada como cliente OIDC del tenant | Equipo de EUDIStack | Es el mismo alta que necesitas para el login con credencial. |
 | `client_id` en el catálogo de aplicaciones elegibles | Equipo de EUDIStack | Se da de alta a petición tuya. Sin este paso, tu aplicación recibe siempre `interaction_required`. |
 | URIs de logout *(recomendado)* | Equipo de EUDIStack | `post_logout_redirect_uri` y `backchannel_logout_uri`, para el [cierre de sesión](#cerrar-sesion-single-logout). |
 
-Para solicitar la activación o el alta de una aplicación, [contacta con soporte](../../support.md) indicando el tenant y los `client_id` implicados.
+Para solicitar la activación o el alta de una aplicación, contacta con el equipo de EUDIStack indicando el tenant y los `client_id` implicados.
 
 !!! warning "Dar de alta una aplicación es confiarle la sesión del usuario"
     Mientras la sesión SSO esté vigente, cualquier `client_id` del catálogo obtiene un `id_token` del usuario sin que este vuelva a presentar su credencial ni vea ninguna pantalla. Esto aplica igual a las aplicaciones de terceros: da de alta solo aquellas en las que confíes como en las tuyas, y retíralas del catálogo en cuanto dejen de necesitar el acceso.
@@ -176,7 +176,7 @@ Cuando la reutilización silenciosa tiene éxito, el `id_token` incluye un claim
 
 ### Duración de la sesión
 
-La sesión SSO caduca en cuanto se cumple **cualquiera** de estos dos límites. Los valores por defecto se pueden ajustar por tenant dentro del rango (ver [guía de administración](../../admin/verifier-sso.md)):
+La sesión SSO caduca en cuanto se cumple **cualquiera** de estos dos límites. Los valores por defecto se pueden ajustar por tenant dentro del rango, a petición al equipo de EUDIStack:
 
 | Límite | Por defecto | Rango configurable |
 |---|---|---|
