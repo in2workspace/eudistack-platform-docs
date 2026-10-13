@@ -8,6 +8,14 @@ info:
     One request has a single delivery mode and produces one issuance process and one attestation.
     Errors follow the RFC 9457 problem details shape. `type` is an error code; the codes of each
     HTTP status are listed in its response.
+
+    **Availability.** This contract describes the complete API. Parts not deployed yet say
+    **Coming soon** or **Today** in their description and carry `x-availability: coming-soon` or
+    `x-availability: partial`. Do not build on them until they are available:
+    - Coming soon: the `Location` header, offer renewal, `organization`, `validFrom` / `validUntil`,
+      `direct` with `holder_key`, and the `409`/`422` idempotency errors.
+    - Partial: any catalog type (today only the LEAR types and the product certification),
+      `X-Idempotency-Key`, error codes and media type, and the volume limit.
   contact:
     name: EUDIStack
     url: https://eudistack.net
@@ -65,7 +73,8 @@ paths:
                   grant_type: "urn:ietf:params:oauth:grant-type:pre-authorized_code"
                   payload: {}
               direct:
-                summary: Signed attestation returned, bound to the holder key
+                summary: Signed attestation returned, bound to the holder key (coming soon)
+                description: "**Coming soon.** Today `direct` is only available for types without holder binding."
                 value:
                   credential_configuration_id: learcredential.machine.sd.1
                   delivery: direct
@@ -107,13 +116,19 @@ paths:
           description: |
             The request is not valid. `type`:
             - `BAD_REQUEST` — malformed request or wrong field format, with `violations`.
+              **Today** without `violations`.
             - `invalid_delivery_mode` — `delivery` is not `email`, `ui` or `direct`.
+              **Today** an unknown mode returns `invalid_request`.
             - `unsupported_credential_type` — the attestation type is unknown or not enabled in the tenant.
             - `payload_validation_error` — the payload does not match the schema of the type, with `violations`.
             - `invalid_holder_key` — `holder_key` is missing when required, is not a valid public JWK, or contains private members.
+              **Coming soon**, with `holder_key`.
             - `invalid_grant_type` — `grant_type` is not one of its two values.
             - `invalid_validity` — the validity end is not after the start, or the duration is above the type maximum.
+              **Coming soon**, with `validFrom` / `validUntil`.
             - `unknown_organization` — `organization` is not an organization of the tenant.
+              **Coming soon**, with `organization`.
+          x-availability: partial
           content:
             application/problem+json:
               schema: { $ref: "#/components/schemas/Problem" }
@@ -162,16 +177,23 @@ paths:
             The request conflicts with the configuration or with another request. `type`:
             - `delivery_mode_not_eligible` — the type or the tenant does not allow the requested delivery mode.
             - `idempotency_in_progress` — another request with the same `X-Idempotency-Key` is in progress.
+              **Coming soon**: today both requests are processed.
           content:
             application/problem+json:
               schema: { $ref: "#/components/schemas/Problem" }
         "422":
-          description: "`type` `idempotency_key_reused`: the same `X-Idempotency-Key` was sent with a different body."
+          description: |
+            `type` `idempotency_key_reused`: the same `X-Idempotency-Key` was sent with a different body.
+            **Coming soon**: today the response of the first request is returned.
+          x-availability: coming-soon
           content:
             application/problem+json:
               schema: { $ref: "#/components/schemas/Problem" }
         "429":
-          description: "`type` `rate_limited`: the volume limit was exceeded. Retry after the time in `Retry-After`."
+          description: |
+            `type` `rate_limited`: the volume limit was exceeded. Retry after the time in `Retry-After`.
+            **Today** the limit is 100 requests per minute per IP address, and the response has no body.
+          x-availability: partial
           headers:
             Retry-After:
               description: Seconds to wait before retrying.
@@ -185,6 +207,10 @@ paths:
             - `persistence_failed` — the issuance process could not be stored.
             - `delivery_failed` — the delivery flow failed for another reason.
             - `INTERNAL_SERVER_ERROR` — unexpected error.
+
+            **Today** a failed delivery returns `500` with the `responses` envelope as
+            `application/json`: the failed entry carries its own `status` and `error`.
+          x-availability: partial
           content:
             application/problem+json:
               schema: { $ref: "#/components/schemas/Problem" }
@@ -213,8 +239,12 @@ paths:
     post:
       tags: [Issuance]
       operationId: renewCredentialOffer
-      summary: Renew the credential offer of an issuance process
+      summary: Renew the credential offer of an issuance process (coming soon)
+      x-availability: coming-soon
       description: |
+        **Coming soon.** Not deployed yet: today the offer can only be renewed from the link in the
+        email the holder receives.
+
         Creates a new credential offer for an issuance process that is still a draft (the holder has
         not collected the attestation) and delivers it with the process delivery mode:
         - `email`: sends the new offer to the holder email.
@@ -314,11 +344,19 @@ components:
         Recommended for systems, which retry automatically. For 24 hours, the same key with the same
         body returns the same successful response without creating another issuance process, whichever
         issuer instance serves it. Error responses are not stored: a retry after an error is processed again.
+
+        **Today** partial: the successful response is kept for 1 hour and is lost if the service
+        restarts; a different body or a concurrent request with the same key is not rejected. Do not
+        send two requests with the same key at once, and do not reuse a key for a different issuance.
+      x-availability: partial
       schema: { type: string, maxLength: 255 }
 
   headers:
     Location:
-      description: URI of the created issuance process. Returned when the delivery succeeds.
+      description: |
+        URI of the created issuance process. Returned when the delivery succeeds.
+        **Coming soon**: not returned yet.
+      x-availability: coming-soon
       schema:
         type: string
         format: uri-reference
@@ -333,12 +371,16 @@ components:
           type: string
           maxLength: 100
           pattern: "^[a-zA-Z0-9._-]+$"
-          description: Attestation configuration from the catalog, enabled in the tenant. Alias `schema`.
+          description: |
+            Attestation configuration from the catalog, enabled in the tenant. Alias `schema`.
+            **Today** only the LEAR types and the product certification can be issued through this API.
+          x-availability: partial
         payload:
           type: object
           description: |
             Attestation attributes, validated against the schema of the type.
             `validFrom` / `validUntil` (ISO 8601) request the validity dates, only if the type allows it; otherwise they are ignored.
+            **Coming soon**: today `validFrom` / `validUntil` are ignored and the default validity of the type applies.
         email:
           type: string
           format: email
@@ -361,12 +403,17 @@ components:
             `organizationIdentifier` of the organization of the tenant the attestation belongs to
             (e.g. `VATES-B00000000`). Optional: by default, the requester's organization. Only a tenant administrator (or the platform administrator acting as one) may
             indicate another organization.
+            **Coming soon**: today the field is ignored.
+          x-availability: coming-soon
         holder_key:
           $ref: "#/components/schemas/PublicJwk"
 
     PublicJwk:
       type: object
-      description: Holder public key (RFC 7517). Required when the type requires cryptographic holder binding and `delivery` is `direct`. Rejected if it contains private members.
+      description: |
+        Holder public key (RFC 7517). Required when the type requires cryptographic holder binding and `delivery` is `direct`. Rejected if it contains private members.
+        **Coming soon**: today `direct` is only available for types without holder binding.
+      x-availability: coming-soon
       required: [kty]
       properties:
         kty: { type: string, examples: [EC] }
