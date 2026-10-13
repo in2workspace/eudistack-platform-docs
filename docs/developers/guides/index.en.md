@@ -16,9 +16,9 @@ Recipes for concrete use cases. Each guide assumes you are already familiar with
 
     Synchronise users and attributes from your corporate IdP (Okta, Entra ID, etc.) into EUDIStack via SCIM 2.0.
 
--   :material-cog-transfer: [**API Direct Issuance**](api-direct-issuance.en.md)
+-   :material-cog-transfer: [**Issuance API**](issuance-api.en.md)
 
-    Issue credentials programmatically from your backend (without going through the Issuer Portal).
+    Issue attestations from your backend and choose how they are delivered to the holder: by email, as an offer for your application, or signed directly.
 
 -   :material-language-java: [**Java SDK — M2M Authentication**](verifier-m2m-sdk-java.en.md)
 
