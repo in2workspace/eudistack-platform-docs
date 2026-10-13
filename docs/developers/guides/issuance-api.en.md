@@ -1,13 +1,13 @@
 # Issuance API
 
-Issue attestations from your backend with a single call, without going through the Issuer Portal. Your system authenticates to the Verifier with its machine credential, requests the issuance and chooses how the attestation is delivered to the holder.
+Issue attestations from your backend with a single call, without going through the Issuance Portal or the Administration Portal. Your system authenticates to the Verifier with its machine credential, requests the issuance and chooses how the attestation is delivered to the holder.
 
 [:material-file-document: **Issuance OpenAPI contract**](../api-reference/issuer.en.md){ .md-button .md-button--primary }
 [:material-language-java: Java SDK — M2M authentication](verifier-m2m-sdk-java.en.md){ .md-button }
 
 ??? tip "When to use this guide"
     - Your system already knows **when** to issue an attestation: an employee joins, a professional registers, a course ends.
-    - You want to issue from your own processes, without a person logging into the Issuer Portal.
+    - You want to issue from your own processes, without a person logging into the Issuance Portal or the Administration Portal.
     - You need to retry safely, without issuing the same attestation twice.
 
 ??? info "Prerequisites"
@@ -29,6 +29,7 @@ This guide describes the full API contract. Some parts are not deployed yet: the
 | `direct` delivery with `holder_key` (types with holder binding) | Coming soon |
 | Any type enabled in the tenant catalogue | Partial: today only the LEAR types and the product certification |
 | Issuance process identifier in the `Location` header | Coming soon |
+| Renewal of the offer of a draft process | Coming soon |
 | `organization` field | Coming soon |
 | Validity dates (`validFrom`, `validUntil`) | Coming soon |
 | Idempotency with `X-Idempotency-Key` | Partial: see [Retries and idempotency](#retries-and-idempotency) |
@@ -227,6 +228,28 @@ Inside `payload` you can set `validFrom` and `validUntil` (ISO 8601) if the type
 
 ---
 
+## Renew the offer
+
+A credential offer expires after 10 minutes. If the holder has not opened it in time, request a new one for the same process, without creating another issuance:
+
+`POST /issuer/api/v1/issuances/{id}/credential-offer`
+
+`{id}` is the process identifier returned by the issuance in `Location`. The request has no body. EUDIStack creates a new offer with the same grant, voids the previous one and delivers it with the process delivery mode:
+
+| Process mode | What it returns |
+|---|---|
+| `email` | Confirmation that the new offer was sent to the holder email. |
+| `ui` | The new `credential_offer_uri`, with the same shape as in the issuance. |
+
+You can only renew while the process is a draft (`DRAFT`), that is, while the holder has not collected the attestation. In any other state, or if the mode is `direct`, it is rejected with 409 `offer_not_renewable`. A process that does not exist or is outside your scope gets 404 `issuance_not_found`.
+
+With `ui`, this lets you always show a valid offer: when the one you show expires, request another and replace the QR code. Once the holder collects the attestation, renewal returns `offer_not_renewable`: stop renewing.
+
+!!! info "Coming soon"
+    This operation is not available yet. Today the offer can only be renewed from the link in the email the holder receives.
+
+---
+
 ## Retries and idempotency
 
 Always send the `X-Idempotency-Key` header with a unique value per issuance, for example a UUID generated when preparing the request, and reuse it when retrying that same issuance. This lets you retry after a network cut or a timeout without issuing twice.
@@ -271,6 +294,7 @@ Errors are returned as `application/problem+json` (RFC 9457). Build your logic o
 | 403 | `insufficient_permission` | Your credential's powers do not allow this issuance. | Check the machine credential powers. |
 | 403 | `tenant_mismatch` | The tenant of the address is not your credential's tenant. | Use your tenant address. |
 | 409 | `delivery_mode_not_eligible` | The type or the tenant does not allow that delivery mode. | Use another mode. |
+| 409 | `offer_not_renewable` | When renewing the offer: the process is no longer a draft or its mode is `direct`. | Stop renewing: the holder already collected the attestation or the process ended. |
 | 409 | `idempotency_in_progress` | Another request with the same key is running. | Wait and retry. |
 | 422 | `idempotency_key_reused` | The same key was sent with another body. | Use a new key for each issuance. |
 | 429 | `rate_limited` | The rate limit was exceeded. | Wait for `Retry-After`. |
