@@ -6,7 +6,7 @@ Issue credentials programmatically from your backend, without going through the 
     This guide does not reflect the current issuance API contract and is being replaced. In particular:
 
     - Systems do **not** authenticate to the Issuer with `client_id` and `client_secret`. They authenticate to the **Verifier** with their machine credential (`LEARCredentialMachine`). See [Java SDK — M2M authentication](verifier-m2m-sdk-java.md).
-    - Issuance is `POST /api/v1/issuances` on the tenant address, and idempotency is set with the `X-Idempotency-Key` header.
+    - Issuance is `POST /issuer/api/v1/issuances` on the tenant address, and idempotency is set with the `X-Idempotency-Key` header.
     - There are no webhook notifications.
 
     If you are integrating now, contact your EUDIStack representative to get the current contract.
