@@ -23,7 +23,6 @@ Emite credenciales programáticamente desde tu backend, sin pasar por la UI del 
 1. **Autentícate** contra el Issuer usando OAuth 2.0 client credentials (M2M).
 2. **Crea la oferta** con `POST /issuer/api/v1/issuances`.
 3. **Entrega la `credential_offer_uri`** al destinatario (email, QR, push).
-4. **Opcional:** suscríbete a webhooks para recibir notificaciones de estado.
 
 ---
 
@@ -115,7 +114,7 @@ Con el `access_token` obtenido, crea la oferta. El campo `client_request_id` gar
 
         | Campo | Descripción |
         |---|---|
-        | `issuance_id` | Identificador interno. Úsalo para consultar estado o correlacionar webhooks. |
+        | `issuance_id` | Identificador interno. Úsalo para consultar el estado. |
         | `credential_offer_uri` | URL o deep link que debes entregar al destinatario. |
         | `status` | Estado inicial: `pending` (el destinatario aún no ha aceptado). |
         | `expires_at` | Fecha de expiración del código preautorizado. |
@@ -132,32 +131,6 @@ Con el `access_token` obtenido, crea la oferta. El campo `client_request_id` gar
 
 === "QR en pantalla"
     Genera el QR en tiempo real en tu aplicación web cuando el usuario esté presente.
-
----
-
-## (Opcional) Paso 4: Webhooks de estado
-
-Registra un endpoint HTTPS en la configuración del tenant para recibir notificaciones de cambio de estado.
-
-??? info "Eventos disponibles"
-
-    | Evento | Descripción |
-    |---|---|
-    | `issuance.accepted` | El destinatario aceptó la credencial en su wallet. |
-    | `issuance.rejected` | El destinatario rechazó la oferta o caducó sin ser aceptada. |
-    | `issuance.error` | Error durante la emisión (plantilla no encontrada, datos inválidos, etc.). |
-
-??? example "Payload de ejemplo"
-
-    ```json
-    {
-      "event": "issuance.accepted",
-      "issuance_id": "a3f1b2c4-7d8e-9f0a-b1c2-d3e4f5a6b7c8",
-      "client_request_id": "onboarding-2026-05-18-emp-00342",
-      "credential_id": "urn:uuid:c1d2e3f4-...",
-      "timestamp": "2026-05-18T14:35:22Z"
-    }
-    ```
 
 ---
 

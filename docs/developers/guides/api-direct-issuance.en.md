@@ -23,7 +23,6 @@ Issue credentials programmatically from your backend, without going through the 
 1. **Authenticate** against the Issuer using OAuth 2.0 client credentials (M2M).
 2. **Create the offer** with `POST /issuer/api/v1/issuances`.
 3. **Deliver the `credential_offer_uri`** to the recipient (email, QR, push).
-4. **Optional:** subscribe to webhooks to receive status notifications.
 
 ---
 
@@ -115,7 +114,7 @@ With the obtained `access_token`, create the offer. The `client_request_id` fiel
 
         | Field | Description |
         |---|---|
-        | `issuance_id` | Internal identifier. Use it to query the status or correlate webhook events. |
+        | `issuance_id` | Internal identifier. Use it to query the status. |
         | `credential_offer_uri` | URL or deep link to deliver to the recipient. |
         | `status` | Initial status: `pending` (recipient has not yet accepted). |
         | `expires_at` | Pre-authorized code expiration date. |
@@ -132,32 +131,6 @@ With the obtained `access_token`, create the offer. The `client_request_id` fiel
 
 === "QR on screen"
     Generate the QR code in real time in your web application when the user is present.
-
----
-
-## (Optional) Step 4: Webhook notifications
-
-Register an HTTPS endpoint in your tenant configuration to receive status change notifications.
-
-??? info "Available events"
-
-    | Event | Description |
-    |---|---|
-    | `issuance.accepted` | Recipient accepted the credential in their wallet. |
-    | `issuance.rejected` | Recipient rejected the offer or it expired without being accepted. |
-    | `issuance.error` | Error during issuance (template not found, invalid data, etc.). |
-
-??? example "Example webhook payload"
-
-    ```json
-    {
-      "event": "issuance.accepted",
-      "issuance_id": "a3f1b2c4-7d8e-9f0a-b1c2-d3e4f5a6b7c8",
-      "client_request_id": "onboarding-2026-05-18-emp-00342",
-      "credential_id": "urn:uuid:c1d2e3f4-...",
-      "timestamp": "2026-05-18T14:35:22Z"
-    }
-    ```
 
 ---
 
