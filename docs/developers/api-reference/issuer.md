@@ -30,6 +30,8 @@ Los contratos describen la versión completa de cada API. Lo marcado como próxi
 
 ## API de emisión
 
+[:material-download: Descargar OpenAPI](openapi/issuer-issuance.yaml){ .md-button download="issuer-issuance.yaml" }
+
 <swagger-ui src="openapi/issuer-issuance.yaml"/>
 
 ---
@@ -38,6 +40,8 @@ Los contratos describen la versión completa de cada API. Lo marcado como próxi
 
 !!! info "Próximamente"
     De esta API, hoy solo está disponible el detalle de una emisión (`GET /api/v1/issuances/{id}`). El listado con filtros y paginación y la búsqueda por identificador llegarán en una próxima versión.
+
+[:material-download: Descargar OpenAPI](openapi/issuer-query.yaml){ .md-button download="issuer-query.yaml" }
 
 <swagger-ui src="openapi/issuer-query.yaml"/>
 
@@ -48,11 +52,15 @@ Los contratos describen la versión completa de cada API. Lo marcado como próxi
 !!! info "Próximamente"
     La revocación por API todavía no está disponible para sistemas.
 
+[:material-download: Descargar OpenAPI](openapi/issuer-revocation.yaml){ .md-button download="issuer-revocation.yaml" }
+
 <swagger-ui src="openapi/issuer-revocation.yaml"/>
 
 ---
 
 ## Listas de estado
+
+[:material-download: Descargar OpenAPI](openapi/issuer-status-lists.yaml){ .md-button download="issuer-status-lists.yaml" }
 
 <swagger-ui src="openapi/issuer-status-lists.yaml"/>
 

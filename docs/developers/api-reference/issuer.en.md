@@ -30,6 +30,8 @@ The contracts describe the full version of each API. What is marked coming soon 
 
 ## Issuance API
 
+[:material-download: Download OpenAPI](openapi/issuer-issuance.yaml){ .md-button download="issuer-issuance.yaml" }
+
 <swagger-ui src="openapi/issuer-issuance.yaml"/>
 
 ---
@@ -38,6 +40,8 @@ The contracts describe the full version of each API. What is marked coming soon 
 
 !!! info "Coming soon"
     Of this API, only the issuance detail (`GET /api/v1/issuances/{id}`) is available today. Filtered, paginated listing and search by identifier will come in a later release.
+
+[:material-download: Download OpenAPI](openapi/issuer-query.yaml){ .md-button download="issuer-query.yaml" }
 
 <swagger-ui src="openapi/issuer-query.yaml"/>
 
@@ -48,11 +52,15 @@ The contracts describe the full version of each API. What is marked coming soon 
 !!! info "Coming soon"
     Revocation through the API is not available to systems yet.
 
+[:material-download: Download OpenAPI](openapi/issuer-revocation.yaml){ .md-button download="issuer-revocation.yaml" }
+
 <swagger-ui src="openapi/issuer-revocation.yaml"/>
 
 ---
 
 ## Status lists
+
+[:material-download: Download OpenAPI](openapi/issuer-status-lists.yaml){ .md-button download="issuer-status-lists.yaml" }
 
 <swagger-ui src="openapi/issuer-status-lists.yaml"/>
 
