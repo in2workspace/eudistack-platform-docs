@@ -42,12 +42,14 @@ sequenceDiagram
     Note over App1,Wallet: 1. Primer login (idéntico al flujo estándar)
     App1->>Browser: redirige a /verifier/oidc/authorize
     Browser->>Verifier: Authorization Request
-    Verifier-->>Browser: página de login + QR
-    Browser->>Wallet: el usuario presenta su credencial
+    Verifier-->>Browser: página de login + QR (+ cookie de vínculo del login)
+    Browser->>Wallet: el usuario escanea el QR y presenta su credencial
     Wallet->>Verifier: respuesta de presentación válida
-    Verifier-->>Browser: redirect a App A + Set-Cookie __Secure-sso-<tenant>
+    Verifier-->>Browser: aviso a la página de login: login completado
+    Browser->>Verifier: cierre del login (con la cookie de vínculo)
+    Verifier-->>Browser: redirect a App A + code + Set-Cookie __Secure-sso-<tenant>
     App1->>Verifier: canje del code
-    Verifier-->>App1: id_token + access_token
+    Verifier-->>App1: id_token (con claim sid) + access_token
 
     Note over App2,Verifier: 2. Segunda aplicación, mismo usuario, misma sesión de navegador
     App2->>Browser: redirige con prompt=none
@@ -59,6 +61,8 @@ sequenceDiagram
 ```
 
 La sesión SSO se establece automáticamente tras cualquier login con credencial en un tenant con SSO activado, sea cual sea la aplicación. Qué aplicación es la "primera" depende de por dónde entre el usuario, así que **todas las aplicaciones** deben pedir primero el login en silencio para poder reutilizar una sesión abierta en otra.
+
+La cookie de sesión se emite en el **navegador que inició el login**, aunque el usuario presente su credencial desde la wallet de otro dispositivo (el móvil): tras la presentación, la página de login devuelve el navegador al Verifier para cerrar el login, y es en ese paso donde el Verifier crea la sesión y redirige a tu aplicación. Este paso es transparente para tu aplicación, que recibe el `code` en su `redirect_uri` como siempre.
 
 ---
 
@@ -85,13 +89,16 @@ GET /verifier/oidc/authorize?
   client_id=mi-segunda-app&
   scope=openid learcredential.employee&
   prompt=none&
-  state=abc123&
+  state=Xq7mZ2pL9vT4rN8sK3wY&
   redirect_uri=https://mi-segunda-app.com/callback&
   code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-c&
   code_challenge_method=S256
 ```
 
 Con `prompt=none` el Verifier nunca muestra pantallas ni QR: resuelve la petición en el momento o devuelve un error de inmediato.
+
+!!! warning "Genera un `state` nuevo y aleatorio en cada petición"
+    El Verifier identifica cada login en curso por su `state`. Si tu aplicación lanza un login con QR reutilizando un `state` que todavía está en curso (hasta 10 minutos), el Verifier lo rechaza con `invalid_request: state already in use` y muestra su página de error, salvo que sea un reintento desde el mismo navegador. Las librerías OIDC habituales ya generan un `state` distinto en cada petición; no uses valores fijos ni predecibles.
 
 !!! warning "Usa una redirección de página completa, no un iframe"
     El Verifier no permite que sus páginas se carguen dentro de un iframe. Si tu librería OIDC hace el login silencioso en un iframe oculto (*silent renew*), desactívalo y lanza la petición con una redirección normal del navegador.
@@ -107,6 +114,8 @@ La redirección a tu `redirect_uri` trae uno de estos tres resultados:
 | `?error=interaction_required` | Hay sesión SSO vigente, pero tu `client_id` no está en el catálogo. | Login normal con QR, y revisa los [requisitos](#requisitos). |
 
 El usuario no nota la diferencia entre los dos caminos, salvo que en el segundo sí tendrá que presentar su credencial.
+
+En el login normal con QR, además del `code`, tu `redirect_uri` puede recibir `?error=access_denied`: el login no se cerró en el navegador que lo inició (por ejemplo, porque el navegador bloquea las cookies del Verifier o porque se intentó completar desde otro navegador). El Verifier no entrega ni el `code` ni la sesión SSO en ese caso; tu aplicación debe tratarlo como un login fallido y permitir reintentarlo.
 
 !!! tip "Distingue los dos errores en tus logs"
     `login_required` e `interaction_required` significan cosas distintas (OIDC Core §3.1.2.6). El primero es esperable (usuario nuevo, sesión caducada). El segundo indica un problema de configuración del catálogo que conviene investigar si se repite.
@@ -144,7 +153,7 @@ Qué tiene que hacer tu aplicación en cada caso:
       post_logout_redirect_uri=https://mi-segunda-app.com/
     ```
 
-3. El Verifier cierra la sesión SSO al instante, avisa a las demás aplicaciones y devuelve al usuario a tu `post_logout_redirect_uri`, que debe estar registrado para tu `client_id`.
+3. El Verifier cierra la sesión SSO al instante, avisa a las demás aplicaciones que usaron la sesión (ver [caso 2](#caso-2-el-usuario-cierra-sesion-en-otra-aplicacion)) y devuelve al usuario a tu `post_logout_redirect_uri`, que debe estar registrado para tu `client_id`.
 
 !!! warning "Borrar solo tu sesión local no cierra el SSO"
     Si tu aplicación se salta el paso 2, la sesión SSO sigue vigente y la siguiente petición `prompt=none` volverá a dar acceso al usuario sin pedirle la credencial.
@@ -199,6 +208,9 @@ Tu endpoint debe:
 
 La aplicación que inició el logout no recibe este aviso.
 
+!!! warning "Limitación actual: la aplicación del login con QR no recibe el aviso"
+    El Verifier avisa a las aplicaciones que entraron **reutilizando la sesión** con `prompt=none`. La aplicación en la que el usuario hizo el login con QR —la que creó la sesión SSO— no queda registrada como destinataria y no recibe el `logout_token`, salvo que después haya vuelto a entrar con `prompt=none`. Hasta que se corrija, esa aplicación solo se entera del logout cuando caduca su sesión local (ver el aviso siguiente).
+
 !!! warning "Si tu aplicación no escucha el aviso, el usuario sigue dentro"
     El `backchannel_logout_uri` es opcional (HTTPS obligatorio), pero sin él tu aplicación no se entera de los logouts hechos en otras. Si el usuario cierra sesión en otra aplicación del tenant:
 
@@ -214,7 +226,7 @@ La aplicación que inició el logout no recibe este aviso.
 
 ### Contenido del id_token
 
-Cuando la reutilización silenciosa tiene éxito, el `id_token` incluye un claim adicional respecto al login estándar:
+En un tenant con SSO activado, el `id_token` incluye el claim `sid` en **cualquier** login: tanto en el primero, con QR, como en los silenciosos con `prompt=none`. Ejemplo con los claims relevantes para el SSO (se omiten el resto de claims del login estándar):
 
 ```json
 {
@@ -223,11 +235,13 @@ Cuando la reutilización silenciosa tiene éxito, el `id_token` incluye un claim
   "aud": "mi-segunda-app",
   "sid": "f3a1c9e2b6d84f0a",
   "auth_time": 1715000000,
-  "acr": "http://eidas.europa.eu/LoA/substantial"
+  "acr": "0"
 }
 ```
 
-`sid` identifica la sesión SSO compartida: todas las aplicaciones que la reutilizan reciben el mismo valor, y es el que llega en el `logout_token`. No es un secreto (viaja en un JWT firmado), pero evita exponerlo en URLs o logs de acceso.
+`sid` identifica la sesión SSO compartida: todas las aplicaciones que usan la sesión, incluida la del primer login, reciben el mismo valor, y es el que llega en el `logout_token`. No es un secreto (viaja en un JWT firmado), pero evita exponerlo en URLs o logs de acceso.
+
+`auth_time` es el momento del login con credencial y no cambia en los logins silenciosos. `acr` vale siempre `"0"`: el Verifier no declara un nivel de garantía en el `id_token`.
 
 ### Duración de la sesión
 
@@ -243,5 +257,6 @@ Tras la caducidad, `prompt=none` recibe `login_required`: tu aplicación debe es
 ### Seguridad
 
 - **Cookie de sesión.** Se llama `__Secure-sso-<tenant>` y se emite con `Secure`, `HttpOnly`, `SameSite=Lax` y `Domain=<dominio raíz del tenant>`. Es un identificador opaco de 256 bits, no un JWT: no contiene datos del usuario ni de la credencial. Solo la gestiona el Verifier; tu aplicación nunca la lee ni la modifica.
+- **Cookie de vínculo del login.** Al mostrar el QR, el Verifier emite además `__Host-sso-tx` (`Secure`, `HttpOnly`, `SameSite=Lax`, sin `Domain`: solo para el host del Verifier; vida de 10 minutos). Liga el login al navegador que lo inició: el Verifier solo crea la sesión SSO y entrega el `code` a ese navegador, de modo que quien observe el login desde fuera no puede apropiarse de él. Tampoco la gestiona tu aplicación.
 - **Aislamiento por tenant.** Una sesión SSO de un tenant nunca se reutiliza en otro, aunque compartan navegador: el Verifier responde `login_required`.
 - **Los errores de una aplicación no afectan a las demás.** Si tu aplicación no está en el catálogo o envía una petición mal formada, la sesión SSO del usuario sigue intacta para el resto.
