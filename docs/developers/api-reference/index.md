@@ -6,7 +6,7 @@ Las APIs públicas de EUDIStack están organizadas por servicio. Cada una se exp
 
 -   :material-certificate-outline: [**Issuer API**](issuer.md)
 
-    Emisión de credenciales (OID4VCI), gestión de ofertas, revocación.
+    Emisión, consulta y revocación de atestaciones, y listas de estado. Contratos OpenAPI interactivos.
 
 -   :material-shield-check: [**Verifier API**](verifier.md)
 

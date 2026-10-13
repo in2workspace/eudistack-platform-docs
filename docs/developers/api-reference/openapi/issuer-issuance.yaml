@@ -1,0 +1,423 @@
+openapi: 3.1.0
+info:
+  title: EUDIStack Issuer — Issuance API
+  version: "1"
+  summary: Request the issuance of attestations.
+  description: |
+    Issuance contract shared by operators and systems.
+    One request has a single delivery mode and produces one issuance process and one attestation.
+    Errors follow the RFC 9457 problem details shape. `type` is an error code; the codes of each
+    HTTP status are listed in its response.
+  contact:
+    name: EUDIStack
+    url: https://eudistack.net
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: https://{tenant}.{environment}.eudistack.net/issuer
+    description: Tenant endpoint.
+    variables:
+      tenant:
+        default: sandbox
+      environment:
+        default: stg
+tags:
+  - name: Issuance
+    description: Issuance of attestations.
+
+paths:
+  /api/v1/issuances:
+    post:
+      tags: [Issuance]
+      operationId: createIssuance
+      summary: Request the issuance of an attestation
+      description: |
+        Creates one issuance process for one attestation of the requester's organization, hands it
+        to the flow of the requested delivery mode and returns its result:
+        - `email`: confirmation that the credential offer was sent to the holder email.
+        - `ui`: the credential offer link.
+        - `direct`: the signed attestation.
+        What each requester may issue is decided by authorization by powers.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      security:
+        - bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/IssuanceRequest" }
+            examples:
+              email:
+                summary: Offer sent to the holder email
+                value:
+                  credential_configuration_id: learcredential.employee.sd.1
+                  delivery: email
+                  email: titular@transportes-sur.example
+                  payload: {}
+              ui:
+                summary: Offer returned to the interface, pre-authorized code
+                value:
+                  credential_configuration_id: learcredential.employee.sd.1
+                  delivery: ui
+                  email: titular@transportes-sur.example
+                  grant_type: "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+                  payload: {}
+              direct:
+                summary: Signed attestation returned, bound to the holder key
+                value:
+                  credential_configuration_id: learcredential.machine.sd.1
+                  delivery: direct
+                  email: responsable@transportes-sur.example
+                  holder_key:
+                    kty: EC
+                    crv: P-256
+                    x: f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU
+                    y: x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0
+                  payload: {}
+      responses:
+        "200":
+          description: The delivery succeeded. `responses` has one entry, for the requested mode.
+          headers:
+            Location: { $ref: "#/components/headers/Location" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/IssuanceResponse" }
+              examples:
+                email:
+                  value:
+                    responses:
+                      - { channel: email, status: 200 }
+                ui:
+                  value:
+                    responses:
+                      - channel: ui
+                        status: 200
+                        body:
+                          credential_offer_uri: "openid-credential-offer://?credential_offer_uri=https%3A%2F%2Fsandbox.stg.eudistack.net%2F..."
+                direct:
+                  value:
+                    responses:
+                      - channel: direct
+                        status: 200
+                        body:
+                          signed_credential: "eyJhbGciOiJFUzI1NiIsInR5cCI6ImRjK3NkLWp3dCJ9...~WyJzYWx0Ii...~"
+        "400":
+          description: |
+            The request is not valid. `type`:
+            - `BAD_REQUEST` — malformed request or wrong field format, with `violations`.
+            - `invalid_delivery_mode` — `delivery` is not `email`, `ui` or `direct`.
+            - `unsupported_credential_type` — the attestation type is unknown or not enabled in the tenant.
+            - `payload_validation_error` — the payload does not match the schema of the type, with `violations`.
+            - `invalid_holder_key` — `holder_key` is missing when required, is not a valid public JWK, or contains private members.
+            - `invalid_grant_type` — `grant_type` is not one of its two values.
+            - `invalid_validity` — the validity end is not after the start, or the duration is above the type maximum.
+            - `unknown_organization` — `organization` is not an organization of the tenant.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+              examples:
+                invalid_delivery_mode:
+                  value:
+                    type: invalid_delivery_mode
+                    title: Invalid delivery mode
+                    status: 400
+                    detail: "delivery must be one of: email, ui, direct"
+                    instance: /api/v1/issuances
+                payload_validation_error:
+                  value:
+                    type: payload_validation_error
+                    title: Payload validation error
+                    status: 400
+                    detail: The payload does not match the schema of learcredential.machine.sd.1
+                    instance: /api/v1/issuances
+                    violations:
+                      - { field: payload.mandatee.serviceName, message: is required }
+        "401":
+          description: |
+            The access token is missing, invalid or expired. `type`:
+            - `invalid_token` — the token is not valid or has expired.
+            - `authentication_error` — the token is missing or authentication failed.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "403":
+          description: |
+            The request is not allowed. `type`:
+            - `tenant_mismatch` — the request tenant is not the tenant of the requester's attestation.
+            - `tenant_not_resolved` — no tenant could be resolved for the request.
+            - `insufficient_permission` — the requester may not issue this attestation, or may not issue for another organization (authorization by powers).
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+              example:
+                type: insufficient_permission
+                title: Insufficient permission
+                status: 403
+                detail: The requester may not issue this attestation
+                instance: /api/v1/issuances
+        "409":
+          description: |
+            The request conflicts with the configuration or with another request. `type`:
+            - `delivery_mode_not_eligible` — the type or the tenant does not allow the requested delivery mode.
+            - `idempotency_in_progress` — another request with the same `X-Idempotency-Key` is in progress.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "422":
+          description: "`type` `idempotency_key_reused`: the same `X-Idempotency-Key` was sent with a different body."
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "429":
+          description: "`type` `rate_limited`: the volume limit was exceeded. Retry after the time in `Retry-After`."
+          headers:
+            Retry-After:
+              description: Seconds to wait before retrying.
+              schema: { type: integer, minimum: 0 }
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "500":
+          description: |
+            The request was valid but could not be completed. `type`:
+            - `persistence_failed` — the issuance process could not be stored.
+            - `delivery_failed` — the delivery flow failed for another reason.
+            - `INTERNAL_SERVER_ERROR` — unexpected error.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "503":
+          description: |
+            A service needed by the delivery flow is temporarily unavailable. Retry after the time in
+            `Retry-After`, with the same `X-Idempotency-Key`. `type`:
+            - `signing_failed` — the signing service did not respond.
+            - `status_list_unavailable` — no status list position could be reserved.
+            - `wallet_delivery_timeout` — the wallet delivery flow did not respond in time.
+          headers:
+            Retry-After:
+              description: Seconds to wait before retrying.
+              schema: { type: integer, minimum: 0 }
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+              example:
+                type: status_list_unavailable
+                title: Status list unavailable
+                status: 503
+                detail: The issuance could not be completed. Retry later.
+                instance: /api/v1/issuances
+
+  /api/v1/issuances/{id}/credential-offer:
+    post:
+      tags: [Issuance]
+      operationId: renewCredentialOffer
+      summary: Renew the credential offer of an issuance process
+      description: |
+        Creates a new credential offer for an issuance process that is still a draft (the holder has
+        not collected the attestation) and delivers it with the process delivery mode:
+        - `email`: sends the new offer to the holder email.
+        - `ui`: returns the new credential offer link.
+        The new offer voids the previous one and keeps the grant of the process. An offer is valid
+        for 10 minutes, so a requester that shows offers with `ui` renews them with this operation.
+        Allowed to whoever may issue in the organization of the process (authorization by powers).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Issuance process identifier, as returned by the issuance in `Location`.
+          schema: { type: string, format: uuid }
+      security:
+        - bearer: []
+      responses:
+        "200":
+          description: The new offer was delivered. `responses` has one entry, for the process delivery mode.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/IssuanceResponse" }
+              examples:
+                ui:
+                  value:
+                    responses:
+                      - channel: ui
+                        status: 200
+                        body:
+                          credential_offer_uri: "openid-credential-offer://?credential_offer_uri=https%3A%2F%2Fsandbox.stg.eudistack.net%2F..."
+                email:
+                  value:
+                    responses:
+                      - { channel: email, status: 200 }
+        "400":
+          description: "`type` `BAD_REQUEST`: the identifier is not a UUID."
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "401":
+          description: "`type` `invalid_token` or `authentication_error`: the access token is missing, invalid or expired."
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "403":
+          description: "`type` `tenant_mismatch`, `tenant_not_resolved` or `insufficient_permission`."
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "404":
+          description: |
+            `type` `issuance_not_found`: the issuance process does not exist or is outside the
+            requester's scope. Both cases get the same response.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "409":
+          description: |
+            `type` `offer_not_renewable`: the process is no longer a draft (the attestation was
+            collected, withdrawn, revoked, expired or archived), or its delivery mode is `direct`.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "429":
+          description: "`type` `rate_limited`: the volume limit was exceeded. Retry after the time in `Retry-After`."
+          headers:
+            Retry-After:
+              description: Seconds to wait before retrying.
+              schema: { type: integer, minimum: 0 }
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "503":
+          description: |
+            `type` `wallet_delivery_timeout`: the offer could not be created or sent in time.
+            Nothing was changed. Retry after the time in `Retry-After`.
+          headers:
+            Retry-After:
+              description: Seconds to wait before retrying.
+              schema: { type: integer, minimum: 0 }
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: Access token issued by the Verifier, for a person (H2M) or a system (M2M).
+
+  parameters:
+    IdempotencyKey:
+      in: header
+      name: X-Idempotency-Key
+      required: false
+      description: |
+        Recommended for systems, which retry automatically. For 24 hours, the same key with the same
+        body returns the same successful response without creating another issuance process, whichever
+        issuer instance serves it. Error responses are not stored: a retry after an error is processed again.
+      schema: { type: string, maxLength: 255 }
+
+  headers:
+    Location:
+      description: URI of the created issuance process. Returned when the delivery succeeds.
+      schema:
+        type: string
+        format: uri-reference
+        examples: [/api/v1/issuances/0b6f1d2e-8c4a-4b1f-9e2d-7a5c3f8e1b90]
+
+  schemas:
+    IssuanceRequest:
+      type: object
+      required: [credential_configuration_id, payload, email]
+      properties:
+        credential_configuration_id:
+          type: string
+          maxLength: 100
+          pattern: "^[a-zA-Z0-9._-]+$"
+          description: Attestation configuration from the catalog, enabled in the tenant. Alias `schema`.
+        payload:
+          type: object
+          description: |
+            Attestation attributes, validated against the schema of the type.
+            `validFrom` / `validUntil` (ISO 8601) request the validity dates, only if the type allows it; otherwise they are ignored.
+        email:
+          type: string
+          format: email
+          maxLength: 254
+          description: Holder email, or the email of the person responsible for a machine attestation.
+        delivery:
+          type: string
+          enum: [email, ui, direct]
+          default: email
+          description: Delivery mode. Any other value, including a list of modes, is rejected with `invalid_delivery_mode`.
+        grant_type:
+          type: string
+          enum: [authorization_code, "urn:ietf:params:oauth:grant-type:pre-authorized_code"]
+          default: authorization_code
+          description: OID4VCI grant included in the credential offer, only with `email` and `ui`.
+        organization:
+          type: string
+          maxLength: 100
+          description: |
+            `organizationIdentifier` of the organization of the tenant the attestation belongs to
+            (e.g. `VATES-B00000000`). Optional: by default, the requester's organization. Only a tenant administrator (or the platform administrator acting as one) may
+            indicate another organization.
+        holder_key:
+          $ref: "#/components/schemas/PublicJwk"
+
+    PublicJwk:
+      type: object
+      description: Holder public key (RFC 7517). Required when the type requires cryptographic holder binding and `delivery` is `direct`. Rejected if it contains private members.
+      required: [kty]
+      properties:
+        kty: { type: string, examples: [EC] }
+        crv: { type: string, examples: [P-256] }
+        x: { type: string }
+        y: { type: string }
+
+    IssuanceResponse:
+      type: object
+      required: [responses]
+      properties:
+        responses:
+          type: array
+          description: One entry, for the requested delivery mode.
+          minItems: 1
+          maxItems: 1
+          items: { $ref: "#/components/schemas/ChannelResponse" }
+
+    ChannelResponse:
+      type: object
+      required: [channel, status]
+      properties:
+        channel: { type: string, enum: [email, ui, direct] }
+        status: { type: integer, description: HTTP status of the delivery. }
+        body:
+          type: object
+          description: Present with `ui` and `direct`.
+          properties:
+            signed_credential:
+              type: string
+              description: With `direct`. Compact SD-JWT serialization for `dc+sd-jwt`; compact JWT for `jwt_vc_json`.
+            credential_offer_uri:
+              type: string
+              description: With `ui`. Credential offer link.
+
+    Problem:
+      type: object
+      description: Problem details (RFC 9457 shape). `type` is an error code.
+      required: [type, title, status]
+      properties:
+        type: { type: string, description: Error code. The codes of each HTTP status are listed in its response. }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string, format: uri-reference }
+        violations:
+          type: array
+          description: Field-level violations, for data errors.
+          items:
+            type: object
+            required: [field, message]
+            properties:
+              field: { type: string }
+              message: { type: string }

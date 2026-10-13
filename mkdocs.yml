@@ -136,6 +136,8 @@ plugins:
       zoomable: true
       draggable: true
 
+  - swagger-ui-tag
+
   - minify:
       minify_html: true
 

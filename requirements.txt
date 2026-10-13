@@ -17,6 +17,9 @@ mkdocs-minify-plugin>=0.7.0
 # Image lightbox / zoom (for screenshots in user guides)
 mkdocs-glightbox>=0.4.0
 
+# Interactive OpenAPI reference (Swagger UI)
+mkdocs-swagger-ui-tag>=0.8.0
+
 # Code formatting in docs
 pygments>=2.17.0
 pymdown-extensions>=10.0

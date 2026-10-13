@@ -1,61 +1,67 @@
 # Issuer API
 
-API for issuing verifiable credentials and managing their lifecycle using OpenID4VCI (OIDC for Verifiable Credential Issuance).
+The EUDIStack issuer APIs for the systems that integrate with it: issue attestations, query what was issued, revoke it and check its status. This page publishes the contract of each API, the same for every customer. Step-by-step usage is in the [guides](../guides/index.en.md).
 
-## OpenAPI Specification
+[:material-book-open-variant: **Issuance API guide**](../guides/issuance-api.en.md){ .md-button .md-button--primary }
+[:material-language-java: Java SDK — M2M authentication](../guides/verifier-m2m-sdk-java.en.md){ .md-button }
 
-The Issuer OpenAPI specification is automatically generated from the backend service (`springdoc-openapi`).
+## Before you start
 
-- [Issuer API (OpenAPI specification)](https://sandbox.stg.eudistack.net/issuer/v3/api-docs) *(requires the sandbox environment to be active)*.
+| | |
+|---|---|
+| Base address | `https://<tenant>.<environment>.eudistack.net/issuer`, for example `https://sandbox.stg.eudistack.net/issuer`. Contract paths are relative to it. |
+| Authentication | `Authorization: Bearer <access_token>`. The token is issued by your tenant's Verifier to your system, authenticated with its machine credential (see the [SDK guide](../guides/verifier-m2m-sdk-java.en.md)). Status lists need no authentication. |
+| Tenant | Derived from the address. Do not send a tenant header. |
+| Authorization | Decided by the powers of the credential you authenticate with. |
+| Errors | `application/problem+json` (RFC 9457). `type` is a stable code; each contract response lists its own. |
 
-## Main Endpoints
+## Status of each API
 
-=== "Management API"
+| API | What it is for | Status |
+|---|---|---|
+| [Issuance](#issuance-api) | Issue an attestation and renew its offer while it is a draft. | Available, with parts **coming soon**: see the [guide](../guides/issuance-api.en.md#feature-status). |
+| [Query](#query-api) | Get the detail of an issuance, list what was issued and search by a person identifier. | The detail is available. Filtered listing and search: **coming soon**. |
+| [Revocation](#revocation-api) | Revoke a valid attestation. | **Coming soon** for systems. |
+| [Status lists](#status-lists) | Publish the revocation status for verifiers. | Available. |
 
-    Endpoints for backend systems to trigger the credential lifecycle. Require OAuth 2.0 authentication with a client credentials `access_token`.
+The contracts describe the full version of each API. What is marked coming soon is defined but not deployed yet: do not use it until this page shows it as available.
 
-    > **Note:** This is the API used by external integrations (SCIM, webhooks, internal portals). It is not part of the standard OID4VCI protocol; it is an EUDIStack management layer.
+---
 
-    | Method | Path | Description |
-    |--------|------|-------------|
-    | POST | `/api/v1/issuances` | Creates a new credential offer and triggers the issuance flow. Returns `credential_offer_uri`. |
-    | GET | `/api/v1/issuances/{id}` | Queries the status of an issuance by its `issuance_id`. |
+## Issuance API
 
-=== "OID4VCI"
+<swagger-ui src="openapi/issuer-issuance.yaml"/>
 
-    Standard OID4VCI protocol endpoints. Invoked by the wallet during the issuance flow.
+---
 
-    | Method | Path | Description |
-    |--------|------|-------------|
-    | POST | `/oid4vci/v1/credential-offer` | Creates a credential issuance offer for the Wallet. |
-    | POST | `/oid4vci/v1/credential` | Endpoint where the Wallet requests credential issuance. |
-    | POST | `/oid4vci/v1/deferred-credential` | Retrieves credentials issued in a deferred manner. |
-    | POST | `/oid4vci/v1/notification` | Notifications for the issuance flow (status, events). |
-    | POST | `/oid4vci/v1/token` | OAuth2 endpoint for the OID4VCI flow. |
+## Query API
 
-=== "Status & Revocation"
+!!! info "Coming soon"
+    Of this API, only the issuance detail (`GET /api/v1/issuances/{id}`) is available today. Filtered, paginated listing and search by identifier will come in a later release.
 
-    | Method | Path | Description |
-    |--------|------|-------------|
-    | GET | `/w3c/v1/credentials/status/{listId}` | Queries credential status (W3C BitString Status List). |
-    | POST | `/w3c/v1/credentials/status/revoke` | Revokes an issued credential. |
-    | GET | `/token/v1/credentials/status/{listId}` | Credential status based on OAuth Token Status List. |
-    | POST | `/token/v1/credentials/status/revoke` | Revocation via token status list. |
+<swagger-ui src="openapi/issuer-query.yaml"/>
 
-=== "Well-known"
+---
 
-    | Method | Path | Description |
-    |--------|------|-------------|
-    | GET | `/.well-known/openid-credential-issuer` | Issuer metadata for OID4VCI. |
-    | GET | `/.well-known/openid-configuration` | OAuth2 / OIDC configuration. |
-    | GET | `/.well-known/oauth-authorization-server` | Authorization Server metadata. |
-    | GET | `/.well-known/jwks.json` | Public keys (JWKS) for cryptographic verification. |
-    | GET | `/.well-known/jwt-issuer` | JWT Issuer metadata; required by wallets to validate the `vct` signature. |
+## Revocation API
 
-??? info "Technical Notes"
+!!! info "Coming soon"
+    Revocation through the API is not available to systems yet.
 
-    - Protocol: OpenID4VCI (OIDC for Verifiable Credential Issuance)
-    - Profile: eIDAS 2.0 / DOME compatible
-    - Formats: JWT VC · SD-JWT VC (`dc+sd-jwt`)
-    - Cryptography: ES256 (ECDSA P-256)
-    - Backend: Spring WebFlux (reactive)
+<swagger-ui src="openapi/issuer-revocation.yaml"/>
+
+---
+
+## Status lists
+
+<swagger-ui src="openapi/issuer-status-lists.yaml"/>
+
+---
+
+## OID4VCI endpoints
+
+The endpoints the wallet uses to collect the attestation (offer, authorization, token, nonce, credential and notification) follow [OpenID4VCI 1.0](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html). An integrating system does not call them. The exact addresses of each tenant are published in the issuer metadata:
+
+```text
+https://<tenant>.<environment>.eudistack.net/.well-known/openid-credential-issuer/issuer
+```

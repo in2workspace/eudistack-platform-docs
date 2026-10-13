@@ -1,0 +1,100 @@
+openapi: 3.1.0
+info:
+  title: EUDIStack Issuer — Status Lists
+  version: "1"
+  summary: Published status lists for verifiers.
+  description: |
+    Signed status lists of a tenant, served without authentication. A Token Status List (SD-JWT VC and
+    mdoc attestations) is served as JWT or CWT at the same path depending on `Accept`. A Bitstring Status
+    List (W3C attestations) is served as a BitstringStatusListCredential. Paths do not change if the lists
+    move to a CDN.
+  contact:
+    name: EUDIStack
+    url: https://eudistack.net
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: https://{tenant}.{environment}.eudistack.net/issuer
+    description: Tenant endpoint.
+    variables:
+      tenant:
+        default: sandbox
+      environment:
+        default: stg
+security: []
+tags:
+  - name: Status lists
+    description: Published status lists.
+
+paths:
+  /token/v1/credentials/status/{listId}:
+    get:
+      tags: [Status lists]
+      operationId: getTokenStatusList
+      summary: Get a Token Status List
+      parameters:
+        - $ref: "#/components/parameters/ListId"
+        - name: Accept
+          in: header
+          required: false
+          schema:
+            type: string
+            enum: [application/statuslist+jwt, application/statuslist+cwt]
+            default: application/statuslist+jwt
+      responses:
+        "200":
+          description: The signed list. Carries `ttl` of 900 seconds and no `exp`.
+          content:
+            application/statuslist+jwt:
+              schema: { type: string, description: Compact JWT. }
+            application/statuslist+cwt:
+              schema: { type: string, format: binary, description: "CWT, once mdoc is issued." }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "406":
+          description: "`type` `not_acceptable`: the requested representation is not available."
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+
+  /w3c/v1/credentials/status/{listId}:
+    get:
+      tags: [Status lists]
+      operationId: getBitstringStatusList
+      summary: Get a Bitstring Status List
+      parameters:
+        - $ref: "#/components/parameters/ListId"
+      responses:
+        "200":
+          description: The signed BitstringStatusListCredential. Carries `ttl` of 900000 milliseconds and no `validUntil`.
+          content:
+            application/vc+jwt:
+              schema: { type: string, description: Compact JWT. }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+components:
+  parameters:
+    ListId:
+      name: listId
+      in: path
+      required: true
+      schema: { type: string }
+
+  responses:
+    NotFound:
+      description: "`type` `status_list_not_found`: no list is published at this path."
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+
+  schemas:
+    Problem:
+      type: object
+      description: Problem details (RFC 9457 shape). `type` is an error code.
+      required: [type, title, status]
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string, format: uri-reference }

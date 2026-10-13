@@ -1,0 +1,275 @@
+openapi: 3.1.0
+info:
+  title: EUDIStack Issuer — Query API
+  version: "1"
+  summary: List, search and read issuance processes.
+  description: |
+    Query contract shared by operators and systems.
+    Lists the issuance processes within the requester's scope, searches them by a search
+    identifier of the person, and returns the detail of one.
+    Errors follow the RFC 9457 problem details shape. `type` is an error code; the codes of each
+    HTTP status are listed in its response.
+  contact:
+    name: EUDIStack
+    url: https://eudistack.net
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: https://{tenant}.{environment}.eudistack.net/issuer
+    description: Tenant endpoint.
+    variables:
+      tenant:
+        default: sandbox
+      environment:
+        default: stg
+tags:
+  - name: Query
+    description: Query of issuance processes.
+
+paths:
+  /api/v1/issuances:
+    get:
+      tags: [Query]
+      operationId: listIssuances
+      summary: List or search issuance processes
+      description: |
+        Returns the issuance processes within the requester's scope, newest first, in all states
+        unless `status` is given. With `identifier_type` and `identifier`, returns the processes whose
+        attestation contains that value in that search identifier (exact match). The attestation data
+        is not included; use the detail for it.
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: One or more states, comma-separated. Active attestations are `VALID`.
+          style: form
+          explode: false
+          schema:
+            type: array
+            items: { $ref: "#/components/schemas/Status" }
+        - name: credential_configuration_id
+          in: query
+          required: false
+          description: Attestation type.
+          schema: { type: string, maxLength: 100 }
+        - name: identifier_type
+          in: query
+          required: false
+          description: Search identifier declared by a catalogue entry of the tenant, e.g. `dni` or `colegiado`. Required with `identifier`.
+          schema: { type: string, maxLength: 50 }
+        - name: identifier
+          in: query
+          required: false
+          description: Value of the search identifier. Required with `identifier_type`. Never stored in the audit trail.
+          schema: { type: string, maxLength: 100 }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - name: cursor
+          in: query
+          required: false
+          description: Value of `next_cursor` from the previous page.
+          schema: { type: string }
+      security:
+        - bearer: []
+      responses:
+        "200":
+          description: The matching processes. An empty list when nothing matches.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/IssuanceList" }
+              examples:
+                search:
+                  summary: Active attestations of a person by registration number
+                  value:
+                    credential_procedures:
+                      - credential_procedure:
+                          procedure_id: 0b6f1d2e-8c4a-4b1f-9e2d-7a5c3f8e1b90
+                          organization_identifier: VATES-B00000000
+                          credential_type: doctor.sd.1
+                          credential_format: dc+sd-jwt
+                          status: VALID
+                          subject: María García López
+                          email: maria.garcia@red-logistica.example
+                          delivery: email
+                          valid_from: "2026-10-01T09:12:44Z"
+                          valid_until: "2027-10-01T09:12:44Z"
+                          created: "2026-10-01T09:10:02Z"
+                          created_by: operador@red-logistica.example
+                          updated: "2026-10-01T09:12:44Z"
+                    next_cursor: null
+        "400":
+          description: |
+            The request is not valid. `type`:
+            - `BAD_REQUEST` — wrong parameter format, `identifier` without `identifier_type` or the other way round, or invalid cursor, with `violations`.
+            - `unknown_identifier_type` — no catalogue entry of the tenant declares that search identifier.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+  /api/v1/issuances/{id}:
+    get:
+      tags: [Query]
+      operationId: getIssuance
+      summary: Get the detail of an issuance process
+      description: |
+        Returns the full issuance process, including the attestation data. Every access leaves a
+        security audit record.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Issuance process identifier, as returned by the issuance API in `Location`.
+          schema: { type: string, format: uuid }
+      security:
+        - bearer: []
+      responses:
+        "200":
+          description: The issuance process.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/IssuanceDetail" }
+        "400":
+          description: "`type` `BAD_REQUEST`: the identifier is not a UUID."
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404":
+          description: |
+            `type` `issuance_not_found`: the issuance process does not exist or is outside the
+            requester's scope. Both cases get the same response.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problem" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: Access token issued by the Verifier, for a person (H2M) or a system (M2M).
+
+  responses:
+    Unauthorized:
+      description: |
+        The access token is missing, invalid or expired. `type`:
+        - `invalid_token` — the token is not valid or has expired.
+        - `authentication_error` — the token is missing or authentication failed.
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+    Forbidden:
+      description: |
+        The request is not allowed. `type`:
+        - `tenant_mismatch` — the request tenant is not the tenant of the requester's attestation.
+        - `tenant_not_resolved` — no tenant could be resolved for the request.
+        - `insufficient_permission` — the requester may not query (authorization by powers).
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+    RateLimited:
+      description: "`type` `rate_limited`: the volume limit was exceeded. Retry after the time in `Retry-After`."
+      headers:
+        Retry-After:
+          description: Seconds to wait before retrying.
+          schema: { type: integer, minimum: 0 }
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+    InternalError:
+      description: "`type` `INTERNAL_SERVER_ERROR`: unexpected error."
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+
+  schemas:
+    Status:
+      type: string
+      enum: [DRAFT, WITHDRAWN, ISSUED, VALID, REVOKED, EXPIRED, ARCHIVED]
+
+    IssuanceList:
+      type: object
+      required: [credential_procedures]
+      properties:
+        credential_procedures:
+          type: array
+          items:
+            type: object
+            required: [credential_procedure]
+            properties:
+              credential_procedure: { $ref: "#/components/schemas/IssuanceSummary" }
+        next_cursor:
+          type: [string, "null"]
+          description: Cursor of the next page, or null on the last page.
+
+    IssuanceSummary:
+      type: object
+      description: Data of the issuance process, without the attestation data.
+      required: [procedure_id, organization_identifier, credential_type, status, updated]
+      properties:
+        procedure_id: { type: string, format: uuid }
+        organization_identifier: { type: string }
+        credential_type: { type: string, description: Attestation type (`credential_configuration_id`). }
+        credential_format: { type: string, examples: [dc+sd-jwt, jwt_vc_json] }
+        status: { $ref: "#/components/schemas/Status" }
+        subject: { type: string, description: "Holder, machine or real-world object the attestation refers to." }
+        email: { type: string, format: email, description: Holder email. }
+        delivery: { type: string, enum: [email, ui, direct] }
+        valid_from: { type: [string, "null"], format: date-time }
+        valid_until: { type: [string, "null"], format: date-time }
+        created: { type: string, format: date-time }
+        created_by: { type: string, description: Person or system that requested the issuance. }
+        updated: { type: string, format: date-time }
+        tenant: { type: string, description: Only in the platform administrator cross-tenant view. }
+
+    IssuanceDetail:
+      type: object
+      description: The full issuance process, including the attestation data.
+      required: [procedure_id, credential_configuration_id, lifeCycleStatus, credential]
+      properties:
+        procedure_id: { type: string, format: uuid }
+        organization_identifier: { type: string }
+        credential_configuration_id: { type: string, description: Attestation type. }
+        credential_format: { type: string }
+        lifeCycleStatus: { $ref: "#/components/schemas/Status" }
+        subject: { type: string }
+        email: { type: string, format: email }
+        delivery: { type: string, enum: [email, ui, direct] }
+        valid_from: { type: [string, "null"], format: date-time }
+        valid_until: { type: [string, "null"], format: date-time }
+        created: { type: string, format: date-time }
+        created_by: { type: string }
+        updated: { type: string, format: date-time }
+        credential:
+          type: object
+          description: Attestation data (the `payload` received at issuance).
+
+    Problem:
+      type: object
+      description: Problem details (RFC 9457 shape). `type` is an error code.
+      required: [type, title, status]
+      properties:
+        type: { type: string, description: Error code. The codes of each HTTP status are listed in its response. }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string, format: uri-reference }
+        violations:
+          type: array
+          description: Field-level violations, for data errors.
+          items:
+            type: object
+            required: [field, message]
+            properties:
+              field: { type: string }
+              message: { type: string }
