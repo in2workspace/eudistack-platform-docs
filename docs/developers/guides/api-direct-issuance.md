@@ -2,6 +2,15 @@
 
 Emite credenciales programáticamente desde tu backend, sin pasar por la UI del Portal Issuer. Útil para integraciones masivas o automatizaciones por evento.
 
+!!! warning "Guía en revisión"
+    Esta guía no refleja el contrato actual de la API de emisión y se va a sustituir. En particular:
+
+    - Los sistemas **no** se autentican ante el Issuer con `client_id` y `client_secret`. Se autentican ante el **Verifier** con su credencial de máquina (`LEARCredentialMachine`). Consulta [SDK Java — Autenticación M2M](verifier-m2m-sdk-java.md).
+    - La emisión es `POST /api/v1/issuances` en la dirección del tenant, y la idempotencia se indica con la cabecera `X-Idempotency-Key`.
+    - No hay notificaciones por webhook.
+
+    Si vas a integrarte ahora, contacta con tu interlocutor de EUDIStack para recibir el contrato vigente.
+
 ??? tip "¿Cuándo usar esta guía?"
     - Tu sistema ya sabe **cuándo** debe emitir una credencial (alta de empleado, finalización de un curso, etc.).
     - No quieres que un humano entre al Portal Issuer cada vez.
