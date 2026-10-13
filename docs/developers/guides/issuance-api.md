@@ -1,13 +1,13 @@
 # API de emisión
 
-Emite atestaciones desde tu backend con una sola llamada, sin pasar por el Portal Issuer. Tu sistema se autentica ante el Verifier con su credencial de máquina, pide la emisión y elige cómo se entrega la atestación al titular.
+Emite atestaciones desde tu backend con una sola llamada, sin pasar por el Portal de Emisión o el Portal de Administración. Tu sistema se autentica ante el Verifier con su credencial de máquina, pide la emisión y elige cómo se entrega la atestación al titular.
 
 [:material-file-document: **Contrato OpenAPI de emisión**](../api-reference/issuer.md){ .md-button .md-button--primary }
 [:material-language-java: SDK Java — Autenticación M2M](verifier-m2m-sdk-java.md){ .md-button }
 
 ??? tip "¿Cuándo usar esta guía?"
     - Tu sistema ya sabe **cuándo** debe emitir una atestación: alta de un empleado, colegiación, fin de un curso.
-    - Quieres emitir desde tus propios procesos, sin que una persona entre al Portal Issuer.
+    - Quieres emitir desde tus propios procesos, sin que una persona entre al Portal de Emisión o al Portal de Administración.
     - Necesitas reintentar de forma segura, sin emitir dos veces la misma atestación.
 
 ??? info "Requisitos previos"
@@ -29,6 +29,7 @@ La guía describe el contrato completo de la API. Algunas partes aún no están 
 | Entrega `direct` con `holder_key` (tipos con vinculación al titular) | Próximamente |
 | Cualquier tipo habilitado en el catálogo del tenant | Parcial: hoy solo los tipos LEAR y la certificación de producto |
 | Identificador del proceso en la cabecera `Location` | Próximamente |
+| Renovación de la oferta de un proceso en borrador | Próximamente |
 | Campo `organization` | Próximamente |
 | Fechas de vigencia (`validFrom`, `validUntil`) | Próximamente |
 | Idempotencia con `X-Idempotency-Key` | Parcial: ver [Reintentos e idempotencia](#reintentos-e-idempotencia) |
@@ -227,6 +228,28 @@ Dentro de `payload` puedes indicar `validFrom` y `validUntil` (ISO 8601) si el t
 
 ---
 
+## Renovar la oferta
+
+Una oferta de credencial caduca a los 10 minutos. Si el titular no la ha abierto a tiempo, pide una nueva para el mismo proceso, sin crear otra emisión:
+
+`POST /issuer/api/v1/issuances/{id}/credential-offer`
+
+`{id}` es el identificador del proceso que devolvió la emisión en `Location`. La petición no lleva cuerpo. EUDIStack crea una oferta nueva con el mismo grant, anula la anterior y la entrega con el modo de entrega del proceso:
+
+| Modo del proceso | Qué devuelve |
+|---|---|
+| `email` | La confirmación del envío de la oferta nueva al correo del titular. |
+| `ui` | El `credential_offer_uri` nuevo, con la misma forma que en la emisión. |
+
+Solo se puede renovar mientras el proceso está en borrador (`DRAFT`), es decir, mientras el titular no ha recogido la atestación. En otro estado, o si el modo es `direct`, se rechaza con 409 `offer_not_renewable`. Un proceso que no existe o que está fuera de tu ámbito recibe 404 `issuance_not_found`.
+
+Con `ui`, esto te permite mostrar siempre una oferta vigente: cuando caduca la que muestras, pide otra y sustituye el código QR. Cuando el titular recoge la atestación, la renovación devuelve `offer_not_renewable`: deja de renovar.
+
+!!! info "Próximamente"
+    Esta operación aún no está disponible. Hoy la oferta solo se puede renovar desde el enlace del correo que recibe el titular.
+
+---
+
 ## Reintentos e idempotencia
 
 Envía siempre la cabecera `X-Idempotency-Key` con un valor único por emisión, por ejemplo un UUID generado al preparar la petición, y reutilízalo en los reintentos de esa misma emisión. Así puedes reintentar tras un corte de red o un timeout sin emitir dos veces.
@@ -271,6 +294,7 @@ Los errores se devuelven como `application/problem+json` (RFC 9457). Programa tu
 | 403 | `insufficient_permission` | Los poderes de tu credencial no permiten esta emisión. | Revisa los poderes de la credencial de máquina. |
 | 403 | `tenant_mismatch` | El tenant de la dirección no es el de tu credencial. | Usa la dirección de tu tenant. |
 | 409 | `delivery_mode_not_eligible` | El tipo o el tenant no admiten ese modo de entrega. | Usa otro modo. |
+| 409 | `offer_not_renewable` | Al renovar la oferta: el proceso ya no está en borrador o su modo es `direct`. | Deja de renovar: el titular ya recogió la atestación o el proceso terminó. |
 | 409 | `idempotency_in_progress` | Otra petición con la misma clave está en curso. | Espera y reintenta. |
 | 422 | `idempotency_key_reused` | La misma clave se envió con otro cuerpo. | Usa una clave nueva para cada emisión. |
 | 429 | `rate_limited` | Se ha superado el límite de volumen. | Espera lo que indique `Retry-After`. |
