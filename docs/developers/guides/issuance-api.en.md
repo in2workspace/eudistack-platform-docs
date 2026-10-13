@@ -116,16 +116,19 @@ With `email` and `ui`, the optional `grant_type` field decides how the holder co
 
 ### Attestations bound to a holder key
 
+!!! info "Coming soon"
+    Today `direct` delivery is only available for types without holder binding. For types with holder binding, `direct` with `holder_key` will come in a later release.
+
 Some attestation types require cryptographic holder binding: the attestation is bound to a key that only the holder controls. With `email` and `ui`, the holder's wallet provides that key when it collects the attestation, and you do nothing.
 
 With `direct` there is no wallet involved, so you must send the holder's **public key** in `holder_key`, as a JWK (RFC 7517). EUDIStack does not ask for proof that the holder controls it. A key that includes the private part is rejected with `invalid_holder_key`.
 
-!!! info "Coming soon"
-    Today `direct` delivery is only available for types without holder binding. For types with holder binding, `direct` with `holder_key` will come in a later release.
-
 ---
 
 ## Step 3: Request the issuance
+
+!!! info "Coming soon"
+    Issuance is available, but the response does not include the `Location` header with the process identifier yet.
 
 `POST /issuer/api/v1/issuances`
 
@@ -223,12 +226,12 @@ Inside `payload` you can set `validFrom` and `validUntil` (ISO 8601) if the type
 
 **Store the `Location` identifier** with the holder's record in your system: it is the reference to query or revoke the attestation.
 
-!!! info "Coming soon"
-    Today the response does not include the `Location` header yet.
-
 ---
 
 ## Renew the offer
+
+!!! info "Coming soon"
+    This operation is not available yet. Today the offer can only be renewed from the link in the email the holder receives.
 
 A credential offer expires after 10 minutes. If the holder has not opened it in time, request a new one for the same process, without creating another issuance:
 
@@ -244,9 +247,6 @@ A credential offer expires after 10 minutes. If the holder has not opened it in 
 You can only renew while the process is a draft (`DRAFT`), that is, while the holder has not collected the attestation. In any other state, or if the mode is `direct`, it is rejected with 409 `offer_not_renewable`. A process that does not exist or is outside your scope gets 404 `issuance_not_found`.
 
 With `ui`, this lets you always show a valid offer: when the one you show expires, request another and replace the QR code. Once the holder collects the attestation, renewal returns `offer_not_renewable`: stop renewing.
-
-!!! info "Coming soon"
-    This operation is not available yet. Today the offer can only be renewed from the link in the email the holder receives.
 
 ---
 
@@ -266,6 +266,9 @@ While idempotency is partial, do not send two requests with the same key at the 
 ---
 
 ## Errors
+
+!!! info "Coming soon"
+    Today some issuance errors do not follow the table in this section yet: not all of them are `application/problem+json`, `BAD_REQUEST` does not include `violations`, and an unknown delivery mode returns `invalid_request`. The rate limit is 100 requests per minute per IP address, and its 429 has no body. The contract sets 300 requests per minute per organization for systems.
 
 Errors are returned as `application/problem+json` (RFC 9457). Build your logic on `type`, which is a stable code, not on `title` or `detail`. A rejected request leaves nothing created.
 
@@ -300,9 +303,6 @@ Errors are returned as `application/problem+json` (RFC 9457). Build your logic o
 | 429 | `rate_limited` | The rate limit was exceeded. | Wait for `Retry-After`. |
 | 500 | `persistence_failed`, `delivery_failed` | Internal error. | Retry later with the same key. |
 | 503 | `signing_failed`, `status_list_unavailable`, `wallet_delivery_timeout` | A required service is unavailable. | Wait for `Retry-After` and retry with the same key. |
-
-!!! info "Coming soon"
-    Today some issuance errors do not follow this table yet: not all of them are `application/problem+json`, `BAD_REQUEST` does not include `violations`, and an unknown delivery mode returns `invalid_request`. The rate limit is 100 requests per minute per IP address, and its 429 has no body. The contract sets 300 requests per minute per organization for systems.
 
 ??? question "Troubleshooting"
 

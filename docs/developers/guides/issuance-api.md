@@ -116,16 +116,19 @@ Con `email` y `ui`, el campo opcional `grant_type` decide cómo recoge el titula
 
 ### Atestaciones vinculadas a una clave del titular
 
+!!! info "Próximamente"
+    Hoy la entrega `direct` solo está disponible para tipos sin vinculación al titular. Para los tipos con vinculación, `direct` con `holder_key` llegará en una próxima versión.
+
 Algunos tipos de atestación exigen vinculación criptográfica al titular: la atestación queda ligada a una clave que solo él controla. Con `email` y `ui`, el wallet del titular aporta esa clave al recoger la atestación y no tienes que hacer nada.
 
 Con `direct` no hay wallet de por medio, así que tienes que enviar la **clave pública** del titular en `holder_key`, en formato JWK (RFC 7517). EUDIStack no pide prueba de que el titular la controla. Una clave que incluya la parte privada se rechaza con `invalid_holder_key`.
 
-!!! info "Próximamente"
-    Hoy la entrega `direct` solo está disponible para tipos sin vinculación al titular. Para los tipos con vinculación, `direct` con `holder_key` llegará en una próxima versión.
-
 ---
 
 ## Paso 3: Pide la emisión
+
+!!! info "Próximamente"
+    La emisión está disponible, pero la respuesta todavía no incluye la cabecera `Location` con el identificador del proceso.
 
 `POST /issuer/api/v1/issuances`
 
@@ -223,12 +226,12 @@ Dentro de `payload` puedes indicar `validFrom` y `validUntil` (ISO 8601) si el t
 
 **Guarda el identificador de `Location`** junto al registro del titular en tu sistema: es la referencia para consultar o revocar la atestación.
 
-!!! info "Próximamente"
-    Hoy la respuesta todavía no incluye la cabecera `Location`.
-
 ---
 
 ## Renovar la oferta
+
+!!! info "Próximamente"
+    Esta operación aún no está disponible. Hoy la oferta solo se puede renovar desde el enlace del correo que recibe el titular.
 
 Una oferta de credencial caduca a los 10 minutos. Si el titular no la ha abierto a tiempo, pide una nueva para el mismo proceso, sin crear otra emisión:
 
@@ -244,9 +247,6 @@ Una oferta de credencial caduca a los 10 minutos. Si el titular no la ha abierto
 Solo se puede renovar mientras el proceso está en borrador (`DRAFT`), es decir, mientras el titular no ha recogido la atestación. En otro estado, o si el modo es `direct`, se rechaza con 409 `offer_not_renewable`. Un proceso que no existe o que está fuera de tu ámbito recibe 404 `issuance_not_found`.
 
 Con `ui`, esto te permite mostrar siempre una oferta vigente: cuando caduca la que muestras, pide otra y sustituye el código QR. Cuando el titular recoge la atestación, la renovación devuelve `offer_not_renewable`: deja de renovar.
-
-!!! info "Próximamente"
-    Esta operación aún no está disponible. Hoy la oferta solo se puede renovar desde el enlace del correo que recibe el titular.
 
 ---
 
@@ -266,6 +266,9 @@ Mientras la idempotencia sea parcial, no lances dos peticiones con la misma clav
 ---
 
 ## Errores
+
+!!! info "Próximamente"
+    Hoy algunos errores de emisión todavía no siguen la tabla de esta sección: no todos salen como `application/problem+json`, `BAD_REQUEST` no incluye `violations` y un modo de entrega desconocido devuelve `invalid_request`. El límite de volumen es de 100 peticiones por minuto por dirección IP, y su 429 no tiene cuerpo. El contrato fija 300 peticiones por minuto por organización para sistemas.
 
 Los errores se devuelven como `application/problem+json` (RFC 9457). Programa tu lógica sobre `type`, que es un código estable, no sobre `title` ni `detail`. Una petición rechazada no deja nada creado.
 
@@ -300,9 +303,6 @@ Los errores se devuelven como `application/problem+json` (RFC 9457). Programa tu
 | 429 | `rate_limited` | Se ha superado el límite de volumen. | Espera lo que indique `Retry-After`. |
 | 500 | `persistence_failed`, `delivery_failed` | Error interno. | Reintenta más tarde con la misma clave. |
 | 503 | `signing_failed`, `status_list_unavailable`, `wallet_delivery_timeout` | Un servicio necesario no está disponible. | Espera `Retry-After` y reintenta con la misma clave. |
-
-!!! info "Próximamente"
-    Hoy algunos errores de emisión todavía no siguen esta tabla: no todos salen como `application/problem+json`, `BAD_REQUEST` no incluye `violations` y un modo de entrega desconocido devuelve `invalid_request`. El límite de volumen es de 100 peticiones por minuto por dirección IP, y su 429 no tiene cuerpo. El contrato fija 300 peticiones por minuto por organización para sistemas.
 
 ??? question "Troubleshooting"
 
