@@ -29,17 +29,15 @@ theme:
   favicon: assets/img/favicon.svg
 
   palette:
-    # Light mode
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
+    # Light mode (default, regardless of the browser or system preference)
+    - scheme: default
       primary: custom
       accent: custom
       toggle:
         icon: material/brightness-7
         name: Cambiar a modo oscuro
-    # Dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
+    # Dark mode (only through the toggle)
+    - scheme: slate
       primary: custom
       accent: custom
       toggle:
