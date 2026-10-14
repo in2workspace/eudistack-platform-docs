@@ -116,7 +116,7 @@ Con `email` y `ui`, el campo opcional `grant_type` decide cómo recoge el titula
 
 ### Abrir la oferta en un wallet concreto
 
-Con `ui`, la API devuelve el `credential_offer_uri` con el esquema `openid-credential-offer://`. El dispositivo del titular lo abre con el wallet que tenga registrado para ese esquema, sea cual sea, y si no tiene ninguno el enlace no hace nada. Si quieres que la oferta la abra un wallet concreto, por ejemplo el wallet web de EUDIStack, cambia el principio del enlace por la dirección donde ese wallet recibe ofertas (su `credential_offer_endpoint`, OID4VCI 1.0 §4) y deja el resto igual:
+Con `ui`, la API devuelve el `credential_offer_uri` con el esquema `openid-credential-offer://`. El dispositivo del titular lo abre con el wallet que tenga registrado para ese esquema, sea cual sea, y si no tiene ninguno el enlace no hace nada. Si quieres que la oferta la abra un wallet concreto, por ejemplo el wallet web de EUDIStack, cambia el principio del enlace por la dirección donde ese wallet recibe ofertas y deja el resto igual:
 
 | | Enlace |
 |---|---|
@@ -125,7 +125,8 @@ Con `ui`, la API devuelve el `credential_offer_uri` con el esquema `openid-crede
 
 - Sustituye solo `openid-credential-offer://`. La consulta `?credential_offer_uri=…` se conserva tal cual: ya viene codificada y no hay que volver a codificarla.
 - Si construyes el enlace a partir del valor de `credential_offer_uri` ya decodificado, codifícalo una sola vez.
-- El wallet de EUDIStack recibe ofertas en `https://<tenant>.<entorno>.eudistack.net/wallet/protocol/callback`. Para otro wallet, usa el `credential_offer_endpoint` que publica en sus metadatos.
+- El wallet web de EUDIStack recibe ofertas en `https://<tenant>.<entorno>.eudistack.net/wallet/protocol/callback`. Si el titular no ha iniciado sesión en el wallet, se le pide antes de mostrar la oferta.
+- Para otro wallet, usa la dirección que documente ese wallet para recibir ofertas. OID4VCI 1.0 la llama `credential_offer_endpoint` y prevé que el wallet la publique en sus metadatos.
 - El resultado es un enlace `https` normal: sirve como código QR, como botón o en un correo, y abre el wallet web aunque el titular no tenga ninguna app instalada.
 
 === "JavaScript"

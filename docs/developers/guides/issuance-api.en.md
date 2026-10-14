@@ -116,7 +116,7 @@ With `email` and `ui`, the optional `grant_type` field decides how the holder co
 
 ### Open the offer in a specific wallet
 
-With `ui`, the API returns the `credential_offer_uri` with the `openid-credential-offer://` scheme. The holder's device opens it with whatever wallet is registered for that scheme, and if there is none the link does nothing. If you want a specific wallet to open the offer, for example the EUDIStack web wallet, replace the start of the link with the address where that wallet receives offers (its `credential_offer_endpoint`, OID4VCI 1.0 §4) and keep the rest as is:
+With `ui`, the API returns the `credential_offer_uri` with the `openid-credential-offer://` scheme. The holder's device opens it with whatever wallet is registered for that scheme, and if there is none the link does nothing. If you want a specific wallet to open the offer, for example the EUDIStack web wallet, replace the start of the link with the address where that wallet receives offers and keep the rest as is:
 
 | | Link |
 |---|---|
@@ -125,7 +125,8 @@ With `ui`, the API returns the `credential_offer_uri` with the `openid-credentia
 
 - Replace only `openid-credential-offer://`. Keep the `?credential_offer_uri=…` query as is: it is already encoded and must not be encoded again.
 - If you build the link from the decoded `credential_offer_uri` value, encode it exactly once.
-- The EUDIStack wallet receives offers at `https://<tenant>.<environment>.eudistack.net/wallet/protocol/callback`. For another wallet, use the `credential_offer_endpoint` it publishes in its metadata.
+- The EUDIStack web wallet receives offers at `https://<tenant>.<environment>.eudistack.net/wallet/protocol/callback`. If the holder is not signed in to the wallet, they are asked to sign in before the offer is shown.
+- For another wallet, use the address that wallet documents for receiving offers. OID4VCI 1.0 calls it `credential_offer_endpoint` and expects the wallet to publish it in its metadata.
 - The result is a regular `https` link: it works as a QR code, a button or in an email, and opens the web wallet even if the holder has no app installed.
 
 === "JavaScript"
