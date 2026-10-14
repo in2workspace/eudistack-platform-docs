@@ -114,6 +114,44 @@ The `delivery` field decides what EUDIStack does with the attestation and what t
 
 With `email` and `ui`, the optional `grant_type` field decides how the holder collects the attestation in their wallet: `authorization_code` (default) or `urn:ietf:params:oauth:grant-type:pre-authorized_code`.
 
+### Open the offer in a specific wallet
+
+With `ui`, the API returns the `credential_offer_uri` with the `openid-credential-offer://` scheme. The holder's device opens it with whatever wallet is registered for that scheme, and if there is none the link does nothing. If you want a specific wallet to open the offer, for example the EUDIStack web wallet, replace the start of the link with the address where that wallet receives offers (its `credential_offer_endpoint`, OID4VCI 1.0 §4) and keep the rest as is:
+
+| | Link |
+|---|---|
+| Returned by the API | `openid-credential-offer://?credential_offer_uri=https%3A%2F%2Fsandbox.stg.eudistack.net%2Fissuer%2Foid4vci%2Fv1%2Fcredential-offer%2FpV7DBgfDTXWGfq0mBPMg8Q` |
+| Shown to the holder | `https://sandbox.stg.eudistack.net/wallet/protocol/callback?credential_offer_uri=https%3A%2F%2Fsandbox.stg.eudistack.net%2Fissuer%2Foid4vci%2Fv1%2Fcredential-offer%2FpV7DBgfDTXWGfq0mBPMg8Q` |
+
+- Replace only `openid-credential-offer://`. Keep the `?credential_offer_uri=…` query as is: it is already encoded and must not be encoded again.
+- If you build the link from the decoded `credential_offer_uri` value, encode it exactly once.
+- The EUDIStack wallet receives offers at `https://<tenant>.<environment>.eudistack.net/wallet/protocol/callback`. For another wallet, use the `credential_offer_endpoint` it publishes in its metadata.
+- The result is a regular `https` link: it works as a QR code, a button or in an email, and opens the web wallet even if the holder has no app installed.
+
+=== "JavaScript"
+
+    ```javascript
+    const WALLET_OFFER_ENDPOINT = "https://sandbox.stg.eudistack.net/wallet/protocol/callback";
+
+    function toWalletLink(credentialOfferUri) {
+      const query = credentialOfferUri.substring(credentialOfferUri.indexOf("?"));
+      return WALLET_OFFER_ENDPOINT + query;
+    }
+    ```
+
+=== "Java"
+
+    ```java
+    static final String WALLET_OFFER_ENDPOINT = "https://sandbox.stg.eudistack.net/wallet/protocol/callback";
+
+    static String toWalletLink(String credentialOfferUri) {
+        String query = credentialOfferUri.substring(credentialOfferUri.indexOf('?'));
+        return WALLET_OFFER_ENDPOINT + query;
+    }
+    ```
+
+If you [renew the offer](#renew-the-offer), apply the same transformation to the new link.
+
 ### Attestations bound to a holder key
 
 !!! info "Coming soon"
