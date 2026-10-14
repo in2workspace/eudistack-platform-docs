@@ -117,7 +117,8 @@ plugins:
             OIDC IdP (login con credencial): OIDC IdP (credential login)
             SSO entre aplicaciones: SSO across applications
             API de emisión: Issuance API
-            SDK Java — Autenticación M2M: Java SDK — M2M authentication
+            API de consulta: Query API
+            API de revocación: Revocation API
             Verifier — Single Sign-On: Verifier — Single Sign-On
             Referencia API: API Reference
             Referencia: Reference
@@ -256,7 +257,8 @@ nav:
           - SSO entre aplicaciones: developers/guides/sso-multi-app.md
           - SCIM Provisioning: developers/guides/scim-provisioning.md
           - API de emisión: developers/guides/issuance-api.md
-          - SDK Java — Autenticación M2M: developers/guides/verifier-m2m-sdk-java.md
+          - API de consulta: developers/guides/query-api.md
+          - API de revocación: developers/guides/revocation-api.md
           - SDK Java - Autenticación M2M: developers/guides/verifier-m2m-sdk-java.md
       - Referencia API:
           - developers/api-reference/index.md

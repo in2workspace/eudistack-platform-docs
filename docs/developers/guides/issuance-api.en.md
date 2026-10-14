@@ -224,7 +224,7 @@ Inside `payload` you can set `validFrom` and `validUntil` (ISO 8601) if the type
 
     `signed_credential` uses the compact serialization: SD-JWT for `dc+sd-jwt` and JWT for `jwt_vc_json`.
 
-**Store the `Location` identifier** with the holder's record in your system: it is the reference to query or revoke the attestation.
+**Store the `Location` identifier** with the holder's record in your system: it is the reference to [query](query-api.en.md) or [revoke](revocation-api.en.md) the attestation.
 
 ---
 

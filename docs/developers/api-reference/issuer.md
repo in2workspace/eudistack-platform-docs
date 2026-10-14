@@ -41,6 +41,7 @@ Los contratos describen la versión completa de cada API. Lo marcado como próxi
 !!! info "Próximamente"
     De esta API, hoy solo está disponible el detalle de una emisión (`GET /api/v1/issuances/{id}`). El listado con filtros y paginación y la búsqueda por identificador llegarán en una próxima versión.
 
+[:material-book-open-variant: Guía de la API de consulta](../guides/query-api.md){ .md-button }
 [:material-download: Descargar OpenAPI](openapi/issuer-query.yaml){ .md-button download="issuer-query.yaml" }
 
 <swagger-ui src="openapi/issuer-query.yaml"/>
@@ -52,6 +53,7 @@ Los contratos describen la versión completa de cada API. Lo marcado como próxi
 !!! info "Próximamente"
     La revocación por API todavía no está disponible para sistemas.
 
+[:material-book-open-variant: Guía de la API de revocación](../guides/revocation-api.md){ .md-button }
 [:material-download: Descargar OpenAPI](openapi/issuer-revocation.yaml){ .md-button download="issuer-revocation.yaml" }
 
 <swagger-ui src="openapi/issuer-revocation.yaml"/>

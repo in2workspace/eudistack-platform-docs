@@ -9,6 +9,14 @@ info:
     identifier of the person, and returns the detail of one.
     Errors follow the RFC 9457 problem details shape. `type` is an error code; the codes of each
     HTTP status are listed in its response.
+
+    **Availability.** This contract describes the complete API. Parts not deployed yet say
+    **Coming soon** or **Today** in their description and carry `x-availability: coming-soon` or
+    `x-availability: partial`. Do not build on them until they are available:
+    - Coming soon: the listing parameters (filters, search by identifier and pagination),
+      `next_cursor`, `unknown_identifier_type` and the volume limits.
+    - Partial: the listing (today every process in scope in one response), the fields of the
+      listing and the detail, the `404` error code, and errors as `application/problem+json`.
   contact:
     name: EUDIStack
     url: https://eudistack.net
@@ -32,8 +40,12 @@ paths:
     get:
       tags: [Query]
       operationId: listIssuances
-      summary: List or search issuance processes
+      summary: List or search issuance processes (partial)
+      x-availability: partial
       description: |
+        **Today** returns every issuance process in scope in one response and ignores the query
+        parameters: filters, search by identifier and pagination are coming soon.
+
         Returns the issuance processes within the requester's scope, newest first, in all states
         unless `status` is given. With `identifier_type` and `identifier`, returns the processes whose
         attestation contains that value in that search identifier (exact match). The attestation data
@@ -42,7 +54,8 @@ paths:
         - name: status
           in: query
           required: false
-          description: One or more states, comma-separated. Active attestations are `VALID`.
+          x-availability: coming-soon
+          description: "One or more states, comma-separated. Active attestations are `VALID`. **Coming soon**: today ignored."
           style: form
           explode: false
           schema:
@@ -51,26 +64,32 @@ paths:
         - name: credential_configuration_id
           in: query
           required: false
-          description: Attestation type.
+          x-availability: coming-soon
+          description: "Attestation type. **Coming soon**: today ignored."
           schema: { type: string, maxLength: 100 }
         - name: identifier_type
           in: query
           required: false
-          description: Search identifier declared by a catalogue entry of the tenant, e.g. `dni` or `colegiado`. Required with `identifier`.
+          x-availability: coming-soon
+          description: "Search identifier declared by a catalogue entry of the tenant, e.g. `dni` or `colegiado`. Required with `identifier`. **Coming soon**: today ignored."
           schema: { type: string, maxLength: 50 }
         - name: identifier
           in: query
           required: false
-          description: Value of the search identifier. Required with `identifier_type`. Never stored in the audit trail.
+          x-availability: coming-soon
+          description: "Value of the search identifier. Required with `identifier_type`. Never stored in the audit trail. **Coming soon**: today ignored."
           schema: { type: string, maxLength: 100 }
         - name: limit
           in: query
           required: false
+          x-availability: coming-soon
+          description: "Results per page. **Coming soon**: today ignored."
           schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
         - name: cursor
           in: query
           required: false
-          description: Value of `next_cursor` from the previous page.
+          x-availability: coming-soon
+          description: "Value of `next_cursor` from the previous page. **Coming soon**: today ignored."
           schema: { type: string }
       security:
         - bearer: []
@@ -105,6 +124,7 @@ paths:
             The request is not valid. `type`:
             - `BAD_REQUEST` — wrong parameter format, `identifier` without `identifier_type` or the other way round, or invalid cursor, with `violations`.
             - `unknown_identifier_type` — no catalogue entry of the tenant declares that search identifier.
+              **Coming soon**, with the search by identifier.
           content:
             application/problem+json:
               schema: { $ref: "#/components/schemas/Problem" }
@@ -146,6 +166,8 @@ paths:
           description: |
             `type` `issuance_not_found`: the issuance process does not exist or is outside the
             requester's scope. Both cases get the same response.
+            **Today** the code is `credential_not_found`.
+          x-availability: partial
           content:
             application/problem+json:
               schema: { $ref: "#/components/schemas/Problem" }
@@ -178,7 +200,10 @@ components:
         application/problem+json:
           schema: { $ref: "#/components/schemas/Problem" }
     RateLimited:
-      description: "`type` `rate_limited`: the volume limit was exceeded. Retry after the time in `Retry-After`."
+      description: |
+        `type` `rate_limited`: the volume limit was exceeded. Retry after the time in `Retry-After`.
+        **Coming soon**: today queries have no volume limit.
+      x-availability: coming-soon
       headers:
         Retry-After:
           description: Seconds to wait before retrying.
@@ -210,11 +235,17 @@ components:
               credential_procedure: { $ref: "#/components/schemas/IssuanceSummary" }
         next_cursor:
           type: [string, "null"]
-          description: Cursor of the next page, or null on the last page.
+          description: "Cursor of the next page, or null on the last page. **Coming soon**: not returned yet."
+          x-availability: coming-soon
 
     IssuanceSummary:
       type: object
-      description: Data of the issuance process, without the attestation data.
+      description: |
+        Data of the issuance process, without the attestation data.
+        **Today** returns `procedure_id`, `organization_identifier`, `credential_type`, `status`,
+        `subject` and `updated`, plus `created_at` and `expires_at`, which will become `created` and
+        `valid_until`. The other fields are coming soon.
+      x-availability: partial
       required: [procedure_id, organization_identifier, credential_type, status, updated]
       properties:
         procedure_id: { type: string, format: uuid }
@@ -234,7 +265,11 @@ components:
 
     IssuanceDetail:
       type: object
-      description: The full issuance process, including the attestation data.
+      description: |
+        The full issuance process, including the attestation data.
+        **Today** returns only `procedure_id`, `credential_configuration_id`, `lifeCycleStatus`,
+        `credential` and `email`. The other fields are coming soon.
+      x-availability: partial
       required: [procedure_id, credential_configuration_id, lifeCycleStatus, credential]
       properties:
         procedure_id: { type: string, format: uuid }

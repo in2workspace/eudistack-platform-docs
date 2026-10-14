@@ -9,6 +9,9 @@ info:
     applies to a valid attestation.
     Errors follow the RFC 9457 problem details shape. `type` is an error code; the codes of each
     HTTP status are listed in its response.
+
+    **Availability.** This operation is **coming soon** for systems (`x-availability: coming-soon`):
+    do not build on it until it is available.
   contact:
     name: EUDIStack
     url: https://eudistack.net
@@ -32,8 +35,11 @@ paths:
     post:
       tags: [Revocation]
       operationId: revokeIssuance
-      summary: Revoke an attestation
+      summary: Revoke an attestation (coming soon)
+      x-availability: coming-soon
       description: |
+        **Coming soon.** Not available to systems yet.
+
         Marks the attestation of the issuance process as revoked in its status list, moves the
         process to Revoked and notifies the holder, without the reason. The reason is internal and
         stays in the audit trail. What each requester may revoke is decided by authorization by powers.

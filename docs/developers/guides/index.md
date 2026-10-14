@@ -20,6 +20,14 @@ Recetas para casos de uso concretos. Cada guía asume que ya conoces los [concep
 
     Emite atestaciones desde tu backend y elige cómo se entregan al titular: por correo, como oferta para tu aplicación o firmadas directamente.
 
+-   :material-magnify: [**API de consulta**](query-api.md)
+
+    Consulta lo emitido: el detalle de una emisión, el listado y la búsqueda por un dato de la persona, como el DNI.
+
+-   :material-cancel: [**API de revocación**](revocation-api.md)
+
+    Revoca desde tu backend una atestación válida, por ejemplo al dar de baja a una persona.
+
 -   :material-language-java: [**SDK Java — Autenticación M2M**](verifier-m2m-sdk-java.md)
 
     Autentica tu servicio backend contra el Verifier sin usuario humano de por medio, usando el SDK Java publicado en Maven Central.

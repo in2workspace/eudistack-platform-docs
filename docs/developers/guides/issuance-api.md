@@ -224,7 +224,7 @@ Dentro de `payload` puedes indicar `validFrom` y `validUntil` (ISO 8601) si el t
 
     `signed_credential` va en serialización compacta: SD-JWT para `dc+sd-jwt` y JWT para `jwt_vc_json`.
 
-**Guarda el identificador de `Location`** junto al registro del titular en tu sistema: es la referencia para consultar o revocar la atestación.
+**Guarda el identificador de `Location`** junto al registro del titular en tu sistema: es la referencia para [consultar](query-api.md) o [revocar](revocation-api.md) la atestación.
 
 ---
 

@@ -41,6 +41,7 @@ The contracts describe the full version of each API. What is marked coming soon 
 !!! info "Coming soon"
     Of this API, only the issuance detail (`GET /api/v1/issuances/{id}`) is available today. Filtered, paginated listing and search by identifier will come in a later release.
 
+[:material-book-open-variant: Query API guide](../guides/query-api.en.md){ .md-button }
 [:material-download: Download OpenAPI](openapi/issuer-query.yaml){ .md-button download="issuer-query.yaml" }
 
 <swagger-ui src="openapi/issuer-query.yaml"/>
@@ -52,6 +53,7 @@ The contracts describe the full version of each API. What is marked coming soon 
 !!! info "Coming soon"
     Revocation through the API is not available to systems yet.
 
+[:material-book-open-variant: Revocation API guide](../guides/revocation-api.en.md){ .md-button }
 [:material-download: Download OpenAPI](openapi/issuer-revocation.yaml){ .md-button download="issuer-revocation.yaml" }
 
 <swagger-ui src="openapi/issuer-revocation.yaml"/>

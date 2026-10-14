@@ -20,6 +20,14 @@ Recipes for concrete use cases. Each guide assumes you are already familiar with
 
     Issue attestations from your backend and choose how they are delivered to the holder: by email, as an offer for your application, or signed directly.
 
+-   :material-magnify: [**Query API**](query-api.en.md)
+
+    Query what was issued: the detail of an issuance, the listing and the search by a person data item, such as a national ID.
+
+-   :material-cancel: [**Revocation API**](revocation-api.en.md)
+
+    Revoke a valid attestation from your backend, for example when a person leaves.
+
 -   :material-language-java: [**Java SDK — M2M Authentication**](verifier-m2m-sdk-java.en.md)
 
     Authenticate your backend service against the Verifier with no human user involved, using the Java SDK published on Maven Central.
