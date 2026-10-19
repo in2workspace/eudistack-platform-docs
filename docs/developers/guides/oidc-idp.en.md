@@ -57,7 +57,7 @@ sequenceDiagram
     Note over Verifier: Validates credential, signature and revocation
 
     Verifier-->>Portal: SSE event: redirect URL with code
-    Portal-->>Browser: Redirects to redirect_uri?code=...&state=...
+    Portal-->>Browser: Redirects to redirect_uri?code=...&state=...&iss=...
 
     App->>Verifier: POST /verifier/oidc/token (code + PKCE verifier)
     Verifier-->>App: access_token + id_token
@@ -73,7 +73,7 @@ sequenceDiagram
       scope=openid learcredential.employee&
       state=xyz789&
       redirect_uri=https://my-app.com/callback&
-      code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-c&
+      code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&
       code_challenge_method=S256
     ```
 
@@ -96,6 +96,8 @@ sequenceDiagram
     ```
 
     You will receive an `access_token` and an `id_token` containing the data extracted from the verifiable credential.
+
+    Besides the `code` and the `state`, the redirect to your `redirect_uri` carries `iss` (RFC 9207): the `issuer` published by the discovery document of the tenant's Verifier. If your application works with several authorization servers, compare it with that `issuer` to detect mix-up attacks; otherwise, you can ignore it.
 
 ---
 

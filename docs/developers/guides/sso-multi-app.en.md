@@ -2,12 +2,15 @@
 
 If several client applications are integrated with the Verifier of the same EUDIStack tenant —your own or third parties', such as your own management portal and a supplier's portal—, the Verifier can maintain a **tenant-level authentication session**: the user presents their credential once, and the other applications reuse that session instead of asking them to scan the QR code again. For this, each application must be added to the tenant's eligible applications catalog.
 
-This guide assumes your application is already integrated with the Verifier as an OIDC IdP (credential login). SSO does not change the OIDC contract you already integrated: it adds a silent request mode (`prompt=none`) and coordinated logout across applications.
+This guide assumes your application is already integrated with the Verifier as an OIDC IdP (credential login). SSO does not change the OIDC contract you already integrated: with the standard login, the Verifier reuses the session when there is one. It adds an optional silent session check (`prompt=none`) and coordinated logout across applications.
 
 !!! abstract "In short"
     1. **Meet the [requirements](#requirements):** SSO enabled for the tenant and your `client_id` in the eligible applications catalog.
-    2. **[Ask for a silent login first](#integrating-silent-login)** with `prompt=none` and, if you get an error, fall back to the normal QR login.
+    2. **[Start the standard OIDC login](#integrating-the-login)**, without `prompt`: if there is an SSO session, the Verifier returns the `code` without the QR code; if not, it shows the QR code as usual. Use `prompt=none` only if you need to check the session without showing the login.
     3. **[Log out through the Verifier](#logging-out-single-logout)** and, if you can, listen for logout notifications from the other applications.
+
+!!! info "Since Verifier version 3.4.0"
+    Up to version 3.3, the Verifier only reused the session when the request carried `prompt=none`, so every application had to ask for a silent login first. Since 3.4.0 the standard login is enough. If your application already makes the `prompt=none` attempt, it keeps working as before.
 
 ---
 
@@ -17,7 +20,7 @@ This guide assumes your application is already integrated with the Verifier as a
 |---|---|---|
 | SSO enabled for the tenant | EUDIStack team | `ssoEnabled` is turned on and the tenant's **root domain** (`rootDomain`) is configured: the session cookie is scoped to it, and it must cover the host the tenant's Verifier is served from. |
 | Application registered as an OIDC client of the tenant | EUDIStack team | The same registration you need for credential login. |
-| `client_id` in the eligible applications catalog | EUDIStack team | Added at your request. Without this step, your application always receives `interaction_required`. |
+| `client_id` in the eligible applications catalog | EUDIStack team | Added at your request. Without this step, your application never reuses the session: the user always sees the QR code (with `prompt=none`, you receive `interaction_required`). |
 
 To request activation or the registration of an application, contact the EUDIStack team with the tenant and the `client_id`s involved.
 
@@ -52,7 +55,7 @@ sequenceDiagram
     Verifier-->>App1: id_token (with sid claim) + access_token
 
     Note over App2,Verifier: 2. Second application, same user, same browser session
-    App2->>Browser: redirects with prompt=none
+    App2->>Browser: redirects to /verifier/oidc/authorize (standard login, no prompt)
     Browser->>Verifier: GET /authorize (Cookie __Secure-sso-<tenant>)
     Verifier->>Verifier: valid session + App B in the SSO catalog
     Verifier-->>Browser: redirect to App B + code (no UI or QR)
@@ -60,62 +63,93 @@ sequenceDiagram
     Verifier-->>App2: id_token (with sid claim) + access_token
 ```
 
-The SSO session is established automatically after any credential login in a tenant with SSO enabled, whichever application it happens in. Which application comes "first" depends on where the user starts, so **every application** must ask for a silent login first to be able to reuse a session opened in another one.
+The SSO session is established automatically after any credential login in a tenant with SSO enabled, whichever application it happens in. Which application comes "first" depends on where the user starts; since reuse happens within the standard login itself, every application in the catalog benefits from it without doing anything special.
 
 The session cookie is issued in the **browser that started the login**, even when the user presents their credential from a wallet on another device (their phone): after the presentation, the login page sends the browser back to the Verifier to complete the login, and that is the step where the Verifier creates the session and redirects to your application. This step is transparent to your application, which receives the `code` at its `redirect_uri` as usual.
 
 ---
 
-## Integrating silent login
+## Integrating the login
 
-Every time your application needs to authenticate the user, ask for a silent login first. Only if the Verifier cannot resolve it, show the normal QR login.
+Send the standard authorization request (authorization code + PKCE), without `prompt`. The Verifier decides whether the QR code is needed:
 
 ```mermaid
 flowchart TD
-    A["Your application needs<br>to authenticate the user"] --> B["/authorize<br>with prompt=none"]
-    B --> C{"What does the<br>Verifier return?"}
-    C -->|code| D["Exchange the code<br>(no QR)"]
-    C -->|login_required| E["/authorize without prompt=none<br>(QR login)"]
-    C -->|interaction_required| E
+    A["Your application needs<br>to authenticate the user"] --> B["/authorize<br>(standard login, no prompt)"]
+    B --> C{"Valid SSO session<br>and your application<br>in the catalog?"}
+    C -->|yes| D["code at your redirect_uri<br>(signs in without QR)"]
+    C -->|no| E["Login page with QR"]
+    E --> D
 ```
-
-### 1. Ask with `prompt=none`
-
-Send the authorization request as in the standard flow, adding `prompt=none`:
 
 ```http
 GET /verifier/oidc/authorize?
   response_type=code&
   client_id=my-second-app&
   scope=openid learcredential.employee&
-  prompt=none&
   state=Xq7mZ2pL9vT4rN8sK3wY&
   redirect_uri=https://my-second-app.com/callback&
-  code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-c&
+  code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&
   code_challenge_method=S256
 ```
 
-With `prompt=none` the Verifier never shows screens or the QR code: it resolves the request on the spot or returns an error immediately.
+!!! warning "Generate a new, random `state` for every request"
+    The Verifier identifies each login in progress by its `state`. If your application starts a QR login reusing a `state` that is still in progress (up to 10 minutes), the Verifier rejects it with `invalid_request: state already in use` and shows its error page, unless it is a retry from the same browser. Common OIDC libraries already generate a different `state` for each request; do not use fixed or predictable values.
 
-!!! warning "Generate a new random `state` for every request"
-    The Verifier identifies each login in progress by its `state`. If your application starts a QR login reusing a `state` that is still in progress (up to 10 minutes), the Verifier rejects it with `invalid_request: state already in use` and shows its error page, unless it is a retry from the same browser. Common OIDC libraries already generate a different `state` for every request; do not use fixed or predictable values.
+### Behaviour by `prompt`
 
-!!! warning "Use a full-page redirect, not an iframe"
-    The Verifier does not allow its pages to be loaded inside an iframe. If your OIDC library performs the silent login in a hidden iframe (*silent renew*), turn it off and send the request with a normal browser redirect.
+| `prompt` | Reusable SSO session | No reusable session |
+|---|---|---|
+| Absent | `code` without QR | QR login, as usual |
+| `none` | `code` without QR | `error=login_required` or `error=interaction_required`, without showing any screen ([see below](#optional-checking-the-session-with-promptnone)) |
+| `login` | QR login: the user presents their credential again. The SSO session is not ended | QR login |
+| `none` together with another value (e.g. `none login`) | `error=invalid_request` | `error=invalid_request` |
 
-### 2. Handle the response
+The session is **reusable** when the browser presents a valid SSO session of the tenant, your `client_id` is in the catalog and, if you send `max_age`, the session is more recent than that limit. `prompt` values the Verifier does not support (`consent`, `select_account`) are treated as absent.
 
-The redirect to your `redirect_uri` carries one of these three results:
+If the request carries a request object (`request` or `request_uri`), the Verifier reads `prompt` and `max_age` **only** from the claims of the signed JWT (RFC 9101 §6.3) and ignores those in the query.
+
+### Forcing a fresh authentication
+
+Before a sensitive operation you can require the user to present their credential even if there is an SSO session:
+
+- `prompt=login`: always shows the QR code.
+- `max_age=<seconds>`: shows the QR code if the credential login is older than that number of seconds. It must be a non-negative integer; a malformed value (negative, decimal or non-numeric) receives `error=invalid_request`.
+
+In both cases, the `id_token` carries the `auth_time` of the credential login, so you can also check its age yourself.
+
+### Response at your `redirect_uri`
+
+Every response from the Verifier at your `redirect_uri`, success or error, keeps the query the registered `redirect_uri` already has and adds:
+
+| Parameter | Success | Error |
+|---|---|---|
+| `code` | Yes | — |
+| `error` | — | `login_required`, `interaction_required`, `invalid_request`, `access_denied` |
+| `error_description` | — | Fixed English text (e.g. `max_age must be a non-negative integer`). It is informative: do not show it as is to the user |
+| `state` | The one in your request | The one in your request |
+| `iss` | Yes | Yes |
+
+`iss` (RFC 9207) is the `issuer` published by the discovery document of the tenant's Verifier (`/.well-known/openid-configuration`), which advertises `authorization_response_iss_parameter_supported: true`. If your application works with several authorization servers, compare it with that `issuer` to detect mix-up attacks. Otherwise, you can ignore it.
+
+In the QR login, your `redirect_uri` may also receive `?error=access_denied`: the login was not completed in the browser that started it (for example, because the browser blocks the Verifier's cookies or because someone tried to complete it from another browser). The Verifier delivers neither the `code` nor the SSO session in that case; your application must treat it as a failed login and let the user retry.
+
+If the request fails the validation of the client, the registered `redirect_uri` or the request object signature, the Verifier shows its own error page and **never** redirects to your `redirect_uri`.
+
+### Optional: checking the session with `prompt=none`
+
+With `prompt=none` the Verifier never shows screens or the QR code: it resolves the request on the spot or returns an error immediately. You only need it if you want to know, when your application starts, whether the user has a session **without taking them to the login page** when they don't (for example, to show a public home page with a "Sign in" button). If your application goes to the login as soon as it starts, you don't need it.
+
+Add `prompt=none` to the request above and handle the response:
 
 | Result | What it means | What your application does |
 |---|---|---|
 | `?code=...` | There is a valid SSO session and your application is in the catalog. | Exchange the `code` as in the normal flow. |
-| `?error=login_required` | No usable SSO session: it was never established, it expired, or it belongs to another tenant. | Repeat the request **without** `prompt=none`: normal QR login. |
-| `?error=interaction_required` | There is a valid SSO session, but your `client_id` is not in the catalog. | Normal QR login, and check the [requirements](#requirements). |
+| `?error=login_required` | No usable SSO session: it was never established, it expired, or it belongs to another tenant. | Treat the user as not signed in. When they need to sign in, start the login without `prompt`. |
+| `?error=interaction_required` | There is a valid SSO session, but your `client_id` is not in the catalog. | Same as `login_required`, and check the [requirements](#requirements). |
 
-The user notices no difference between the two paths, except that in the second one they will need to present their credential.
-
-In the normal QR login, besides the `code`, your `redirect_uri` may receive `?error=access_denied`: the login was not completed in the browser that started it (for example, because the browser blocks the Verifier's cookies or because someone tried to complete it from another browser). The Verifier delivers neither the `code` nor the SSO session in that case; your application must treat it as a failed login and let the user retry.
+!!! warning "A single attempt, with a full-page redirect"
+    Make the `prompt=none` attempt **only once** per application load (store a flag, for example in `sessionStorage`), so you don't enter a redirect loop if the Verifier responds with an error. And use a normal browser redirect: the Verifier does not allow its pages to be loaded inside an iframe, so if your OIDC library does the silent login in a hidden iframe (*silent renew*), turn it off.
 
 !!! tip "Tell the two errors apart in your logs"
     `login_required` and `interaction_required` mean different things (OIDC Core §3.1.2.6). The former is expected (new user, expired session). The latter points to a catalog configuration issue worth investigating if it keeps happening.
@@ -124,20 +158,20 @@ In the normal QR login, besides the `code`, your `redirect_uri` may receive `?er
 
 ## Logging out (Single Logout)
 
-To understand logout you need to tell apart two sessions, each controlled by a different party:
+To understand logout, you need to tell two sessions apart, each controlled by someone different:
 
 | | Your application's session | Tenant SSO session |
 |---|---|---|
-| **Controlled by** | Your application | The Verifier |
-| **What it is for** | Knowing whether the user is signed in to your application | Knowing whether the user can enter other applications without scanning the QR code |
+| **Who controls it** | Your application | The Verifier |
+| **What it is for** | Knowing whether the user is signed in to your application | Knowing whether the user can sign in to other applications without scanning the QR code |
 | **When it ends** | When your application closes it or it expires, per your configuration | On logout in any application, or on expiry (see [Session lifetime](#session-lifetime)) |
 
 !!! info "The Verifier cannot close your application's session"
-    It only decides whether the next login needs the QR code. That is why logout has two parts: ending the SSO session through the Verifier and, when the logout starts in another application, your application closing its own session when it receives the notification.
+    It only decides whether the next login needs the QR code or not. That is why logout has two parts: ending the SSO session through the Verifier and, when the logout starts in another application, your application closing its own when it receives the notification.
 
 What your application has to do in each case:
 
-| Situation | What your application does | Required? |
+| Situation | What your application does | Mandatory? |
 |---|---|---|
 | The user logs out **of your application** | Redirect them to the Verifier's logout endpoint ([case 1](#case-1-the-user-logs-out-of-your-application)) | Yes |
 | The user logs out **of another application** | Receive the Verifier's notification and close its local session ([case 2](#case-2-the-user-logs-out-of-another-application)) | Recommended |
@@ -156,7 +190,7 @@ What your application has to do in each case:
 3. The Verifier ends the SSO session immediately, notifies the other applications that used the session (see [case 2](#case-2-the-user-logs-out-of-another-application)) and sends the user back to your `post_logout_redirect_uri`, which must be registered for your `client_id`.
 
 !!! warning "Clearing only your local session does not end SSO"
-    If your application skips step 2, the SSO session stays valid and the next `prompt=none` request will let the user back in without asking for their credential.
+    If your application skips step 2, the SSO session stays valid and the next login will let the user back in without asking for their credential.
 
 ### Case 2: the user logs out of another application
 
@@ -209,13 +243,13 @@ Your endpoint must:
 The application that started the logout does not receive this notification.
 
 !!! warning "Current limitation: the application of the QR login is not notified"
-    The Verifier notifies the applications that signed in **by reusing the session** with `prompt=none`. The application where the user did the QR login —the one that created the SSO session— is not registered as a recipient and does not receive the `logout_token`, unless it later signed in again with `prompt=none`. Until this is fixed, that application only learns about the logout when its local session expires (see the next warning).
+    The Verifier notifies the applications that signed in **by reusing the session**, with or without `prompt=none`. The application where the user did the QR login —the one that created the SSO session— is not registered as a recipient and does not receive the `logout_token`, unless it later signed in again by reusing the session. Until this is fixed, that application only learns about the logout when its local session expires (see the next warning).
 
 !!! warning "If your application does not listen for the notification, the user stays signed in"
     The `backchannel_logout_uri` is optional (HTTPS required), but without it your application does not learn about logouts made in the others. If the user logs out of another application of the tenant:
 
     - **They stay signed in to your application** until your local session expires or they log out of it too.
-    - When your local session expires, `prompt=none` will receive `login_required` and they will have to scan the QR code again: the logout does reach your application, but late.
+    - When your local session expires, the next login will show them the QR code (with `prompt=none`, you will receive `login_required`): the logout does reach your application, but late.
     - **Tokens already issued are not revoked.** Your `access_token` stays valid until it expires, so it cannot be used to detect the logout either.
 
     The risk is that someone else using the same device, after the user believes they logged out, still has access to your application. If your application handles sensitive data, publish the `backchannel_logout_uri`.
@@ -226,7 +260,7 @@ The application that started the logout does not receive this notification.
 
 ### id_token contents
 
-In a tenant with SSO enabled, the `id_token` includes the `sid` claim on **every** login: both the first one, with the QR code, and the silent ones with `prompt=none`. Example with the claims relevant to SSO (the other claims of the standard login are omitted):
+In a tenant with SSO enabled, the `id_token` includes the `sid` claim on **every** login: both the first one, with the QR code, and those that reuse the session. Example with the claims relevant to SSO (the other claims of the standard login are omitted):
 
 ```json
 {
@@ -241,7 +275,7 @@ In a tenant with SSO enabled, the `id_token` includes the `sid` claim on **every
 
 `sid` identifies the shared SSO session: every application using the session, including the one of the first login, receives the same value, and it is the one that arrives in the `logout_token`. It is not a secret (it travels in a signed JWT), but avoid exposing it in URLs or access logs.
 
-`auth_time` is the moment of the credential login and does not change on silent logins. `acr` is always `"0"`: the Verifier does not declare an assurance level in the `id_token`.
+`auth_time` is the moment of the credential login and does not change on logins that reuse the session. `acr` is always `"0"`: the Verifier does not declare an assurance level in the `id_token`.
 
 ### Session lifetime
 
@@ -252,11 +286,12 @@ The SSO session expires as soon as **either** of these two limits is reached. Th
 | Absolute lifetime | 8 hours from login | 1 h – 24 h |
 | Inactivity | 30 minutes without use | 5 min – 60 min |
 
-After expiry, `prompt=none` receives `login_required`: your application must be ready to fall back to the normal login at any time, not only on the first access of the day.
+After expiry, the login shows the QR code again (and `prompt=none` receives `login_required`): your application must be ready for it at any time, not only on the first access of the day.
 
 ### Security
 
 - **Session cookie.** It is named `__Secure-sso-<tenant>` and issued with `Secure`, `HttpOnly`, `SameSite=Lax` and `Domain=<tenant root domain>`. It is an opaque 256-bit identifier, not a JWT: it contains no user or credential data. Only the Verifier manages it; your application never reads or modifies it.
 - **Login binding cookie.** When it shows the QR code, the Verifier also issues `__Host-sso-tx` (`Secure`, `HttpOnly`, `SameSite=Lax`, no `Domain`: only for the Verifier's host; 10-minute lifetime). It binds the login to the browser that started it: the Verifier only creates the SSO session and delivers the `code` to that browser, so someone watching the login from outside cannot take it over. Your application does not manage it either.
-- **Tenant isolation.** An SSO session from one tenant is never reused in another, even if they share a browser: the Verifier responds `login_required`.
+- **Tenant isolation.** An SSO session from one tenant is never reused in another, even if they share a browser: the login shows the QR code (with `prompt=none`, the Verifier responds `login_required`).
+- **Reuse is only attempted once the request is validated.** The Verifier checks the client, the registered `redirect_uri`, the scope and, if present, the request object signature before deciding whether to reuse the session, so a malformed request never obtains a `code` through SSO.
 - **One application's errors do not affect the others.** If your application is not in the catalog or sends a malformed request, the user's SSO session stays intact for the rest.

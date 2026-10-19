@@ -1,6 +1,6 @@
 # Verifier — Single Sign-On
 
-This page is for whoever administers the tenant configuration, not for whoever integrates code. If you're looking for how to call the `prompt=none` request from your application, see the [developer integration guide](../developers/guides/sso-multi-app.en.md).
+This page is for whoever administers the tenant configuration, not for whoever integrates code. If you're looking for how to integrate the SSO login in your application, see the [developer integration guide](../developers/guides/sso-multi-app.en.md).
 
 Cross-application SSO lets a user present their verifiable credential once and have **every application registered under your tenant** reuse that authentication for a bounded time, without asking for the QR code again.
 
@@ -56,7 +56,7 @@ It's managed through a protected REST API (requires an access token with tenant 
     Authorization: Bearer <admin-access-token>
     ```
 
-    `204 No Content`. The effect is immediate: the next silent request from that application receives `interaction_required`. It does not affect other clients' already-active SSO sessions.
+    `204 No Content`. The effect is immediate: on that application's next login the user sees the QR code (if the application uses `prompt=none`, it receives `interaction_required`). It does not affect other clients' already-active SSO sessions.
 
 !!! info "The change doesn't require users to authenticate again"
     Adding an application to the catalog enables it to reuse **any already-active SSO session** in the tenant, not just ones established after the change. There's no need to ask users to present their credential again after a catalog change.
@@ -81,16 +81,16 @@ Changing a tenant's TTL does **not** recalculate already-established sessions: t
 ## What the user sees and what gets logged
 
 - The user presents their credential once; on the following applications in the catalog they see no QR code or login screen while the session is valid.
-- Every establishment, reuse, denial (`interaction_required`) and detected expiry is logged as an auditable event, without ever exposing the user's identifier in the clear or the full session identifier in the logs.
+- Every establishment, reuse, denial (for example, an application outside the catalog) and detected expiry is logged as an auditable event, without ever exposing the user's identifier in the clear or the full session identifier in the logs.
 - The `id_token` each application receives during a reuse includes the `sid` claim, common to every application sharing that session — useful as a correlation key if you need to cross-reference traces between applications.
 
 ---
 
 ## Troubleshooting
 
-??? bug "An application on the catalog keeps getting `interaction_required`"
+??? bug "An application on the catalog keeps showing the QR code (or getting `interaction_required`)"
     - Confirm that the `client_id` the application uses in its OIDC request matches exactly (case included) the one enrolled in the catalog.
-    - Check that the application hangs off the same root domain configured for the tenant's SSO — if the domain doesn't match, the browser doesn't even send the session cookie, and the observed result is `interaction_required`/`login_required` depending on the case.
+    - Check that the application hangs off the same root domain configured for the tenant's SSO — if the domain doesn't match, the browser doesn't even send the session cookie, and the application shows the QR code (or gets `login_required` with `prompt=none`).
 
 ??? bug "Users have to authenticate more often than expected"
     - Review the configured idle TTL: if the user lets more time pass than configured between applications, the session expires even if the absolute TTL hasn't been reached.
@@ -101,4 +101,4 @@ Changing a tenant's TTL does **not** recalculate already-established sessions: t
 
 ---
 
-Need more detail on the integration side (handling `prompt=none`, `id_token` contents, forcing a fresh authentication)? See the [developer guide](../developers/guides/sso-multi-app.en.md).
+Need more detail on the integration side (behaviour by `prompt`, `id_token` contents, forcing a fresh authentication)? See the [developer guide](../developers/guides/sso-multi-app.en.md).

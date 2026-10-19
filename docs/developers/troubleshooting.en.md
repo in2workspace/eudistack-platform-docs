@@ -42,20 +42,25 @@ Common errors during integration and how to resolve them.
 
 === "SSO across applications"
 
-    ??? bug "`prompt=none` always returns `login_required`, even though the user just logged in on another application"
+    ??? bug "The login always shows the QR code (or `prompt=none` returns `login_required`), even though the user just logged in on another application"
 
-        - **Likely cause**: SSO is not enabled for your tenant, or the two applications don't hang off the same configured root domain (`rootDomain`) — without that, the browser doesn't share the session cookie between them.
+        - **Likely cause**: SSO is not enabled for your tenant, or the two applications don't hang off the same configured root domain (`rootDomain`) — without that, the browser doesn't share the session cookie between them. Your application may also be sending `prompt=login` or a `max_age` lower than the session's age, which force the QR code.
         - **Solution**: confirm with your tenant administrator that SSO is active and that both applications are served under the same root domain. See the [administration guide](../admin/verifier-sso.en.md).
 
-    ??? bug "`prompt=none` returns `interaction_required`"
+    ??? bug "The QR code appears despite a valid SSO session (or `prompt=none` returns `interaction_required`)"
 
         - **Likely cause**: there is a valid SSO session, but your `client_id` is not on the tenant's eligible applications catalog.
         - **Solution**: ask your tenant administrator to add your `client_id` to the SSO catalog. See the [SSO across applications guide](guides/sso-multi-app.en.md).
 
-    ??? bug "The `id_token` from a silent reuse doesn't include the `sid` claim"
+    ??? bug "The `id_token` from a reuse doesn't include the `sid` claim"
 
-        - **Likely cause**: the request didn't include `prompt=none`, or it fell back to the full login flow (for example, after a previous `login_required`/`interaction_required`) — `sid` is only issued when an active SSO session backs the token.
+        - **Likely cause**: the request fell back to the full login flow (for example, after a previous `login_required`/`interaction_required`) — `sid` is only issued when an active SSO session backs the token.
         - **Solution**: check the authorization response to see whether you got a direct `code` (reuse) or had to go through the QR code (full login).
+
+    ??? bug "Your `redirect_uri` receives `error=invalid_request`"
+
+        - **Likely cause**: `prompt=none` combined with another value (for example, `none login`), a malformed `max_age` (negative, decimal or non-numeric) or, in a request object, a `prompt` that is not a string. The exact reason arrives in `error_description`.
+        - **Solution**: fix the request parameter. See [Behaviour by `prompt`](guides/sso-multi-app.en.md#behaviour-by-prompt).
 
 ---
 

@@ -57,7 +57,7 @@ sequenceDiagram
     Note over Verifier: Valida credencial, firma y revocación
 
     Verifier-->>Portal: SSE event: redirect URL con code
-    Portal-->>Browser: Redirige a redirect_uri?code=...&state=...
+    Portal-->>Browser: Redirige a redirect_uri?code=...&state=...&iss=...
 
     App->>Verifier: POST /verifier/oidc/token (code + PKCE verifier)
     Verifier-->>App: access_token + id_token
@@ -73,7 +73,7 @@ sequenceDiagram
       scope=openid learcredential.employee&
       state=xyz789&
       redirect_uri=https://mi-app.com/callback&
-      code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-c&
+      code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&
       code_challenge_method=S256
     ```
 
@@ -96,6 +96,8 @@ sequenceDiagram
     ```
 
     Recibirás un `access_token` y un `id_token` con los datos extraídos de la credencial verificable.
+
+    Además del `code` y el `state`, la redirección a tu `redirect_uri` lleva `iss` (RFC 9207): el `issuer` que publica el discovery del Verifier del tenant. Si tu aplicación trabaja con varios servidores de autorización, compáralo con ese `issuer` para detectar ataques de mezcla (*mix-up*); si no, puedes ignorarlo.
 
 ---
 
