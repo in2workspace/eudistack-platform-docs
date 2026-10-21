@@ -114,9 +114,15 @@ The `delivery` field decides what EUDIStack does with the attestation and what t
 
 With `email` and `ui`, the optional `grant_type` field decides how the holder collects the attestation in their wallet: `authorization_code` (default) or `urn:ietf:params:oauth:grant-type:pre-authorized_code`.
 
+With `email`, the button and the QR code in the email open the wallet configured for your tenant. If there is none, they carry the offer in the standard `openid-credential-offer://` form.
+
 ### Open the offer in a specific wallet
 
-With `ui`, the API returns the `credential_offer_uri` with the `openid-credential-offer://` scheme. The holder's device opens it with whatever wallet is registered for that scheme, and if there is none the link does nothing. If you want a specific wallet to open the offer, for example the EUDIStack web wallet, replace the start of the link with the address where that wallet receives offers and keep the rest as is:
+With `ui`, the API returns the `credential_offer_uri` with the `openid-credential-offer://` scheme, always in this standard form: EUDIStack does not know which wallet your holder uses and does not transform it. The holder's device opens it with whatever wallet is registered for that scheme, and if there is none the link does nothing.
+
+Use it as is with a native wallet on the same device, or when the holder scans it from inside their wallet. Transform it yourself when the holder will scan the QR code with their phone camera or when their wallet is a web wallet: the camera and the browser do not open `openid-credential-offer://`, and a web wallet cannot register that scheme.
+
+To have a specific wallet open the offer, for example the EUDIStack web wallet, replace the start of the link with the address where that wallet receives offers and keep the rest as is:
 
 | | Link |
 |---|---|
