@@ -164,6 +164,12 @@ Aquí encontrarás un resumen de las novedades y mejoras más relevantes de la p
 
 ??? "Knowledge Base"
     === "2026-10"
+        **SSO sin `prompt=none` (Verifier 3.4.0)**
+
+        - La guía de [SSO entre aplicaciones](../developers/guides/sso-multi-app.md) refleja que el login OIDC estándar, sin `prompt`, ya reutiliza la sesión SSO: `prompt=none` pasa a ser una comprobación opcional.
+        - Nueva tabla de comportamiento según `prompt`, cómo forzar una autenticación nueva (`prompt=login`, `max_age`) y el error `invalid_request` para parámetros mal formados.
+        - Las respuestas en el `redirect_uri` llevan `iss` (RFC 9207) y, en los errores, `error_description`; documentado también en la guía de [OIDC IdP](../developers/guides/oidc-idp.md).
+
         **Guía de SSO entre aplicaciones: terceros y cierre de sesión**
 
         - La guía de [SSO entre aplicaciones](../developers/guides/sso-multi-app.md) cubre ahora también las aplicaciones de terceros integradas con el Verifier del tenant, e incluye una tabla de requisitos.

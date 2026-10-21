@@ -1,6 +1,6 @@
 # Verifier — Single Sign-On
 
-Esta página es para quien administra la configuración del tenant, no para quien integra código. Si buscas cómo llamar a la petición `prompt=none` desde tu aplicación, consulta la [guía de integración para desarrolladores](../developers/guides/sso-multi-app.md).
+Esta página es para quien administra la configuración del tenant, no para quien integra código. Si buscas cómo integrar el login con SSO en tu aplicación, consulta la [guía de integración para desarrolladores](../developers/guides/sso-multi-app.md).
 
 El SSO entre aplicaciones permite que un usuario presente su credencial verificable una sola vez y que **todas las aplicaciones registradas bajo tu tenant** reutilicen esa autenticación durante un tiempo acotado, sin volver a pedir el QR.
 
@@ -56,7 +56,7 @@ Se gestiona con una API REST protegida (requiere un token de acceso con rol de a
     Authorization: Bearer <admin-access-token>
     ```
 
-    `204 No Content`. El efecto es inmediato: la siguiente petición silenciosa de esa aplicación recibe `interaction_required`. No afecta a sesiones SSO ya activas de otros clientes.
+    `204 No Content`. El efecto es inmediato: en el siguiente login de esa aplicación el usuario ve el QR (si la aplicación usa `prompt=none`, recibe `interaction_required`). No afecta a sesiones SSO ya activas de otros clientes.
 
 !!! info "El cambio no exige que el usuario vuelva a autenticarse"
     Dar de alta una aplicación en el catálogo la habilita para reutilizar **cualquier sesión SSO ya activa** del tenant, no solo las que se establezcan a partir de ese momento. No hace falta pedir a los usuarios que vuelvan a presentar su credencial tras un cambio de catálogo.
@@ -81,16 +81,16 @@ Cambiar el TTL de un tenant **no** recalcula sesiones ya establecidas: siguen ex
 ## Qué ve el usuario y qué queda registrado
 
 - El usuario presenta su credencial una vez; en las siguientes aplicaciones del catálogo no ve QR ni pantalla de login mientras la sesión esté vigente.
-- Cada establecimiento, reutilización, denegación (`interaction_required`) y expiración detectada queda registrado como evento auditable, sin exponer nunca el identificador del usuario en claro ni el identificador de sesión completo en los logs.
+- Cada establecimiento, reutilización, denegación (por ejemplo, aplicación fuera del catálogo) y expiración detectada queda registrado como evento auditable, sin exponer nunca el identificador del usuario en claro ni el identificador de sesión completo en los logs.
 - El `id_token` que recibe cada aplicación durante una reutilización incluye el claim `sid`, común a todas las aplicaciones que comparten esa sesión — útil como criterio de correlación si necesitas cruzar trazas entre aplicaciones.
 
 ---
 
 ## Resolución de problemas
 
-??? bug "Una aplicación del catálogo sigue recibiendo `interaction_required`"
+??? bug "Una aplicación del catálogo sigue mostrando el QR (o recibiendo `interaction_required`)"
     - Confirma que el `client_id` que usa la aplicación en su petición OIDC coincide exactamente (mayúsculas/minúsculas incluidas) con el dado de alta en el catálogo.
-    - Comprueba que la aplicación cuelga del mismo dominio raíz configurado para el SSO del tenant — si el dominio no coincide, el navegador ni siquiera envía la cookie de sesión, y el resultado observado también es `interaction_required`/`login_required` según el caso.
+    - Comprueba que la aplicación cuelga del mismo dominio raíz configurado para el SSO del tenant — si el dominio no coincide, el navegador ni siquiera envía la cookie de sesión, y la aplicación muestra el QR (o recibe `login_required` con `prompt=none`).
 
 ??? bug "Los usuarios tienen que volver a autenticarse más a menudo de lo esperado"
     - Revisa el TTL de inactividad configurado: si el usuario deja pasar más tiempo del configurado entre aplicaciones, la sesión expira aunque el TTL absoluto no se haya cumplido.
@@ -101,4 +101,4 @@ Cambiar el TTL de un tenant **no** recalcula sesiones ya establecidas: siguen ex
 
 ---
 
-¿Necesitas más detalle del lado de integración (manejo de `prompt=none`, contenido del `id_token`, forzar autenticación fresca)? Consulta la [guía para desarrolladores](../developers/guides/sso-multi-app.md).
+¿Necesitas más detalle del lado de integración (comportamiento según `prompt`, contenido del `id_token`, forzar autenticación fresca)? Consulta la [guía para desarrolladores](../developers/guides/sso-multi-app.md).
