@@ -62,8 +62,8 @@ From here it is possible to view the activity history, customize the appearance 
     ![Send logs button in Settings](../../assets/img/users/wallet-eudiw/send_logs.png){ width="240" }
 
 <a id="myDevices"></a>
-??? "My Devices <small>— Business Wallet only</small>"
-    Manages the devices linked to the account. Available only in the Business Wallet.
+??? "My Devices"
+    Manages the devices linked to the account.
 
     ![My Devices field in Settings](../../assets/img/users/wallet-buisiness/my-divices.png){ width="240" }
 
@@ -71,6 +71,7 @@ From here it is possible to view the activity history, customize the appearance 
 
 ---
 
+<!-- Hidden for now: "Wallet type" field (EUDIW / Business Wallet)
 <a id="walletType"></a>
 ??? "Wallet type"
     Indicates the wallet's operating mode:
@@ -82,8 +83,9 @@ From here it is possible to view the activity history, customize the appearance 
     - **Business Wallet**: wallet for corporate users. Credentials are stored on the organization's server.
 
         ![Wallet type field in Settings showing Business Wallet](../../assets/img/users/type-wallet-buisiness.png){ width="320" }
+-->
 
 ??? "Version"
     Current version number of the application. Informational only.
 
-    ![Version field in Settings showing Business Wallet](../../assets/img/users/wallet-eudiw/version.png){ width="320" }
+    ![Version field in Settings](../../assets/img/users/wallet-eudiw/version.png){ width="320" }

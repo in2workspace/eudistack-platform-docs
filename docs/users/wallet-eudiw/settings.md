@@ -62,8 +62,8 @@ Desde aquí es posible consultar el historial de actividad, personalizar la apar
     ![Botón Enviar logs en Ajustes](../../assets/img/users/wallet-eudiw/send_logs.png){ width="240" }
 
 <a id="myDevices"></a>
-??? "Mis Dispositivos <small>— solo Business Wallet</small>"
-    Gestiona los dispositivos vinculados a la cuenta. Disponible únicamente en el Business Wallet.
+??? "Mis Dispositivos"
+    Gestiona los dispositivos vinculados a la cuenta.
 
     ![Campo Mis Dispositivos en Ajustes](../../assets/img/users/wallet-buisiness/my-divices.png){ width="240" }
 
@@ -71,6 +71,7 @@ Desde aquí es posible consultar el historial de actividad, personalizar la apar
 
 ---
 
+<!-- Oculto de momento: campo "Tipo de wallet" (EUDIW / Business Wallet)
 <a id="walletType"></a>
 ??? "Tipo de wallet"
     Indica el modo de funcionamiento del wallet:
@@ -82,8 +83,9 @@ Desde aquí es posible consultar el historial de actividad, personalizar la apar
     - **Business Wallet**: wallet para usuarios corporativos. Las credenciales se almacenan en el servidor de la organización.
 
         ![Campo Tipo de wallet en Ajustes mostrando Business Wallet](../../assets/img/users/type-wallet-buisiness.png){ width="320" }
+-->
 
 ??? "Versión"
     Número de versión actual de la aplicación. Solo informativo.
 
-    ![Campo versión en Ajustes mostrando Business Wallet](../../assets/img/users/wallet-eudiw/version.png){ width="320" }
+    ![Campo versión en Ajustes](../../assets/img/users/wallet-eudiw/version.png){ width="320" }

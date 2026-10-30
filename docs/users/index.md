@@ -4,6 +4,7 @@ Bienvenido. Esta sección te explica cómo usar las aplicaciones de EUDIStack en
 
 ---
 
+<!-- Oculto de momento: sección "Tipo de wallet"
 ## Tipo de wallet
 
 ??? info "¿Cómo sé qué tipo de wallet estoy usando?"
@@ -19,10 +20,13 @@ Bienvenido. Esta sección te explica cómo usar las aplicaciones de EUDIStack en
 
 ---
 
+-->
+
 ## Herramientas disponibles
 
 <div class="grid cards" markdown>
 
+<!-- Oculto de momento: tarjeta del Wallet EUDIW
 -   :material-wallet: **Wallet — EUDIW**
 
     ---
@@ -31,11 +35,13 @@ Bienvenido. Esta sección te explica cómo usar las aplicaciones de EUDIStack en
 
     [:octicons-arrow-right-24: Empezar](wallet-eudiw/index.md)
 
--   :material-briefcase: **Wallet — Business Wallet**
+-->
+
+-   :material-briefcase: **Wallet**
 
     ---
 
-    El wallet **organizacional** (EBW). Las claves se custodian en servidor con autenticación reforzada. Pensado para empleados de organizaciones.
+    El wallet **organizacional**. Las claves se custodian en servidor con autenticación reforzada. Pensado para empleados de organizaciones.
 
     [:octicons-arrow-right-24: Empezar](wallet-business/index.md)
 

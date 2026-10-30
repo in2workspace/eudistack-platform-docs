@@ -94,7 +94,6 @@ plugins:
             Inicio: Home
             Usuarios: Users
             Wallet — EUDIW: Wallet — EUDIW
-            Wallet — Business Wallet: Wallet — Business Wallet
             Recibir credenciales: Receive credentials
             Presentar credenciales: Present credentials
             Gestionar credenciales: Manage credentials
@@ -210,14 +209,15 @@ nav:
 
   - Usuarios:
       - users/index.md
-      - Wallet — EUDIW:
-          - users/wallet-eudiw/index.md
-          - Primeros pasos: users/wallet-eudiw/getting-started.md
-          - Recibir credenciales: users/wallet-eudiw/receive-credentials.md
-          - Presentar credenciales: users/wallet-eudiw/present-credentials.md
-          - Gestionar credenciales: users/wallet-eudiw/manage-credentials.md
-          - Ajustes: users/wallet-eudiw/settings.md
-      - Wallet — Business Wallet:
+      # Oculto de momento: Wallet — EUDIW
+      # - Wallet — EUDIW:
+      #     - users/wallet-eudiw/index.md
+      #     - Primeros pasos: users/wallet-eudiw/getting-started.md
+      #     - Recibir credenciales: users/wallet-eudiw/receive-credentials.md
+      #     - Presentar credenciales: users/wallet-eudiw/present-credentials.md
+      #     - Gestionar credenciales: users/wallet-eudiw/manage-credentials.md
+      #     - Ajustes: users/wallet-eudiw/settings.md
+      - Wallet:
           - users/wallet-business/index.md
           - Primeros pasos: users/wallet-business/getting-started.md
           - Recibir credenciales: users/wallet-business/receive-credentials.md

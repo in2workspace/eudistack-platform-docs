@@ -1,6 +1,6 @@
-# Devices & keys — Business Wallet
+# Devices & keys — Wallet
 
-The Business Wallet lets you access your credentials from several devices. Each device is registered with its own passkey (fingerprint, facial recognition or PIN), so that only you can authenticate from it.
+The wallet lets you access your credentials from several devices. Each device is registered with its own passkey (fingerprint, facial recognition or PIN), so that only you can authenticate from it.
 
 ---
 
