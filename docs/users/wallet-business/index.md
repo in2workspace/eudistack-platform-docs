@@ -1,7 +1,8 @@
-# Wallet — Business Wallet
+# Wallet
 
-El **European Business Wallet (EBW)** es la versión para **usuarios corporativos** del wallet. A diferencia del EUDIW personal, las credenciales se almacenan en el servidor de la organización y son accesibles desde varios dispositivos registrados. Las claves criptográficas se generan en el dispositivo con el passkey (huella dactilar, reconocimiento facial o PIN) y nunca salen de él.
+El **wallet** es la aplicación con la que los **usuarios corporativos** reciben, guardan y presentan sus credenciales. Las credenciales se almacenan en el servidor de la organización y son accesibles desde varios dispositivos registrados. Las claves criptográficas se generan en el dispositivo con el passkey (huella dactilar, reconocimiento facial o PIN) y nunca salen de él.
 
+<!-- Oculto de momento: comparación con el EUDIW
 ## Diferencias clave frente al EUDIW
 
 | Característica | EUDIW (personal) | Business Wallet |
@@ -10,6 +11,7 @@ El **European Business Wallet (EBW)** es la versión para **usuarios corporativo
 | Claves criptográficas | Dispositivo del usuario (passkey) | Dispositivo del usuario (passkey) |
 | Multi-dispositivo | No | Sí (gestión de dispositivos) |
 | Acceso desde dispositivo de respaldo | No | Sí |
+-->
 
 ## En esta sección
 

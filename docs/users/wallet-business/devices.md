@@ -1,6 +1,6 @@
-# Dispositivos y claves — Business Wallet
+# Dispositivos y claves — Wallet
 
-El Business Wallet permite acceder a tus credenciales desde varios dispositivos. Cada dispositivo se registra con su propio passkey (huella dactilar, reconocimiento facial o PIN), de modo que solo tú puedes autenticarte desde él.
+El wallet permite acceder a tus credenciales desde varios dispositivos. Cada dispositivo se registra con su propio passkey (huella dactilar, reconocimiento facial o PIN), de modo que solo tú puedes autenticarte desde él.
 
 ---
 

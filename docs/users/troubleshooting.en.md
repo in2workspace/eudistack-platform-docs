@@ -20,6 +20,35 @@ This section collects the most frequent problems and how to resolve them. If you
     - **Likely cause**: the browser or operating system does not support WebAuthn with the PRF extension.
     - **Solution**: update the browser and OS to the latest versions. On iOS it requires iOS 17+; on Android, Chrome 122+.
 
+??? "When you tap «Sign in with a passkey» there is no passkey or an error appears"
+    - **Symptom**: the system says there is no passkey for the wallet, or shows an error when signing in.
+    - **Likely cause**: there is no wallet passkey on this device or on your phone. This happens the first time or on a new device.
+    - **Solution**: use **Sign in with my email**, verify the code and create a passkey.
+
+    !!! info "Related pages"
+        - [Getting started](wallet-business/getting-started.md) — how to sign in for the first time and create the passkey
+
+??? "When you scan the passkey QR code with your phone, only text appears"
+    - **Symptom**: when you scan with your phone the QR code the computer shows to use or save the passkey, only a text starting with `FIDO:/` or a web search appears.
+    - **Likely cause**: some manufacturers' cameras do not recognize passkey QR codes and do not pass them to the phone's passkey manager.
+    - **Solution**: scan the QR code with Google Lens.
+
+    !!! info "Related pages"
+        - [Getting started](wallet-business/getting-started.md) — how to save the passkey on your phone from a computer
+
+??? "The phone stays on «Connecting to your device»"
+    - **Symptom**: after scanning the passkey QR code, the phone keeps connecting and does not move on.
+    - **Likely cause**: Bluetooth is turned off on the computer or the phone. Both devices need it to check they are close to each other, although no pairing is required.
+    - **Solution**: turn on Bluetooth on the computer and the phone, cancel on the computer and try again. Both devices also need an internet connection.
+
+??? "The phone says no passkeys are available"
+    - **Symptom**: the computer says it has connected to the phone, but the phone replies that it has no passkeys available.
+    - **Likely cause**: the wallet passkey is not saved on that phone. «Sign in with a passkey» can only use passkeys that already exist.
+    - **Solution**: use **Sign in with my email** and, when creating the passkey, choose **iPhone, iPad or Android device** to save it on your phone.
+
+    !!! info "Related pages"
+        - [Getting started](wallet-business/getting-started.md) — how to save the passkey on your phone from a computer
+
 ??? "The credential appears as revoked"
     - **Symptom**: when presenting it to a Verifier, it reports that the credential is revoked.
     - **Likely cause**: the issuer revoked the credential (role change, leaving the organization).

@@ -1,6 +1,6 @@
-# Primeros pasos — Business Wallet
+# Primeros pasos — Wallet
 
-Primer acceso al Business Wallet: verificación del email corporativo y creación de la passkey con la que se entrará a partir de entonces, con la huella, el reconocimiento facial o el PIN del dispositivo, o con el móvil.
+Primer acceso al wallet: verificación del email corporativo y creación de la passkey con la que se entrará a partir de entonces, con la huella, el reconocimiento facial o el PIN del dispositivo, o con el móvil.
 
 ---
 
@@ -11,7 +11,7 @@ Primer acceso al Business Wallet: verificación del email corporativo y creació
 - Conexión a internet.
 - Para guardar la passkey en el móvil desde un ordenador: Bluetooth activado en los dos dispositivos.
 
-!!! info "Cómo se entra en el Business Wallet"
+!!! info "Cómo se entra en el wallet"
     - **La primera vez**, o en un dispositivo sin passkey, se entra con el **email**: el wallet envía un código de verificación y después se crea o se usa una passkey.
     - **Las veces siguientes**, se entra directamente con la **passkey**, sin email ni código.
     - Las credenciales quedan ligadas a la passkey con la que se obtuvieron. Para verlas desde otro dispositivo, hay que entrar con esa misma passkey: por ejemplo, la guardada en el móvil o una passkey sincronizada (iCloud, Google).
@@ -20,7 +20,7 @@ Primer acceso al Business Wallet: verificación del email corporativo y creació
 
 ## Pasos
 
-??? "1. Abrir el Business Wallet"
+??? "1. Abrir el wallet"
     Navegar a la URL del wallet de la organización.
 
     Si el navegador permite instalar el wallet como app, aparece primero la pantalla **Accede a EUDIStack de forma segura** (el nombre puede cambiar según la organización):
@@ -117,7 +117,7 @@ Primer acceso al Business Wallet: verificación del email corporativo y creació
     El wallet muestra la pantalla de credenciales. A partir de aquí ya es posible recibir y presentar credenciales.
 
     <figure markdown style="margin-left: 0;">
-      ![Pantalla de credenciales del Business Wallet, todavía sin credenciales, con el botón «Escanear código QR»](../../assets/img/users/wallet-buisiness/access-credentials.webp){ width="560" }
+      ![Pantalla de credenciales del wallet, todavía sin credenciales, con el botón «Escanear código QR»](../../assets/img/users/wallet-buisiness/access-credentials.webp){ width="560" }
       <figcaption>Pantalla de credenciales</figcaption>
     </figure>
 

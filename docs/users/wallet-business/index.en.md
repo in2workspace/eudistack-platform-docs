@@ -1,7 +1,8 @@
-# Wallet — Business Wallet
+# Wallet
 
-The **European Business Wallet (EBW)** is the corporate user version of the wallet. Unlike the personal EUDIW, credentials are stored on the organisation's server and are accessible from multiple registered devices. Cryptographic keys are generated on the device using the passkey (biometrics or PIN) and never leave it.
+The **wallet** is the application **corporate users** use to receive, store and present their credentials. Credentials are stored on the organisation's server and are accessible from multiple registered devices. Cryptographic keys are generated on the device using the passkey (biometrics or PIN) and never leave it.
 
+<!-- Hidden for now: comparison with EUDIW
 ## Key differences from EUDIW
 
 | Feature | EUDIW (personal) | Business Wallet |
@@ -10,6 +11,7 @@ The **European Business Wallet (EBW)** is the corporate user version of the wall
 | Cryptographic keys | User's device (passkey) | User's device (passkey) |
 | Multi-device | No | Yes (device management) |
 | Access from backup device | No | Yes |
+-->
 
 ## In this section
 

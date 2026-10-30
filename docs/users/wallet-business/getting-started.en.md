@@ -1,6 +1,6 @@
-# Getting started — Business Wallet
+# Getting started — Wallet
 
-First access to the Business Wallet: verifying the corporate email and creating the passkey you will use from then on, with the device's fingerprint, facial recognition or PIN, or with your phone.
+First access to the wallet: verifying the corporate email and creating the passkey you will use from then on, with the device's fingerprint, facial recognition or PIN, or with your phone.
 
 ---
 
@@ -11,7 +11,7 @@ First access to the Business Wallet: verifying the corporate email and creating 
 - Internet connection.
 - To save the passkey on your phone from a computer: Bluetooth turned on on both devices.
 
-!!! info "How you sign in to the Business Wallet"
+!!! info "How you sign in to the wallet"
     - **The first time**, or on a device without a passkey, you sign in with your **email**: the wallet sends a verification code, and then you create or use a passkey.
     - **From then on**, you sign in directly with the **passkey**, with no email or code.
     - Credentials are bound to the passkey used to obtain them. To see them from another device, sign in with that same passkey: for example, the one saved on your phone, or a synced passkey (iCloud, Google).
@@ -20,7 +20,7 @@ First access to the Business Wallet: verifying the corporate email and creating 
 
 ## Steps
 
-??? "1. Open the Business Wallet"
+??? "1. Open the wallet"
     Navigate to the organization's wallet URL.
 
     If the browser can install the wallet as an app, the **Access EUDIStack securely** screen appears first (the name may vary by organization):
@@ -117,7 +117,7 @@ First access to the Business Wallet: verifying the corporate email and creating 
     The wallet shows the credentials screen. From here you can receive and present credentials.
 
     <figure markdown style="margin-left: 0;">
-      ![Business Wallet credentials screen, still without credentials, with the «Scan QR code» button](../../assets/img/users/wallet-buisiness/access-credentials.webp){ width="560" }
+      ![Wallet credentials screen, still without credentials, with the «Scan QR code» button](../../assets/img/users/wallet-buisiness/access-credentials.webp){ width="560" }
       <figcaption>Credentials screen</figcaption>
     </figure>
 
