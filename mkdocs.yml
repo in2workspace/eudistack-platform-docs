@@ -104,6 +104,7 @@ plugins:
             Emitir una credencial: Issue a credential
             Gestionar emisiones: Manage issuances
             Verifier: Verifier
+            Personalización de marca: Brand customization
             Solución de problemas: Troubleshooting
             Developers: Developers
             Primeros pasos: Getting Started
@@ -234,6 +235,7 @@ nav:
           - Emitir una credencial: admin/issuer-portal/issue-credential.md
           - Gestionar emisiones: admin/issuer-portal/manage-issuances.md
       - Verifier — Single Sign-On: admin/verifier-sso.md
+      - Personalización de marca: admin/brand-customization.md
       - Solución de problemas: admin/troubleshooting.md
 
   - Developers:
