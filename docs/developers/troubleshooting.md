@@ -44,13 +44,13 @@ Errores frecuentes durante la integración y cómo resolverlos.
 
     ??? bug "El login muestra siempre el QR (o `prompt=none` devuelve `login_required`), aunque el usuario acaba de hacer login en otra aplicación"
 
-        - **Causa probable**: el SSO no está habilitado para tu tenant, o las dos aplicaciones no cuelgan del mismo dominio raíz configurado (`rootDomain`) — sin eso, el navegador no comparte la cookie de sesión entre ellas. También puede que tu aplicación envíe `prompt=login` o un `max_age` menor que la antigüedad de la sesión, que fuerzan el QR.
-        - **Solución**: confirma con tu administrador de tenant que el SSO está activo y que ambas aplicaciones sirven bajo el mismo dominio raíz. Ver [guía de administración](../admin/verifier-sso.md).
+        - **Causa probable**: el SSO no está habilitado para tu tenant, o el host de su Verifier no cuelga del dominio raíz configurado (`rootDomain`) — sin eso, el navegador no envía la cookie de sesión. También puede que tu aplicación envíe `prompt=login` o un `max_age` menor que la antigüedad de la sesión, que fuerzan el QR.
+        - **Solución**: pide al equipo de EUDIStack que revise la configuración del SSO del tenant. Ver [Antes de empezar: activar el SSO](guides/sso-multi-app.md#antes-de-empezar-activar-el-sso).
 
     ??? bug "Con sesión SSO vigente aparece el QR (o `prompt=none` devuelve `interaction_required`)"
 
         - **Causa probable**: hay una sesión SSO vigente, pero tu `client_id` no está en el catálogo de aplicaciones elegibles del tenant.
-        - **Solución**: pide a tu administrador de tenant que dé de alta tu `client_id` en el catálogo SSO. Consulta la [guía de SSO entre aplicaciones](guides/sso-multi-app.md).
+        - **Solución**: pide al equipo de EUDIStack que dé de alta tu `client_id` en el catálogo SSO. Consulta la [guía de SSO entre aplicaciones](guides/sso-multi-app.md).
 
     ??? bug "El `id_token` de una reutilización no trae el claim `sid`"
 

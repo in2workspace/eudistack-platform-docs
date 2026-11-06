@@ -162,6 +162,14 @@ Here you will find a summary of the most relevant new features and improvements 
 ## Documentation
 
 ??? "Knowledge Base"
+    === "2026-11"
+        **Step-by-step SSO across applications guide**
+
+        - The [SSO across applications](../developers/guides/sso-multi-app.en.md) guide is reorganised in steps: enabling SSO (with the list of details to send), starting the login, authorising with the powers in the token and logging out.
+        - New step **Authorise with the powers in the token**: where the `power` claim arrives, how to read it and what your application must check. The Verifier authenticates, but each application decides who gets in.
+        - Reviewed against Verifier 3.4.1: example scope, `sid` as secret data, cases in which the logout notification does not arrive, session replaced after a new login and causes of `login_required` and `access_denied`.
+        - The Verifier — Single Sign-On administration guide is retired: the EUDIStack team manages the applications catalog and the session duration.
+
     === "2026-10"
         **SSO without `prompt=none` (Verifier 3.4.0)**
 
@@ -180,7 +188,7 @@ Here you will find a summary of the most relevant new features and improvements 
         **Cross-application SSO guides**
 
         - New developer guide: [SSO across applications](../developers/guides/sso-multi-app.en.md), how to integrate silent session reuse (`prompt=none`) between several applications in the same tenant.
-        - New administration guide: [Verifier — Single Sign-On](../admin/verifier-sso.en.md), managing the eligible applications catalog and the session duration.
+        - New administration guide Verifier — Single Sign-On, managing the eligible applications catalog and the session duration (retired in 2026-11).
 
     === "2026-07"
         **EUDIStack Sandbox URL update fix**

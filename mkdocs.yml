@@ -116,7 +116,6 @@ plugins:
             API de emisión: Issuance API
             API de consulta: Query API
             API de revocación: Revocation API
-            Verifier — Single Sign-On: Verifier — Single Sign-On
             Referencia API: API Reference
             Referencia: Reference
             Glosario: Glossary
@@ -233,7 +232,6 @@ nav:
           - admin/issuer-portal/index.md
           - Emitir una credencial: admin/issuer-portal/issue-credential.md
           - Gestionar emisiones: admin/issuer-portal/manage-issuances.md
-      - Verifier — Single Sign-On: admin/verifier-sso.md
       - Solución de problemas: admin/troubleshooting.md
 
   - Developers:

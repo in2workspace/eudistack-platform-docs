@@ -44,13 +44,13 @@ Common errors during integration and how to resolve them.
 
     ??? bug "The login always shows the QR code (or `prompt=none` returns `login_required`), even though the user just logged in on another application"
 
-        - **Likely cause**: SSO is not enabled for your tenant, or the two applications don't hang off the same configured root domain (`rootDomain`) — without that, the browser doesn't share the session cookie between them. Your application may also be sending `prompt=login` or a `max_age` lower than the session's age, which force the QR code.
-        - **Solution**: confirm with your tenant administrator that SSO is active and that both applications are served under the same root domain. See the [administration guide](../admin/verifier-sso.en.md).
+        - **Likely cause**: SSO is not enabled for your tenant, or its Verifier's host is not under the configured root domain (`rootDomain`) — without that, the browser doesn't send the session cookie. Your application may also be sending `prompt=login` or a `max_age` lower than the session's age, which force the QR code.
+        - **Solution**: ask the EUDIStack team to review the tenant's SSO configuration. See [Before you start: enabling SSO](guides/sso-multi-app.en.md#before-you-start-enabling-sso).
 
     ??? bug "The QR code appears despite a valid SSO session (or `prompt=none` returns `interaction_required`)"
 
         - **Likely cause**: there is a valid SSO session, but your `client_id` is not on the tenant's eligible applications catalog.
-        - **Solution**: ask your tenant administrator to add your `client_id` to the SSO catalog. See the [SSO across applications guide](guides/sso-multi-app.en.md).
+        - **Solution**: ask the EUDIStack team to add your `client_id` to the SSO catalog. See the [SSO across applications guide](guides/sso-multi-app.en.md).
 
     ??? bug "The `id_token` from a reuse doesn't include the `sid` claim"
 
