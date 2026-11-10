@@ -165,7 +165,7 @@ Exchange the code at the `token_endpoint` straight away: it is single use.
     }
     ```
 
-    `aud` is the `issuer` from the discovery document. Use a new `jti` and a short expiry for every exchange.
+    `aud` is the `issuer` from the discovery document; the `token_endpoint` is accepted too, which is what libraries such as Keycloak send by default. Use a new `jti` and a short expiry for every exchange.
 
 === "Public client"
     ```http
@@ -295,11 +295,21 @@ Today the ID Token carries `acr` with the fixed value `"0"` and no `amr`. Do not
 | Authorization code | Single use | Exchange it as soon as you receive it. |
 | ID Token | 60 seconds | Validate it on receipt and open your own session. Do not forward it to other APIs. |
 | Access Token | 15 minutes | Get a new one with the Refresh Token. |
-| Refresh Token | 12 hours from login, single use | Start a new login. |
+| Refresh Token | 12 hours from issuance, single use. Each refresh gives a new one for another 12 hours. | Start a new login. |
+
+### Store the tokens
+
+- **With a server (confidential client).** Keep the tokens on the server only, with the physician's session. Send the browser only your own session cookie, with `HttpOnly`, `Secure` and `SameSite`.
+- **Without a server (public client).** Keep the tokens in memory. Do not use `localStorage` or `sessionStorage`: any script on the page can read them. In a mobile app, use the system's secure storage (Keychain or Keystore).
+- **Never** send the Refresh Token to your APIs or write it to logs. Your APIs only receive the Access Token.
 
 ### Refresh with the Refresh Token
 
 Keep the physician's session for their working day with the Refresh Token. Each exchange returns an ID Token, an Access Token and **a new Refresh Token**. Always keep the latest one: the previous one stops working.
+
+!!! warning "You set the maximum session length"
+    - **No overall limit.** Each new Refresh Token lasts 12 hours from the refresh, so an application that keeps refreshing keeps the session open indefinitely. Set a maximum length in your application, for example the working day, and after it ask for a new login.
+    - **No new credential check.** A refresh reuses the DoctorID presented at login: it does not check again whether it has been revoked or whether the physician is still entitled to practise. `legally_entitled` and the other attributes are those of the login. Before a sensitive operation, such as signing a prescription, ask for a new login if the last one is old.
 
 ```http
 POST /verifier/oidc/token
@@ -314,10 +324,10 @@ client_assertion=eyJhbGciOiJFUzI1NiIs…
 
 A public client leaves out `client_assertion_type` and `client_assertion`. The refreshed ID Token keeps the `auth_time` of the original login and carries no `nonce`.
 
-A Refresh Token that has expired, has already been used or belongs to another client is rejected. On any response other than `200`, start a new login. A Refresh Token may also stop working before the 12 hours because of platform maintenance: your application must handle it the same way.
+A Refresh Token that has expired, has already been used or belongs to another client is rejected. On any response other than `200`, start a new login. Refresh Tokens are kept in the Verifier's memory: **a restart or deployment of the platform invalidates all of them** before the 12 hours. Your application must handle it like an expired one.
 
 !!! info "Revocation"
-    The discovery document publishes a `revocation_endpoint` (RFC 7009), but today it does not invalidate Refresh Tokens. To end the session, do the [logout](#end-the-session) and delete the tokens in your application.
+    The discovery document publishes a `revocation_endpoint` (RFC 7009), but today it does not invalidate Refresh Tokens. Nor does [logout](#end-the-session): a Refresh Token keeps working until it expires or is used. To end the session, do the logout and **delete the tokens in your application**.
 
 ### End the session
 
@@ -330,7 +340,9 @@ GET /verifier/oidc/logout?
   state=9c1e…
 ```
 
-The Verifier returns to your `post_logout_redirect_uri` with the `state`. Delete the session and tokens in your application.
+The Verifier returns to your `post_logout_redirect_uri` with the `state`. Check that it is the one you sent, and delete the session and tokens in your application. Delete the tokens even if it does not return: logging out of your application does not depend on the Verifier.
+
+The request is a `GET`, so the `id_token_hint` travels in the URL. Do not record that full URL in your logs or your proxy's.
 
 Your application does not share its session with the other applications of the tenant: the physician presents their credential on every login. To share it, see [SSO across applications in the same tenant](sso-multi-app.en.md).
 
@@ -382,8 +394,9 @@ Keycloak then governs your applications' session. It receives `auth_time` so you
 | No PKCE, or `plain` | The authorization goes ahead, but the exchange answers `400 {"error":"invalid_grant"}`. | Always send `code_challenge` with `S256`, and its `code_verifier` in the exchange. |
 | `code_verifier` that does not match | `400 {"error":"invalid_grant"}` | Use the verifier from the same login. |
 | Code already exchanged or expired | `400 {"error":"invalid_grant"}` | Start a new login. |
-| `client_assertion` badly signed, expired or with another `aud` | `401 {"error":"invalid_client"}` | Sign with the key in your JWKS using `ES256`, with `aud` equal to the `issuer`. |
+| `client_assertion` badly signed, expired or with another `aud` | `401 {"error":"invalid_client"}` | Sign with the key in your JWKS using `ES256`, with `aud` equal to the `issuer` or the `token_endpoint`. |
 | Refresh Token expired or already used | `403` with no body | Start a new login. |
-| The user does not present their credential in time | After 120 seconds, your `redirect_uri` receives `error=access_denied&error_description=login_timeout` with your `state`. | Offer the user the option to try again. |
-| The credential is revoked, expired or untrusted | The login screen tells the user. Your application gets no code; it receives `access_denied` if the login expires. | Offer to try again. The user must renew their credential with its issuer. |
+| The user does not present their credential in time | After 120 seconds, if the login screen is still open, your `redirect_uri` receives `error=access_denied&error_description=login_timeout` with your `state`. This is the only case in which `access_denied` arrives. | Offer the user the option to try again. |
+| The credential is revoked, expired or untrusted | The login screen tells the user. Your application gets no code and no error at that point; it receives `access_denied` only if the user leaves the screen open until it expires. | Offer to try again. The user must renew their credential with its issuer. |
+| The user goes back to your application without finishing the login (back button, closes the tab) | Your `redirect_uri` receives nothing. | Treat a login with no response as abandoned and let a new one start, with a new `state`. |
 | The ID Token signature does not validate | Your library rejects the token. | Configure `ES256` and take the keys from the discovery `jwks_uri`. |
