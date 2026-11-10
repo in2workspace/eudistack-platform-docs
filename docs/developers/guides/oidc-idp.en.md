@@ -35,7 +35,7 @@ Registration is not self-service. The EUDIStack team does it for each applicatio
 
 | Item | Example | What it is for |
 |---|---|---|
-| Application name | `E-prescription` | Identifies your client and is shown on the login screen. |
+| Application name | `E-prescription` | Identifies your client. It is sent to the physician's wallet in the credential request. |
 | Client type | Confidential | See [Client types](#client-types). |
 | `redirect_uri` | `https://rx.example.com/oidc/callback` | Exact HTTPS address the user returns to with the code. You can give several. |
 | `post_logout_redirect_uri` | `https://rx.example.com/` | Where the user returns after [logout](#end-the-session). |
@@ -91,7 +91,7 @@ sequenceDiagram
     Verifier-->>App: id_token, access_token and refresh_token
 ```
 
-The Verifier checks the credential when it is presented, before issuing the code. If it is revoked, expired or issued by an untrusted issuer, the login screen tells the user and your application receives no code.
+The Verifier checks the credential when it is presented, before issuing the code. If it is revoked, expired or issued by an untrusted issuer, the login does not complete and your application receives no code.
 
 ---
 
@@ -209,9 +209,9 @@ The ID Token carries the attributes the physician presented. `sub` is their **re
 |---|---|---|---|---|
 | `sub` | Registration number | Text, 9 digits | Yes | Yes |
 | `personal_administrative_number` | Registration number | Text, 9 digits | Yes | Yes |
-| `given_name`, `givenName` | Given name | Text | Yes | `givenName` only |
-| `family_name`, `familyName` | Family name | Text | Yes | `familyName` only |
-| `name` | Full name | Text | Yes | No |
+| `given_name`, `givenName` | Given name | Text | Yes; a refreshed one, `givenName` only | `givenName` only |
+| `family_name`, `familyName` | Family name | Text | Yes; a refreshed one, `familyName` only | `familyName` only |
+| `name` | Full name | Text | Yes, except a refreshed one | No |
 | `medical_board` | Medical board or boards the physician is registered with | List of text | Yes, if the DoctorID has it | Yes, if the DoctorID has it |
 | `medical_speciality` | Speciality or specialities | List of text | Yes | Yes |
 | `legally_entitled` | Legally entitled to practise | Boolean | Yes, if the DoctorID has it | Yes, if the DoctorID has it |
@@ -267,7 +267,7 @@ Name, family name, registration number and speciality are always present. Medica
     }
     ```
 
-    The Access Token is a JWT signed with the same keys. Use it to call your own APIs, and validate it like the ID Token. `scope` carries the credential's scope, not every scope you requested.
+    The Access Token is a JWT signed with the same keys. Use it to call your own APIs: validate it like the ID Token and also check that it carries `scope`. Both tokens have the same signature and the same `aud`, and the ID Token has no `scope`: without that check, your API would also accept an ID Token. `scope` carries the credential's scope, not every scope you requested.
 
 The data in the examples is synthetic.
 
@@ -322,7 +322,7 @@ client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-
 client_assertion=eyJhbGciOiJFUzI1NiIs…
 ```
 
-A public client leaves out `client_assertion_type` and `client_assertion`. The refreshed ID Token keeps the `auth_time` of the original login and carries no `nonce`.
+A public client leaves out `client_assertion_type` and `client_assertion`. The refreshed ID Token keeps the `auth_time` of the original login and carries no `nonce`. Nor does it carry `given_name`, `family_name` or `name`: read the name from `givenName` and `familyName`, which every ID Token has, or keep it from the login.
 
 A Refresh Token that has expired, has already been used or belongs to another client is rejected. On any response other than `200`, start a new login. Refresh Tokens are kept in the Verifier's memory: **a restart or deployment of the platform invalidates all of them** before the 12 hours. Your application must handle it like an expired one.
 
@@ -349,6 +349,9 @@ Your application does not share its session with the other applications of the t
 ---
 
 ## Keycloak as a broker
+
+!!! note "Reference configuration"
+    These steps follow the Keycloak documentation and what the Verifier accepts, but they have not yet been tested end to end with a Keycloak. Check them in the test environment before going to production.
 
 If your applications already use Keycloak, register the Verifier as an external identity provider. For the Verifier, your Keycloak is a confidential client using `private_key_jwt`.
 
@@ -397,6 +400,6 @@ Keycloak then governs your applications' session. It receives `auth_time` so you
 | `client_assertion` badly signed, expired or with another `aud` | `401 {"error":"invalid_client"}` | Sign with the key in your JWKS using `ES256`, with `aud` equal to the `issuer` or the `token_endpoint`. |
 | Refresh Token expired or already used | `403` with no body | Start a new login. |
 | The user does not present their credential in time | After 120 seconds, if the login screen is still open, your `redirect_uri` receives `error=access_denied&error_description=login_timeout` with your `state`. This is the only case in which `access_denied` arrives. | Offer the user the option to try again. |
-| The credential is revoked, expired or untrusted | The login screen tells the user. Your application gets no code and no error at that point; it receives `access_denied` only if the user leaves the screen open until it expires. | Offer to try again. The user must renew their credential with its issuer. |
+| The credential is revoked, expired or untrusted | The login does not complete. Your application gets no code and no error at that point; it receives `access_denied` only if the user leaves the screen open until it expires. | Offer to try again. The user must renew their credential with its issuer. |
 | The user goes back to your application without finishing the login (back button, closes the tab) | Your `redirect_uri` receives nothing. | Treat a login with no response as abandoned and let a new one start, with a new `state`. |
 | The ID Token signature does not validate | Your library rejects the token. | Configure `ES256` and take the keys from the discovery `jwks_uri`. |

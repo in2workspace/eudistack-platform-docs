@@ -35,7 +35,7 @@ El alta no es autoservicio. La hace el equipo de EUDIStack para cada aplicación
 
 | Dato | Ejemplo | Para qué sirve |
 |---|---|---|
-| Nombre de la aplicación | `Receta electrónica` | Identifica tu cliente y aparece en la pantalla de login. |
+| Nombre de la aplicación | `Receta electrónica` | Identifica tu cliente. Se envía al wallet del médico en la petición de la credencial. |
 | Tipo de cliente | Confidencial | Ver [Tipos de cliente](#tipos-de-cliente). |
 | `redirect_uri` | `https://receta.example.com/oidc/callback` | Dirección exacta, con HTTPS, a la que vuelve el usuario con el código. Puedes dar varias. |
 | `post_logout_redirect_uri` | `https://receta.example.com/` | A dónde vuelve el usuario tras el [cierre de sesión](#cerrar-la-sesion). |
@@ -91,7 +91,7 @@ sequenceDiagram
     Verifier-->>App: id_token, access_token y refresh_token
 ```
 
-El Verifier comprueba la credencial en el momento de la presentación, antes de emitir el código. Si está revocada, caducada o la emitió alguien que no es de confianza, la pantalla de login se lo dice al usuario y tu aplicación no recibe ningún código.
+El Verifier comprueba la credencial en el momento de la presentación, antes de emitir el código. Si está revocada, caducada o la emitió alguien que no es de confianza, el login no termina y tu aplicación no recibe ningún código.
 
 ---
 
@@ -209,9 +209,9 @@ El ID Token lleva los atributos que el médico ha presentado. `sub` es su **núm
 |---|---|---|---|---|
 | `sub` | Número de colegiado | Texto, 9 dígitos | Sí | Sí |
 | `personal_administrative_number` | Número de colegiado | Texto, 9 dígitos | Sí | Sí |
-| `given_name`, `givenName` | Nombre | Texto | Sí | Solo `givenName` |
-| `family_name`, `familyName` | Apellidos | Texto | Sí | Solo `familyName` |
-| `name` | Nombre y apellidos | Texto | Sí | No |
+| `given_name`, `givenName` | Nombre | Texto | Sí; el renovado, solo `givenName` | Solo `givenName` |
+| `family_name`, `familyName` | Apellidos | Texto | Sí; el renovado, solo `familyName` | Solo `familyName` |
+| `name` | Nombre y apellidos | Texto | Sí, salvo en el renovado | No |
 | `medical_board` | Colegio o colegios de médicos en los que está colegiado | Lista de textos | Sí, si la DoctorID lo lleva | Sí, si la DoctorID lo lleva |
 | `medical_speciality` | Especialidad o especialidades | Lista de textos | Sí | Sí |
 | `legally_entitled` | Habilitado para ejercer | Booleano | Sí, si la DoctorID lo lleva | Sí, si la DoctorID lo lleva |
@@ -267,7 +267,7 @@ Nombre, apellidos, número de colegiado y especialidad están siempre. Colegio y
     }
     ```
 
-    El Access Token es un JWT firmado con las mismas claves. Úsalo para llamar a tus propias APIs: valídalo igual que el ID Token. `scope` lleva el scope de la credencial, no todos los que pediste.
+    El Access Token es un JWT firmado con las mismas claves. Úsalo para llamar a tus propias APIs: valídalo igual que el ID Token y comprueba además que lleva `scope`. Los dos tokens tienen la misma firma y el mismo `aud`, y el ID Token no lleva `scope`: sin esa comprobación, tu API aceptaría también un ID Token. `scope` lleva el scope de la credencial, no todos los que pediste.
 
 Los datos de los ejemplos son sintéticos.
 
@@ -322,7 +322,7 @@ client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-
 client_assertion=eyJhbGciOiJFUzI1NiIs…
 ```
 
-Un cliente público omite `client_assertion_type` y `client_assertion`. El ID Token renovado mantiene el `auth_time` del login original y no lleva `nonce`.
+Un cliente público omite `client_assertion_type` y `client_assertion`. El ID Token renovado mantiene el `auth_time` del login original y no lleva `nonce`. Tampoco lleva `given_name`, `family_name` ni `name`: lee el nombre de `givenName` y `familyName`, que están en todos los ID Tokens, o guárdalo en el login.
 
 Un Refresh Token caducado, ya usado o de otro cliente se rechaza. Ante cualquier respuesta que no sea `200`, inicia un login nuevo. Los Refresh Tokens se guardan en la memoria del Verifier: **un reinicio o un despliegue de la plataforma los invalida todos** antes de las 12 horas. Tu aplicación debe tratarlo igual que uno caducado.
 
@@ -349,6 +349,9 @@ Tu aplicación no comparte la sesión con las demás aplicaciones del tenant: el
 ---
 
 ## Keycloak como broker
+
+!!! note "Configuración de referencia"
+    Estos pasos siguen la documentación de Keycloak y lo que acepta el Verifier, pero aún no se han probado de punta a punta con un Keycloak. Compruébalos en el entorno de pruebas antes de pasar a producción.
 
 Si tus aplicaciones ya usan Keycloak, registra el Verifier como proveedor de identidad externo. Para el Verifier, tu Keycloak es un cliente confidencial con `private_key_jwt`.
 
@@ -397,6 +400,6 @@ Keycloak gobierna después la sesión de tus aplicaciones. Recibe `auth_time` pa
 | `client_assertion` mal firmado, caducado o con otro `aud` | `401 {"error":"invalid_client"}` | Firma con la clave de tu JWKS en `ES256`, con `aud` igual al `issuer` o al `token_endpoint`. |
 | Refresh Token caducado o ya usado | `403` sin cuerpo | Inicia un login nuevo. |
 | El usuario no presenta su credencial a tiempo | Tras 120 segundos, si la pantalla de login sigue abierta, tu `redirect_uri` recibe `error=access_denied&error_description=login_timeout` con tu `state`. Es el único caso en que llega `access_denied`. | Muestra al usuario la opción de volver a intentarlo. |
-| La credencial está revocada, caducada o no es de confianza | La pantalla de login se lo dice al usuario. Tu aplicación no recibe código ni error en ese momento; recibe `access_denied` solo si el usuario deja la pantalla abierta hasta que caduca. | Ofrece volver a intentarlo. El usuario debe renovar su credencial con su emisor. |
+| La credencial está revocada, caducada o no es de confianza | El login no termina. Tu aplicación no recibe código ni error en ese momento; recibe `access_denied` solo si el usuario deja la pantalla abierta hasta que caduca. | Ofrece volver a intentarlo. El usuario debe renovar su credencial con su emisor. |
 | El usuario vuelve a tu aplicación sin terminar el login (botón atrás, cierra la pestaña) | Tu `redirect_uri` no recibe nada. | Trata como abandonado un login sin respuesta y deja empezar uno nuevo, con `state` nuevo. |
 | La firma del ID Token no valida | Tu librería rechaza el token. | Configura `ES256` y toma las claves del `jwks_uri` del discovery. |
