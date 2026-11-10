@@ -193,8 +193,8 @@ La respuesta lleva los tres tokens:
 
 **Valida el ID Token** antes de usarlo, como pide OpenID Connect Core §3.1.3.7:
 
-- La firma, con la clave del `jwks_uri` del discovery cuyo `kid` coincide con el de la cabecera. Los tokens se firman en **`ES256`** (EC P-256).
-- `iss` igual al `issuer` del discovery, `aud` igual a tu `client_id`, `exp` en el futuro y `nonce` igual al que enviaste.
+- La firma, con la clave del `jwks_uri` del discovery cuyo `kid` coincide con el de la cabecera. Los tokens se firman en **`ES256`** (EC P-256). Si el `kid` no está entre las claves que tienes guardadas, descarga el `jwks_uri` una vez más; si sigue sin estar, rechaza el token.
+- `iss` igual al `issuer` del discovery, `aud` igual a tu `client_id`, `exp` en el futuro, `iat` no en el futuro (admite un margen de reloj de pocos segundos) y `nonce` igual al que enviaste.
 
 !!! warning "Configura `ES256` en tu librería"
     El discovery anuncia hoy `RS256` en `id_token_signing_alg_values_supported`, pero los tokens van firmados en `ES256`. Si tu librería toma el algoritmo del discovery o usa `RS256` por defecto (por ejemplo, Spring Security), configura `ES256` explícitamente para el ID Token.
@@ -370,6 +370,7 @@ Si tus aplicaciones ya usan Keycloak, registra el Verifier como proveedor de ide
     | Validate signatures | Activado, con *Use JWKS URL* |
     | Default scopes | `openid doctorid` |
     | Pass nonce | Activado |
+    | Disable user info | Activado: el Verifier responde hoy `401` en `userinfo` (ver [Datos del usuario](#paso-3-leer-los-atributos-de-la-doctorid)) y los atributos ya llegan en el ID Token |
 
 4. **Atributos.** En *Mappers* del proveedor, añade un *Attribute Importer* por cada claim que quieras guardar en el usuario de Keycloak: `personal_administrative_number`, `medical_board`, `medical_speciality` y `legally_entitled`. Usa `sub` como identificador del usuario federado.
 
