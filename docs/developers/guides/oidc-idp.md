@@ -267,7 +267,7 @@ Nombre, apellidos, número de colegiado y especialidad están siempre. Colegio y
     }
     ```
 
-    El Access Token es un JWT firmado con las mismas claves. Úsalo para llamar a tus propias APIs: valídalo igual que el ID Token y comprueba además que lleva `scope`. Los dos tokens tienen la misma firma y el mismo `aud`, y el ID Token no lleva `scope`: sin esa comprobación, tu API aceptaría también un ID Token. `scope` lleva el scope de la credencial, no todos los que pediste.
+    El Access Token es un JWT firmado con las mismas claves. Úsalo para llamar a tus propias APIs: comprueba la firma en `ES256` con la clave del `jwks_uri` cuyo `kid` coincide, `iss`, `aud`, `exp` e `iat` como en el ID Token, y además que `scope` contiene `doctorid`. Una API no puede comprobar `nonce`. Los dos tokens tienen la misma firma y el mismo `aud`, y el ID Token no lleva `scope`: sin esa comprobación, tu API aceptaría también un ID Token. `scope` lleva el scope de la credencial, no todos los que pediste.
 
 Los datos de los ejemplos son sintéticos.
 

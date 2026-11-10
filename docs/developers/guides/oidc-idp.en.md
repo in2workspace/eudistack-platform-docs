@@ -267,7 +267,7 @@ Name, family name, registration number and speciality are always present. Medica
     }
     ```
 
-    The Access Token is a JWT signed with the same keys. Use it to call your own APIs: validate it like the ID Token and also check that it carries `scope`. Both tokens have the same signature and the same `aud`, and the ID Token has no `scope`: without that check, your API would also accept an ID Token. `scope` carries the credential's scope, not every scope you requested.
+    The Access Token is a JWT signed with the same keys. Use it to call your own APIs: check the `ES256` signature with the `jwks_uri` key whose `kid` matches, `iss`, `aud`, `exp` and `iat` as for the ID Token, and also that `scope` contains `doctorid`. An API cannot check `nonce`. Both tokens have the same signature and the same `aud`, and the ID Token has no `scope`: without that check, your API would also accept an ID Token. `scope` carries the credential's scope, not every scope you requested.
 
 The data in the examples is synthetic.
 
