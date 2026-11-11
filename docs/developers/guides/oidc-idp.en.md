@@ -405,7 +405,8 @@ Keycloak then governs your applications' session. It receives `auth_time` so you
 | Repeated `state` | Verifier error page with `state already in use`. | Generate a new `state` for every login. |
 | No PKCE, or `plain` | The authorization goes ahead, but the exchange answers `400 {"error":"invalid_grant"}`. | Always send `code_challenge` with `S256`, and its `code_verifier` in the exchange. |
 | `code_verifier` that does not match | `400 {"error":"invalid_grant"}` | Use the verifier from the same login. |
-| Code already exchanged or expired | `400 {"error":"invalid_grant"}` | Start a new login. |
+| Code already exchanged | `400 {"error":"invalid_grant"}` | Start a new login. |
+| Expired code | `403` with no body | Exchange the code as soon as you receive it and start a new login. |
 | `client_assertion` badly signed, expired or with another `aud` | `401 {"error":"invalid_client"}` | Sign with the key in your JWKS using `ES256`, with `aud` equal to the `issuer` or the `token_endpoint`. |
 | Refresh Token expired or already used | `403` with no body | Start a new login. |
 | The user does not present their credential in time | After 120 seconds, if the login screen is still open, your `redirect_uri` receives `error=access_denied&error_description=login_timeout` with your `state`. This is the only case in which `access_denied` arrives. | Offer the user the option to try again. |

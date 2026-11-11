@@ -405,7 +405,8 @@ Keycloak gobierna después la sesión de tus aplicaciones. Recibe `auth_time` pa
 | `state` repetido | Página de error del Verifier con `state already in use`. | Genera un `state` nuevo en cada login. |
 | Sin PKCE o con `plain` | La autorización sigue, pero el canje responde `400 {"error":"invalid_grant"}`. | Envía siempre `code_challenge` con `S256` y su `code_verifier` en el canje. |
 | `code_verifier` que no corresponde | `400 {"error":"invalid_grant"}` | Usa el verificador del mismo login. |
-| Código ya canjeado o caducado | `400 {"error":"invalid_grant"}` | Inicia un login nuevo. |
+| Código ya canjeado | `400 {"error":"invalid_grant"}` | Inicia un login nuevo. |
+| Código caducado | `403` sin cuerpo | Canjea el código en cuanto lo recibas e inicia un login nuevo. |
 | `client_assertion` mal firmado, caducado o con otro `aud` | `401 {"error":"invalid_client"}` | Firma con la clave de tu JWKS en `ES256`, con `aud` igual al `issuer` o al `token_endpoint`. |
 | Refresh Token caducado o ya usado | `403` sin cuerpo | Inicia un login nuevo. |
 | El usuario no presenta su credencial a tiempo | Tras 120 segundos, si la pantalla de login sigue abierta, tu `redirect_uri` recibe `error=access_denied&error_description=login_timeout` con tu `state`. Es el único caso en que llega `access_denied`. | Muestra al usuario la opción de volver a intentarlo. |
