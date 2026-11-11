@@ -327,7 +327,7 @@ A public client leaves out `client_assertion_type` and `client_assertion`. The r
 A Refresh Token that has expired, has already been used or belongs to another client is rejected. On any response other than `200`, start a new login. Refresh Tokens are kept in the Verifier's memory: **a restart or deployment of the platform invalidates all of them** before the 12 hours. Your application must handle it like an expired one.
 
 !!! info "Revocation"
-    The discovery document publishes a `revocation_endpoint` (RFC 7009), but today it does not invalidate Refresh Tokens. Nor does [logout](#end-the-session): a Refresh Token keeps working until it expires or is used. To end the session, do the logout and **delete the tokens in your application**.
+    The discovery document publishes a `revocation_endpoint` (RFC 7009), but today it answers with an error (`401` to a public client, `403` to a confidential one) and does not invalidate Refresh Tokens. You do not need to call it: the error is not caused by your authentication. Nor does [logout](#end-the-session): a Refresh Token keeps working until it expires or is used. To end the session, do the logout and **delete the tokens in your application**.
 
 ### End the session
 

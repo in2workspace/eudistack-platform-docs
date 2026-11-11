@@ -327,7 +327,7 @@ Un cliente público omite `client_assertion_type` y `client_assertion`. El ID To
 Un Refresh Token caducado, ya usado o de otro cliente se rechaza. Ante cualquier respuesta que no sea `200`, inicia un login nuevo. Los Refresh Tokens se guardan en la memoria del Verifier: **un reinicio o un despliegue de la plataforma los invalida todos** antes de las 12 horas. Tu aplicación debe tratarlo igual que uno caducado.
 
 !!! info "Revocación"
-    El discovery publica `revocation_endpoint` (RFC 7009), pero hoy no invalida los Refresh Tokens. El [cierre de sesión](#cerrar-la-sesion) tampoco: un Refresh Token sigue sirviendo hasta que caduca o se usa. Para terminar la sesión, haz el cierre de sesión y **borra los tokens de tu aplicación**.
+    El discovery publica `revocation_endpoint` (RFC 7009), pero hoy responde con un error (`401` a un cliente público, `403` a uno confidencial) y no invalida los Refresh Tokens. No hace falta que lo llames: el error no se debe a tu autenticación. El [cierre de sesión](#cerrar-la-sesion) tampoco: un Refresh Token sigue sirviendo hasta que caduca o se usa. Para terminar la sesión, haz el cierre de sesión y **borra los tokens de tu aplicación**.
 
 ### Cerrar la sesión
 
