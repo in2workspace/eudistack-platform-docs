@@ -193,7 +193,7 @@ La respuesta lleva los tres tokens:
 
 **Valida el ID Token** antes de usarlo, como pide OpenID Connect Core §3.1.3.7:
 
-- La firma, con la clave del `jwks_uri` del discovery cuyo `kid` coincide con el de la cabecera. Los tokens se firman en **`ES256`** (EC P-256). Si el `kid` no está entre las claves que tienes guardadas, descarga el `jwks_uri` una vez más; si sigue sin estar, rechaza el token.
+- La firma, con la clave del `jwks_uri` del discovery cuyo `kid` coincide con el de la cabecera. Los tokens se firman en **`ES256`** (EC P-256). Si el `kid` no está entre las claves que tienes guardadas, descarga el `jwks_uri` una vez más (como mucho una vez por minuto, para que tokens con `kid` inventados no te hagan descargarlo sin parar); si sigue sin estar, rechaza el token.
 - `iss` igual al `issuer` del discovery, `aud` igual a tu `client_id`, `exp` en el futuro, `iat` no en el futuro (admite un margen de reloj de pocos segundos) y `nonce` igual al que enviaste.
 
 !!! warning "Configura `ES256` en tu librería"
@@ -369,10 +369,16 @@ Si tus aplicaciones ya usan Keycloak, registra el Verifier como proveedor de ide
     | Use PKCE | Activado, método `S256` |
     | Validate signatures | Activado, con *Use JWKS URL* |
     | Default scopes | `openid doctorid` |
-    | Pass nonce | Activado |
+    | Disable nonce | Desactivado: Keycloak envía `nonce` y lo comprueba en el ID Token |
+    | Store tokens | Desactivado: Keycloak no necesita guardar los tokens del Verifier |
+    | Sync mode | *Force*: los atributos se actualizan en cada login |
     | Disable user info | Activado: el Verifier responde hoy `401` en `userinfo` (ver [Datos del usuario](#paso-3-leer-los-atributos-de-la-doctorid)) y los atributos ya llegan en el ID Token |
 
-4. **Atributos.** En *Mappers* del proveedor, añade un *Attribute Importer* por cada claim que quieras guardar en el usuario de Keycloak: `personal_administrative_number`, `medical_board`, `medical_speciality` y `legally_entitled`. Usa `sub` como identificador del usuario federado.
+4. **Atributos.** En *Mappers* del proveedor, añade un *Attribute Importer* por cada claim que quieras guardar en el usuario de Keycloak: `personal_administrative_number`, `medical_board`, `medical_speciality` y `legally_entitled`. Deja su *Sync mode override* en *Inherit* para que sigan el *Force* del proveedor: con *Import*, Keycloak guarda los valores del primer login y no los vuelve a actualizar. Usa `sub` como identificador del usuario federado.
+5. **Nombre de usuario.** Añade un *Username Template Importer* con la plantilla `${ALIAS}.${CLAIM.sub}`, para que los usuarios que llegan del Verifier no choquen con los de otros proveedores.
+
+!!! warning "Decide con los datos del login en curso"
+    Decide si un médico puede recetar con el `legally_entitled` del login en curso, no con un valor guardado de un login anterior. Si un médico deja de estar habilitado, su próxima DoctorID lo dirá, pero un atributo guardado en Keycloak o en tu aplicación seguirá diciendo lo contrario hasta que vuelva a iniciar sesión.
 
 Keycloak gobierna después la sesión de tus aplicaciones. Recibe `auth_time` para que decidas cuándo pedir un login nuevo.
 
