@@ -416,12 +416,18 @@ Si tus aplicaciones ya usan Keycloak, registra el Verifier como proveedor de ide
     - En *Settings › Capability config* de cada aplicación, deja *Direct access grants* desactivado.
     - En los *Client scopes* de cada aplicación, quita `offline_access`.
 
+    !!! warning "Si el realm tiene otros proveedores de identidad"
+        El *Identity Provider Redirector* hace caso del parámetro `kc_idp_hint` de la petición de login antes que del *Default Identity Provider*. Si el realm tiene otro proveedor habilitado, quien lance el login puede elegirlo y entrar en tu aplicación sin presentar la DoctorID. Su token no lleva los atributos de la DoctorID: trata la falta de `legally_entitled` como «desconocido», nunca como habilitado.
+
 11. **Identificación en tus aplicaciones.** Identifica al médico por el `sub` de tu Keycloak o por su `personal_administrative_number`, nunca por el nombre de usuario ni por el email. Comprueba que el `azp` del token es el `client_id` de tu aplicación.
 
 !!! warning "Antes de una operación sensible"
     Al renovar con el Refresh Token de Keycloak, los atributos siguen siendo los del último login. Antes de firmar una receta, pide un login nuevo si el `auth_time` del token es antiguo.
 
 Para cerrar la sesión, usa el cierre de sesión de Keycloak: pasa por el Verifier y vuelve a tu aplicación.
+
+!!! warning "Cierre de sesión que no vuelve a tu aplicación"
+    Si el Verifier ya no conserva la sesión del login, por ejemplo tras un reinicio, rechaza el cierre y el navegador no vuelve a tu aplicación: termina en una página de error. Borra la sesión de tu aplicación antes de redirigir al cierre de sesión de Keycloak.
 
 ---
 

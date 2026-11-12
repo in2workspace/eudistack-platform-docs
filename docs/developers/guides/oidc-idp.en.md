@@ -416,12 +416,18 @@ If your applications already use Keycloak, register the Verifier as an external 
     - In each application's *Settings › Capability config*, leave *Direct access grants* off.
     - In each application's *Client scopes*, remove `offline_access`.
 
+    !!! warning "If the realm has other identity providers"
+        The *Identity Provider Redirector* follows the `kc_idp_hint` parameter of the login request before the *Default Identity Provider*. If the realm has another enabled provider, whoever starts the login can pick it and get into your application without presenting the DoctorID. Their token does not carry the DoctorID attributes: treat a missing `legally_entitled` as "unknown", never as entitled.
+
 11. **Identification in your applications.** Identify the doctor by your Keycloak's `sub` or by their `personal_administrative_number`, never by the username or the email. Check that the token's `azp` is your application's `client_id`.
 
 !!! warning "Before a sensitive operation"
     When renewing with Keycloak's Refresh Token, the attributes are still those of the last login. Before signing a prescription, ask for a new login if the token's `auth_time` is old.
 
 To log out, use Keycloak's logout: it goes through the Verifier and back to your application.
+
+!!! warning "Logout that does not return to your application"
+    If the Verifier no longer holds the login session, for example after a restart, it rejects the logout and the browser does not return to your application: it ends on an error page. Clear your application's session before redirecting to Keycloak's logout.
 
 ---
 
