@@ -117,7 +117,7 @@ GET /verifier/oidc/authorize?
 | `client_id` | El de tu alta. |
 | `redirect_uri` | Una de las de tu alta, exactamente igual: esquema, host, puerto y ruta. |
 | `scope` | `openid doctorid offline_access`. `openid` siempre; `doctorid` pide la DoctorID; `offline_access` pide el Refresh Token. Pide solo scopes de tu alta. |
-| `state` | Un valor aleatorio **nuevo en cada login**. Guárdalo en la sesión del navegador y compruébalo a la vuelta. El Verifier rechaza un `state` que ya está en uso. |
+| `state` | Un valor aleatorio **nuevo en cada login**. Guárdalo en la sesión del navegador y compruébalo a la vuelta. Hasta 2048 caracteres. El Verifier rechaza un `state` que ya está en uso. |
 | `nonce` | Un valor aleatorio nuevo en cada login. Vuelve en el ID Token: compruébalo. |
 | `code_challenge` y `code_challenge_method` | PKCE: `BASE64URL(SHA-256(code_verifier))` y siempre `S256`. Obligatorio para todos los clientes, también los confidenciales. `plain` se rechaza. |
 
@@ -448,6 +448,7 @@ Para cerrar la sesión, usa el cierre de sesión de Keycloak: pasa por el Verifi
 | Scope que no existe | `403` sin redirigir. | Pide `openid doctorid offline_access`. |
 | Scope que no está en tu alta | Hoy no se rechaza, pero no está garantizado. | Pide solo los scopes de tu alta. |
 | `state` repetido | Página de error del Verifier con `state already in use`. | Genera un `state` nuevo en cada login. |
+| `state` de más de 2048 caracteres | Tu `redirect_uri` recibe `error=invalid_request` con tu `state`, sin pasar por la pantalla de login. | Usa un `state` más corto. |
 | Sin PKCE o con `plain` | La autorización sigue, pero el canje responde `400 {"error":"invalid_grant"}`. | Envía siempre `code_challenge` con `S256` y su `code_verifier` en el canje. |
 | `code_verifier` que no corresponde | `400 {"error":"invalid_grant"}` | Usa el verificador del mismo login. |
 | Código ya canjeado | `400 {"error":"invalid_grant"}` | Inicia un login nuevo. |

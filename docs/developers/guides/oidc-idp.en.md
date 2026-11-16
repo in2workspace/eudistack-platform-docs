@@ -117,7 +117,7 @@ GET /verifier/oidc/authorize?
 | `client_id` | The one from your registration. |
 | `redirect_uri` | One of those in your registration, exactly as registered: scheme, host, port and path. |
 | `scope` | `openid doctorid offline_access`. `openid` always; `doctorid` requests the DoctorID; `offline_access` requests the Refresh Token. Only request scopes in your registration. |
-| `state` | A random value, **new for every login**. Store it in the browser session and check it on return. The Verifier rejects a `state` that is already in use. |
+| `state` | A random value, **new for every login**. Store it in the browser session and check it on return. Up to 2048 characters. The Verifier rejects a `state` that is already in use. |
 | `nonce` | A random value, new for every login. It comes back in the ID Token: check it. |
 | `code_challenge` and `code_challenge_method` | PKCE: `BASE64URL(SHA-256(code_verifier))` and always `S256`. Mandatory for every client, confidential ones included. `plain` is rejected. |
 
@@ -448,6 +448,7 @@ To log out, use Keycloak's logout: it goes through the Verifier and back to your
 | Scope that does not exist | `403` with no redirect. | Request `openid doctorid offline_access`. |
 | Scope not in your registration | Not rejected today, but this is not guaranteed. | Only request the scopes in your registration. |
 | Repeated `state` | Verifier error page with `state already in use`. | Generate a new `state` for every login. |
+| `state` longer than 2048 characters | Your `redirect_uri` receives `error=invalid_request` with your `state`, without going through the login screen. | Use a shorter `state`. |
 | No PKCE, or `plain` | The authorization goes ahead, but the exchange answers `400 {"error":"invalid_grant"}`. | Always send `code_challenge` with `S256`, and its `code_verifier` in the exchange. |
 | `code_verifier` that does not match | `400 {"error":"invalid_grant"}` | Use the verifier from the same login. |
 | Code already exchanged | `400 {"error":"invalid_grant"}` | Start a new login. |
