@@ -116,7 +116,7 @@ GET /verifier/oidc/authorize?
 | `response_type` | Always `code`. |
 | `client_id` | The one from your registration. |
 | `redirect_uri` | One of those in your registration, exactly as registered: scheme, host, port and path. |
-| `scope` | `openid doctorid offline_access`. `openid` always; `doctorid` requests the DoctorID; `offline_access` requests the Refresh Token. Only request scopes in your registration. |
+| `scope` | `openid doctorid offline_access`. `openid` always; `doctorid` requests the DoctorID; `offline_access` is the standard Refresh Token scope: the Verifier delivers one today without it too, but request it so you do not depend on that. Only request scopes in your registration. |
 | `state` | A random value, **new for every login**. Store it in the browser session and check it on return. Up to 2048 characters. The Verifier rejects a `state` that is already in use. |
 | `nonce` | A random value, new for every login. It comes back in the ID Token: check it. |
 | `code_challenge` and `code_challenge_method` | PKCE: `BASE64URL(SHA-256(code_verifier))` and always `S256`. Mandatory for every client, confidential ones included. `plain` is rejected. |
@@ -350,8 +350,8 @@ Your application does not share its session with the other applications of the t
 
 ## Keycloak as a broker
 
-!!! note "Reference configuration"
-    These steps follow the Keycloak documentation and what the Verifier accepts, but they have not yet been tested end to end with a Keycloak. Check them in the test environment before going to production.
+!!! note "Tested configuration"
+    These steps have been tested end to end with Keycloak 26.4.0. With another version the option names may change: check them in the test environment before going to production.
 
 If your applications already use Keycloak, register the Verifier as an external identity provider. For the Verifier, your Keycloak is a confidential client using `private_key_jwt`.
 
