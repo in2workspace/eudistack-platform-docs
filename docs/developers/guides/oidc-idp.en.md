@@ -387,6 +387,10 @@ If your applications already use Keycloak, register the Verifier as an external 
     - Create a copy of the *first broker login* flow and select it as the provider's *First login flow override*.
     - In the copy, inside *User creation or linking*, disable *Handle Existing Account* and keep *Create User If Unique*.
     - In *Realm settings › Login*, turn off *User registration* and *Edit username*.
+    - In *Realm settings › User registration › Default roles*, remove `manage-account`. Do not grant `manage-account` or `manage-account-links` any other way, for example through a group.
+
+    !!! warning "Links after the first login"
+        With `manage-account`, an existing account can link a DoctorID from the account console or from another application of the realm. The account becomes the doctor's: their username and attributes, with the password and roles it already had. Disabling the account console does not prevent it. Without that role, the realm's users cannot change their details from the account console.
 
 8. **First login form.** To create the user with no form:
 

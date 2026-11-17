@@ -387,6 +387,10 @@ Si tus aplicaciones ya usan Keycloak, registra el Verifier como proveedor de ide
     - Crea una copia del flujo *first broker login* y selecciónala en el *First login flow override* del proveedor.
     - En la copia, dentro de *User creation or linking*, desactiva *Handle Existing Account* y deja *Create User If Unique*.
     - En *Realm settings › Login*, desactiva *User registration* y *Edit username*.
+    - En *Realm settings › User registration › Default roles*, quita `manage-account`. No asignes `manage-account` ni `manage-account-links` por otra vía, por ejemplo con un grupo.
+
+    !!! warning "Enlaces después del primer login"
+        Con `manage-account`, una cuenta que ya existe puede enlazar una DoctorID desde la consola de cuenta o desde otra aplicación del realm. La cuenta pasa a ser la del médico: su nombre de usuario y sus atributos, con la contraseña y los roles que ya tenía. Desactivar la consola de cuenta no lo impide. Sin ese rol, los usuarios del realm no pueden cambiar sus datos desde la consola de cuenta.
 
 8. **Formulario del primer login.** Para crear el usuario sin formulario:
 
