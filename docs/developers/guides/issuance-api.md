@@ -114,9 +114,15 @@ El campo `delivery` decide qué hace EUDIStack con la atestación y qué te devu
 
 Con `email` y `ui`, el campo opcional `grant_type` decide cómo recoge el titular la atestación en su wallet: `authorization_code` (por defecto) o `urn:ietf:params:oauth:grant-type:pre-authorized_code`.
 
+Con `email`, el botón y el código QR del correo abren el wallet que tenga configurado tu tenant. Si no tiene ninguno, llevan la oferta en la forma estándar `openid-credential-offer://`.
+
 ### Abrir la oferta en un wallet concreto
 
-Con `ui`, la API devuelve el `credential_offer_uri` con el esquema `openid-credential-offer://`. El dispositivo del titular lo abre con el wallet que tenga registrado para ese esquema, sea cual sea, y si no tiene ninguno el enlace no hace nada. Si quieres que la oferta la abra un wallet concreto, por ejemplo el wallet web de EUDIStack, cambia el principio del enlace por la dirección donde ese wallet recibe ofertas y deja el resto igual:
+Con `ui`, la API devuelve el `credential_offer_uri` con el esquema `openid-credential-offer://`, siempre en esta forma estándar: EUDIStack no sabe qué wallet usa tu titular y no la transforma. El dispositivo del titular la abre con el wallet que tenga registrado para ese esquema, sea cual sea, y si no tiene ninguno el enlace no hace nada.
+
+Úsala tal cual con un wallet nativo en el mismo dispositivo, o cuando el titular la escanea desde dentro de su wallet. Transfórmala tú cuando el titular vaya a escanear el código QR con la cámara del móvil o cuando su wallet sea web: la cámara y el navegador no abren `openid-credential-offer://`, y un wallet web no puede registrar ese esquema.
+
+Para que la oferta la abra un wallet concreto, por ejemplo el wallet web de EUDIStack, cambia el principio del enlace por la dirección donde ese wallet recibe ofertas y deja el resto igual:
 
 | | Enlace |
 |---|---|
