@@ -44,7 +44,7 @@ El alta no es autoservicio. La hace el equipo de EUDIStack para cada aplicación
 
 **2. Recibe la respuesta del alta.** El equipo te envía:
 
-- Tu `client_id`, distinto en cada entorno.
+- Tu `client_id`, con la forma `<aplicación>-<tenant>`. Puede llamarse igual en pruebas y en producción, pero cada entorno lo registra aparte: el alta de uno no sirve en el otro.
 - La dirección del **documento de discovery** de tu tenant, con la forma `https://<tenant>.<dominio>/verifier/.well-known/openid-configuration`. De él salen todos los endpoints y las claves públicas del Verifier.
 - Los **usuarios de prueba**: médicos sintéticos con su DoctorID en un wallet de pruebas.
 
@@ -434,8 +434,8 @@ Para cerrar la sesión, usa el cierre de sesión de Keycloak: pasa por el Verifi
 ## Del entorno de pruebas a producción
 
 1. **Pruebas.** Integra contra el discovery del entorno de pruebas con los usuarios de prueba de la respuesta al alta. Comprueba el login, el canje, la validación de la firma, la lectura de los atributos, la renovación con el Refresh Token y el cierre de sesión.
-2. **Alta de producción.** [Pide a soporte](../../support.md) el alta en producción con tus direcciones de producción. Recibes un `client_id` y un discovery nuevos. No reutilices nada del entorno de pruebas.
-3. **Puesta en marcha.** Cambia el discovery y el `client_id` en tu configuración. Los médicos entran con su propia DoctorID: los usuarios de prueba no existen en producción.
+2. **Alta de producción.** [Pide a soporte](../../support.md) el alta en producción con tus direcciones de producción. Recibes el discovery de producción y la confirmación de tu `client_id` en producción. Los tokens del entorno de pruebas no sirven allí.
+3. **Puesta en marcha.** Cambia el discovery en tu configuración, y el `client_id` si te damos otro. Los médicos entran con su propia DoctorID: los usuarios de prueba no existen en producción.
 
 ---
 
@@ -444,7 +444,7 @@ Para cerrar la sesión, usa el cierre de sesión de Keycloak: pasa por el Verifi
 | Situación | Qué pasa | Qué hacer |
 |---|---|---|
 | `redirect_uri` que no está en tu alta | El Verifier no vuelve a tu aplicación: muestra su página de error. | Usa la dirección exacta del alta, o pide que se añada. |
-| `client_id` que no existe en el tenant | `403` sin redirigir. | Revisa el `client_id` y el discovery: cada entorno tiene los suyos. |
+| `client_id` que no existe en el tenant | `403` sin redirigir. | Revisa el `client_id` y que el discovery sea el del entorno donde se dio de alta. |
 | Scope que no existe | `403` sin redirigir. | Pide `openid doctorid offline_access`. |
 | Scope que no está en tu alta | Hoy no se rechaza, pero no está garantizado. | Pide solo los scopes de tu alta. |
 | `state` repetido | Página de error del Verifier con `state already in use`. | Genera un `state` nuevo en cada login. |

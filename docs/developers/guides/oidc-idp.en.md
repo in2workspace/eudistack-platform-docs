@@ -44,7 +44,7 @@ Registration is not self-service. The EUDIStack team does it for each applicatio
 
 **2. Receive the registration reply.** The team sends you:
 
-- Your `client_id`, different in each environment.
+- Your `client_id`, in the form `<application>-<tenant>`. It may have the same name in test and in production, but each environment registers it separately: the registration in one does not work in the other.
 - The address of your tenant's **discovery document**, in the form `https://<tenant>.<domain>/verifier/.well-known/openid-configuration`. All the Verifier's endpoints and public keys come from it.
 - The **test users**: synthetic physicians with their DoctorID in a test wallet.
 
@@ -434,8 +434,8 @@ To log out, use Keycloak's logout: it goes through the Verifier and back to your
 ## From the test environment to production
 
 1. **Testing.** Integrate against the test environment's discovery document with the test users from the registration reply. Check the login, the exchange, signature validation, reading the attributes, refreshing with the Refresh Token and logout.
-2. **Production registration.** [Ask support](../../support.en.md) for production registration with your production addresses. You receive a new `client_id` and discovery document. Do not reuse anything from the test environment.
-3. **Go-live.** Switch the discovery document and `client_id` in your configuration. Physicians sign in with their own DoctorID: the test users do not exist in production.
+2. **Production registration.** [Ask support](../../support.en.md) for production registration with your production addresses. You receive the production discovery document and the confirmation of your `client_id` in production. Tokens from the test environment do not work there.
+3. **Go-live.** Switch the discovery document in your configuration, and the `client_id` if we give you another one. Physicians sign in with their own DoctorID: the test users do not exist in production.
 
 ---
 
@@ -444,7 +444,7 @@ To log out, use Keycloak's logout: it goes through the Verifier and back to your
 | Situation | What happens | What to do |
 |---|---|---|
 | `redirect_uri` not in your registration | The Verifier does not return to your application: it shows its error page. | Use the exact registered address, or ask for it to be added. |
-| `client_id` that does not exist in the tenant | `403` with no redirect. | Check the `client_id` and discovery document: each environment has its own. |
+| `client_id` that does not exist in the tenant | `403` with no redirect. | Check the `client_id` and that the discovery document belongs to the environment where it was registered. |
 | Scope that does not exist | `403` with no redirect. | Request `openid doctorid offline_access`. |
 | Scope not in your registration | Not rejected today, but this is not guaranteed. | Only request the scopes in your registration. |
 | Repeated `state` | Verifier error page with `state already in use`. | Generate a new `state` for every login. |
